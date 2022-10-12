@@ -31,8 +31,8 @@ body {
     text-anchor: middle;
     padding: 1px 20px;
     height: fit-content;
-    width: fit-content;
-    max-width: 40vw;
+    width: max-content;
+    max-width: 50vw;
     background-color: rgba(150, 150, 150, 0.1);
     border: 2px solid rgba(200, 200, 200, 1);
     border-radius: 20px;
@@ -42,26 +42,17 @@ body {
 .text {
     color: white;
     padding: 10px 10px;
-    /* resize: both !important; */
 }
+
+.text[contenteditable]:empty::before {
+    content: "Enter text";
+    color: gray;
+  }
 
 #card-1 {
-    top: 80px;
-    left: 80px;
+    left: 300px
 }
 
-/* In case */
-/* input {
-    padding: 8px;
-    border: 2px solid rgba(0, 0, 0, 0) !important;
-    background-color: rgba(0, 0, 0, 0);
-    color: white;
+#card-2 {
+    left: -300px
 }
-input:focus {
-    outline: none;
-}
-
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button {
-    display: none;
-} */
