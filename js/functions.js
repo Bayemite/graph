@@ -32,3 +32,7 @@ class vector2D {
         this.y = y;
     }
 }
+
+function getById(e) {
+    return document.getElementById(e)
+}

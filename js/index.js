@@ -92,7 +92,7 @@ window.onload = function () {
         console.log(document.getElementsByClassName("object").length)
         
         for (let i = 0; i < document.getElementsByClassName("object").length; i++) {
-            document.getElementById(`card-${i}`).style.transform = `translate(${cameraPos.x}px, ${cameraPos.y}px)`
+            document.getElementById(`card-${i}`).style.transform = `translate(${cameraPos.x - getById(`card-${i}`).style.width / 2 * (zoom / 20)}px, ${cameraPos.y - getById(`card-${i}`).style.height / 2 * (zoom / 20)}px)`
         }
 
         // for (let i = 0; i < document.getElementsByClassName("object").length; i++) {
