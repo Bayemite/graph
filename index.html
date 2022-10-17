@@ -13,12 +13,11 @@
 </head>
 
 <body>
-    <canvas id="canvas"></canvas>
-    <div class="overlay">
-      <h4>Mindmap</h4>
-      <button>
-        Save
-      </button>
+  <div class="overlay">
+    <h4>Mindmap</h4>
+    <button>
+      Save
+    </button>
       <button id="add" onclick="
         add = !add; 
         if (add) {
@@ -26,7 +25,7 @@
         } else {
           document.getElementById('add').classList.remove('selected')
         }
-      ">
+        ">
         +
       </button>
     </div>
@@ -34,11 +33,17 @@
       <div id="translate">
         <span id="card-0" class="object">
           <p contenteditable role="textbox" class="text">
-            Test
+            Mindmap
           </p>
         </span>
+        <!-- <span id="card-1" class="object" style="left: 200px; top: 100px">
+          <p contenteditable role="textbox" class="text">
+            Test
+          </p>
+        </span> -->
       </div>
     </div>
-</body>
+    <canvas id="canvas"></canvas>
+  </body>
 
 </html>

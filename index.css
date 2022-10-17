@@ -22,6 +22,7 @@ body {
     border: 2px solid rgba(200, 200, 200, 1);
     border-radius: 20px;
     background-color: rgba(150, 150, 150, 0.1);
+    box-shadow: 0px 0px 50px 0px rgba(0, 0, 0, 0.7);
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
     /* pointer-events: none; */
@@ -43,11 +44,11 @@ button:hover {
 }
 
 .selected {
-    background-color: rgba(255, 45, 45, 0.8) !important;
+    background-color: rgba(47, 161, 37, 0.8) !important;
     color: white !important;
 }
 .selected:hover {
-    background-color: rgba(190, 32, 32, 0.8) !important;
+    background-color: rgba(84, 206, 62, 0.8) !important;
 }
 
 #container {
@@ -73,10 +74,12 @@ button:hover {
 
 .text {
     color: white;
+    text-align: center;
+    text-anchor: middle;
     padding: 10px 10px;
 }
 
 .text[contenteditable]:empty::before {
     content: "Enter text";
-    color: gray;
+    color: rgba(255, 255, 255, 0.5);
 }
