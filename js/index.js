@@ -22,7 +22,7 @@ function newCard(i, x, y) {
 function addCard(x, y) {
     let i = document.getElementsByClassName("object").length
     console.log(i)
-    document.getElementById("translate").innerHTML += newCard(i, x - canvas.width / 2, y - canvas.height / 2)
+    document.getElementById("translate").innerHTML += newCard(i, x, y)
     card = document.getElementById(`card-${i}`)
 }
 
@@ -58,8 +58,9 @@ window.onload = function () {
 
     canvas.addEventListener('mousedown', function (e) {
         if (add) {
-            addCard(e.pageX + cameraPos.x, e.pageY + cameraPos.y)
+            addCard((mouse.x - cameraPos.x) / zoom, (mouse.y - cameraPos.y) / zoom)
             console.log(e.pageX, e.pageY)
+            document.getElementById('add').classList.remove('selected')
             add = false;
         } else {
             mouseDown = true;
@@ -108,7 +109,12 @@ window.onload = function () {
             
         let translateLerpScale = 0.9;
 
-        document.getElementById(`card-0`).style.left = `${mouse.x - cameraPos.x}px`
+        // Template get position of cursor in "map space"
+        // document.getElementById(`card-0`).style.left = `${(mouse.x - cameraPos.x) / zoom}px`
+        // document.getElementById(`card-0`).style.top = `${(mouse.y - cameraPos.y) / zoom}px`
+
+
+        console.log(zoom)
 
         cameraPos.x = lerp(cameraPos.x, targetX, translateLerpScale);
         cameraPos.y = lerp(cameraPos.y, targetY, translateLerpScale);

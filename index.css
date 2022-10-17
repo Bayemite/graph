@@ -37,10 +37,17 @@ button {
     background-color: rgba(150, 150, 150, 0.1);
     transition: 0.5s;
 }
-
 button:hover {
-    background-color: rgba(255, 255, 255, 0.8) !important;
-    color: rgb(48, 48, 48) !important;
+    background-color: rgba(255, 255, 255, 0.8);
+    color: rgb(48, 48, 48);
+}
+
+.selected {
+    background-color: rgba(255, 45, 45, 0.8) !important;
+    color: white !important;
+}
+.selected:hover {
+    background-color: rgba(190, 32, 32, 0.8) !important;
 }
 
 #container {

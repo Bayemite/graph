@@ -19,7 +19,14 @@
       <button>
         Save
       </button>
-      <button onclick="add = true">
+      <button id="add" onclick="
+        add = !add; 
+        if (add) {
+          document.getElementById('add').classList.add('selected')
+        } else {
+          document.getElementById('add').classList.remove('selected')
+        }
+      ">
         +
       </button>
     </div>
