@@ -1,8 +1,8 @@
 /**
  *  @function lerp
- *  @param {a} start number
- *  @param {b} end number
- *  @param {t} speed multiplier
+ *  @param {Number} start number
+ *  @param {Number} end number
+ *  @param {Number} speed multiplier
  */
 function lerp(a, b, t) {
     return (1 - t) * a + t * b;
@@ -10,9 +10,9 @@ function lerp(a, b, t) {
 
 /**
  *  @function clamp
- *  @param {Number} bottom clamp number
+ *  @param {Number} bottom clamp bottom
  *  @param {Number} number number
- *  @param {Number} top multiplier
+ *  @param {Number} top clamp top
  */
 function clamp(a, x, b) {
     return Math.max(a, Math.min(x, b));

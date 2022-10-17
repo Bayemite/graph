@@ -1,36 +1,46 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
 
-body, canvas {
+body,
+canvas {
     padding: 0;
     margin: 0;
 }
+
 body {
     overflow: hidden;
     font-family: "DM Sans" !important;
+    background-color: #181818;
 }
 
 .overlay {
     position: absolute;
     top: 10px;
     left: 10px;
-    padding-left: 20px;
-    padding-bottom: 20px;
+    padding: 0px 20px 20px 20px;
     color: white;
+    z-index: 100000;
+    border: 2px solid rgba(200, 200, 200, 1);
+    border-radius: 20px;
+    background-color: rgba(150, 150, 150, 0.1);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
     /* pointer-events: none; */
 }
 
 button {
     font-family: "DM Sans" !important;
+    font-weight: 400;
     padding: 10px 20px;
     color: white;
     border: 2px solid rgba(200, 200, 200, 1);
     border-radius: 20px;
     background-color: rgba(150, 150, 150, 0.1);
+    transition: 0.5s;
 }
 
 button:hover {
-    background-color: white !important;
-    color: rgba(150, 150, 150, 0.1) !important;
+    background-color: rgba(255, 255, 255, 0.8) !important;
+    color: rgb(48, 48, 48) !important;
 }
 
 #container {
@@ -50,6 +60,7 @@ button:hover {
     background-color: rgba(150, 150, 150, 0.1);
     border: 2px solid rgba(200, 200, 200, 1);
     border-radius: 20px;
+    -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
 }
 
@@ -61,12 +72,4 @@ button:hover {
 .text[contenteditable]:empty::before {
     content: "Enter text";
     color: gray;
-  }
-
-#card-1 {
-    left: 300px
-}
-
-#card-2 {
-    left: -300px
 }
