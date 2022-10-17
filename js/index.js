@@ -33,13 +33,16 @@ window.onload = function () {
     let targetX = 0, targetY = 0
     let mouse = new vector2D(0, 0);
 
-    window.addEventListener('mousedown', function (e) {
+    const container = document.getElementById("container")
+    const canvasH = document.getElementById("canvas")
+
+    canvas.addEventListener('mousedown', function (e) {
         down = true
         initX = e.pageX, initY = e.pageY;
         dragX = e.pageX, dragY = e.pageY;
     });
 
-    window.addEventListener('mousemove', function (e) {
+    canvas.addEventListener('mousemove', function (e) {
         // console.log(finalX)
         mouse.x = e.pageX
         mouse.y = e.pageY
@@ -59,7 +62,7 @@ window.onload = function () {
         }
     });
 
-    window.addEventListener('mouseup', function () {
+    canvas.addEventListener('mouseup', function () {
         down = false
 
     });
@@ -73,33 +76,34 @@ window.onload = function () {
         }
     });
     
-    console.log(document.getElementById('card'))
+    console.log(document.getElementById('card'));
     
+    let lerpScale = 0.5;
     
     function main(currentTime) {
         window.requestAnimationFrame(main);
         
-        zoom = lerp(zoom, zoomTarget, 0.05)
+        zoom = lerp(zoom, zoomTarget, lerpScale);
 
         ctx.fillStyle = backgroundColor; // Background colour
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        finalX = lerp(cameraPos.x, targetX, 0.25) * (zoom * 0.1)
-        finalY = lerp(cameraPos.y, targetY, 0.25) * (zoom * 0.1)
-        cameraPos.x = lerp(cameraPos.x, targetX, 0.25)
-        cameraPos.y = lerp(cameraPos.y, targetY, 0.25)
+        finalX = lerp(cameraPos.x, targetX, lerpScale) * (zoom * 0.1);
+        finalY = lerp(cameraPos.y, targetY, lerpScale) * (zoom * 0.1);
+        cameraPos.x = lerp(cameraPos.x, targetX, lerpScale);
+        cameraPos.y = lerp(cameraPos.y, targetY, lerpScale);
 
         console.log(document.getElementsByClassName("object").length)
         
-        for (let i = 0; i < document.getElementsByClassName("object").length; i++) {
-            document.getElementById(`card-${i}`).style.transform = `translate(${cameraPos.x - getById(`card-${i}`).style.width / 2 * (zoom / 20)}px, ${cameraPos.y - getById(`card-${i}`).style.height / 2 * (zoom / 20)}px)`
-        }
+        // for (let i = 0; i < document.getElementsByClassName("object").length; i++) {
+        //     document.getElementById(`card-${i}`).style.transform = `translate(${cameraPos.x - getById(`card-${i}`).style.width / 2 * (zoom / 20)}px, ${cameraPos.y - getById(`card-${i}`).style.height / 2 * (zoom / 20)}px)`
+        // }
 
         // for (let i = 0; i < document.getElementsByClassName("object").length; i++) {
         //     document.getElementById(`card-${i}`).style.transform = `translate(${window.innerWidth / 2 + cameraPos.x}px, ${window.innerHeight / 2 + cameraPos.y}px)`
         // }
 
-        document.getElementById("container").style.transform = `translate(${window.innerWidth / 2}px, ${window.innerHeight / 2}px) scale(${zoom / 20})`
+        container.style.transform = `translate(${window.innerWidth / 2 + cameraPos.x * (zoom / 30)}px, ${window.innerHeight / 2 + cameraPos.y * (zoom / 30)}px) scale(${zoom / 20})`
 
 
     }
