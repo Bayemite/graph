@@ -1,3 +1,11 @@
+class rgb {
+    constructor(r, g, b) {
+        this.r = r;
+        this.g = g;
+        this.b = b;
+    }
+}
+
 const backgroundColor = 'rgb(100, 150, 200)';
 
 let canvas = null;
@@ -5,27 +13,53 @@ let ctx = null;
 
 let zoomScale = 0.001;
 let zoomTarget = 1.5;
-let zoom = 1.5;
+let zoom = 1;
 
-let add = false; // Add card
+// RGB class in functions.js
+let colorPalette = [
+    new rgb(51, 153, 255),
+    new rgb(0, 100, 210),
+    new rgb(115, 230, 20),
+    new rgb(0, 204, 136),
+    new rgb(255, 170, 20),
+]
+
+// File structure
+let data = [
+    {
+        title: "Title",
+        x: 0,
+        y: 0,
+        connection: null,
+        colour: 0, // References the id of the colour in colourPalette
+        id: 0,
+    },
+    {
+        title: "Title",
+        x: 300,
+        y: 200,
+        connection: 0,
+        colour: 0,
+        id: 1,
+    }
+]
 
 function newCard(i, x, y) {
     return `
-        <span id="card-${i}" style="left: ${Math.floor(x)}px; top: ${Math.floor(y)}px" class="object">
-          <p contenteditable role="textbox" class="text"></p>
-        </span>
-        `
+    <span id="card-${i}" style="left: ${Math.floor(x)}px; top: ${Math.floor(y)}px" class="object">
+    <p contenteditable role="textbox" class="text"></p>
+    </span>
+    `
 }
 
+let add = false; // Add card
 function addCard(x, y) {
-    let i = document.getElementsByClassName("object").length
-    // console.log(i)
-
     // Hardcoded solution for now
     // The textbox will always be placed with the default "Enter text" meaning its width will
     // always be the same
     // The width is 136, height is 79
-
+    
+    let i = document.getElementsByClassName("object").length
     document.getElementById("translate").innerHTML += newCard(i, x - 136/2, y - 79/2)
     card = document.getElementById(`card-${i}`)
 }
@@ -55,7 +89,7 @@ window.onload = function () {
     let deltaX = 0, deltaY = 0;
     let finalX = 0, finalY = 0;
 
-    let targetX = canvas.width / 2, targetY = canvas.height / 2;
+    let targetX = (canvas.width / 2) / zoom, targetY = (canvas.height / 2) / zoom;
     let mouse = new vector2D(0, 0);
 
     const container = document.getElementById("container");
@@ -148,21 +182,28 @@ window.onload = function () {
             ctx.strokeStyle = "rgba(200, 200, 200, 1)"
             ctx.lineWidth = 2 * zoom
 
+            // These are like
+            // Stuff that like
+            // Works and like
+            // yeah
             ctx.beginPath();
-            if (-xr + (root.offsetWidth * zoom) + (curveWidth / limiter) < -x2 - (curveWidth / limiter)) {
+            if (-xr + (root.offsetWidth * zoom) < -x2) {
+                curveWidth = Math.floor(50 * zoom) * clamp(0.1, (xr - x2) / 500, 1)
                 ctx.moveTo(-xr + (root.offsetWidth * zoom) - 1, -yr + (root.offsetHeight / 2) * zoom);
-                ctx.bezierCurveTo(-xr + (root.offsetWidth * zoom) + curveWidth, -yr + (root.offsetHeight / 2) * zoom, -x2 - curveWidth, -y2 + (elem.offsetHeight / 2) * zoom, -x2 + 1, -y2 + (elem.offsetHeight / 2) * zoom);
+                ctx.bezierCurveTo(-xr + (root.offsetWidth * zoom) + curveWidth, -yr + (root.offsetHeight / 2) * zoom, 
+                -x2 - curveWidth, -y2 + (elem.offsetHeight / 2) * zoom, 
+                -x2 + 1, -y2 + (elem.offsetHeight / 2) * zoom);
                 ctx.stroke();
-            } else if (-xr + (root.offsetWidth * zoom) + (curveWidth / limiter) > -x2 - (curveWidth / limiter) && (-xr + (curveWidth / limiter) < -x2 + (elem.offsetWidth * zoom) + (curveWidth / limiter))) {
+            } else if (-xr + (root.offsetWidth * zoom) + (curveWidth * zoom / limiter) > -x2 - (curveWidth * zoom / limiter) && (-xr + (curveWidth * zoom / limiter) < -x2 + (elem.offsetWidth * zoom) + (curveWidth * zoom / limiter))) {
                 if (yr > y2) {
                     curveWidth = Math.floor(50 * zoom) * clamp(0.1, (yr - y2) / 500, 1)
-                    // console.log(curveWidth)
                     ctx.moveTo(-xr + (root.offsetWidth / 2 * zoom) - 1, -yr + (root.offsetHeight) * zoom - 1);
                     ctx.bezierCurveTo(-xr + (root.offsetWidth / 2 * zoom), -yr + (root.offsetHeight) * zoom + curveWidth,
                         -x2 + (elem.offsetWidth / 2 * zoom), -y2 - curveWidth,
                         -x2 + (elem.offsetWidth / 2 * zoom), -y2 + 1);
                     ctx.stroke();
                 } else {
+                    curveWidth = Math.floor(50 * zoom) * clamp(0.1, (y2 - yr) / 500, 1)
                     ctx.moveTo(-xr + (root.offsetWidth / 2 * zoom) - 1, -yr + 1);
                     ctx.bezierCurveTo(-xr + (root.offsetWidth / 2 * zoom), -yr - curveWidth,
                         -x2 + (elem.offsetWidth / 2 * zoom), -y2 + (elem.offsetHeight * zoom) + curveWidth,
@@ -170,6 +211,7 @@ window.onload = function () {
                     ctx.stroke();
                 }
             } else {
+                curveWidth = Math.floor(50 * zoom) * clamp(0.1, (x2 - xr) / 500, 1)
                 ctx.moveTo(-xr + 1, -yr + (root.offsetHeight / 2) * zoom);
                 ctx.bezierCurveTo(-xr - curveWidth, -yr + (root.offsetHeight / 2) * zoom,
                     -x2 + (elem.offsetWidth * zoom) + curveWidth, -y2 + (elem.offsetHeight / 2) * zoom,
