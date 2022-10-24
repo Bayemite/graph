@@ -38,6 +38,7 @@ button {
     background-color: rgba(150, 150, 150, 0.1);
     transition: 0.3s;
 }
+
 button:hover {
     background-color: rgba(255, 255, 255, 0.8);
     color: rgb(48, 48, 48);
@@ -47,6 +48,7 @@ button:hover {
     background-color: rgba(47, 161, 37, 0.8) !important;
     color: white !important;
 }
+
 .selected:hover {
     background-color: rgba(84, 206, 62, 0.8) !important;
 }
@@ -77,9 +79,24 @@ button:hover {
     text-align: center;
     text-anchor: middle;
     padding: 10px 10px;
+    margin: 5px;
 }
 
 .text[contenteditable]:empty::before {
     content: "Enter text";
     color: rgba(255, 255, 255, 0.5);
+}
+
+.link {
+    position: absolute;
+    text-align: center;
+    text-anchor: middle;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px 15px;
+    margin-top: 5px;
+
+    color: white;
+    border: 2px solid rgba(200, 200, 200, 1);
+    border-radius: 20px;
 }

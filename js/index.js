@@ -28,8 +28,8 @@ let colorPalette = [
 let data = [
     {
         title: "Title",
-        x: 0,
-        y: 0,
+        x: -50,
+        y: 100,
         connection: null,
         colour: 0, // References the id of the colour in colourPalette
         id: 0,
@@ -44,7 +44,7 @@ let data = [
     },
     {
         title: "Another other card",
-        x: 200,
+        x: 250,
         y: 0,
         connection: 1,
         colour: 0,
@@ -55,8 +55,9 @@ let data = [
 function newCard(i, x, y, t) {
     if (t == undefined) { t = "" }
     return `
-    <span id="card-${i}" style="left: ${Math.floor(x)}px; top: ${Math.floor(y)}px" class="object">
+    <span id="card-${i}" style="left: ${Math.floor(x)}px; top: ${Math.floor(y)}px" class="object" onclick="linkTo(${i})">
     <p contenteditable role="textbox" class="text">${t}</p>
+    <button class="link" onclick="link(${i})">Link</button>
     </span>
     `
 }
@@ -71,6 +72,23 @@ function addCard(i, x, y, t) {
     // let i = document.getElementsByClassName("object").length
     document.getElementById("translate").innerHTML += newCard(i, x - 136 / 2, y - 79 / 2, t)
     // card = document.getElementById(`card-${i}`)
+}
+
+let linkStart = 0
+let linkEnd = 0
+let linkInProgress = false
+
+function link(i) {
+    linkStart = i
+    linkInProgress = true
+}
+
+function linkTo(i) {
+    if (linkInProgress && linkStart !== linkEnd) {
+        linkEnd = i
+        data[linkStart].connection = linkEnd
+        linkInProgress = false
+    }
 }
 
 
@@ -156,6 +174,7 @@ window.onload = function () {
     }
     loadCards()
 
+
     function main(currentTime) {
         window.requestAnimationFrame(main);
 
@@ -214,8 +233,8 @@ window.onload = function () {
                 curveWidth = Math.floor(50 * zoom) * clamp(0.1, (xr - x2) / 500, 1)
                 ctx.moveTo(-xr + (root.offsetWidth * zoom) - 2, -yr + (root.offsetHeight / 2) * zoom);
                 ctx.bezierCurveTo(-xr + (root.offsetWidth * zoom) + curveWidth, -yr + (root.offsetHeight / 2) * zoom,
-                -x2 - curveWidth, -y2 + (elem.offsetHeight / 2) * zoom,
-                -x2 + 1, -y2 + (elem.offsetHeight / 2) * zoom);
+                    -x2 - curveWidth, -y2 + (elem.offsetHeight / 2) * zoom,
+                    -x2 + 1, -y2 + (elem.offsetHeight / 2) * zoom);
                 ctx.stroke();
             } else if (-xr + (root.offsetWidth * zoom) + (curveWidth * zoom / limiter) > -x2 - (curveWidth * zoom / limiter) && (-xr + (curveWidth * zoom / limiter) < -x2 + (elem.offsetWidth * zoom) + (curveWidth * zoom / limiter))) {
                 if (yr > y2) {
