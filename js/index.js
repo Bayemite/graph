@@ -35,7 +35,7 @@ let data = [
         id: 0,
     },
     {
-        title: "Title",
+        title: "Other card",
         x: 300,
         y: 200,
         connection: 0,
