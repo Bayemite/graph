@@ -36,32 +36,41 @@ let data = [
     },
     {
         title: "Other card",
-        x: 300,
-        y: 200,
+        x: 100,
+        y: 150,
         connection: 0,
         colour: 0,
         id: 1,
+    },
+    {
+        title: "Another other card",
+        x: 200,
+        y: 0,
+        connection: 1,
+        colour: 0,
+        id: 2,
     }
 ]
 
-function newCard(i, x, y) {
+function newCard(i, x, y, t) {
+    if (t == undefined) { t = "" }
     return `
     <span id="card-${i}" style="left: ${Math.floor(x)}px; top: ${Math.floor(y)}px" class="object">
-    <p contenteditable role="textbox" class="text"></p>
+    <p contenteditable role="textbox" class="text">${t}</p>
     </span>
     `
 }
 
 let add = false; // Add card
-function addCard(x, y) {
+function addCard(i, x, y, t) {
     // Hardcoded solution for now
     // The textbox will always be placed with the default "Enter text" meaning its width will
     // always be the same
     // The width is 136, height is 79
-    
-    let i = document.getElementsByClassName("object").length
-    document.getElementById("translate").innerHTML += newCard(i, x - 136/2, y - 79/2)
-    card = document.getElementById(`card-${i}`)
+
+    // let i = document.getElementsByClassName("object").length
+    document.getElementById("translate").innerHTML += newCard(i, x - 136 / 2, y - 79 / 2, t)
+    // card = document.getElementById(`card-${i}`)
 }
 
 
@@ -138,6 +147,15 @@ window.onload = function () {
         zoomTarget = clamp(zoomOut, zoomTarget, zoomIn);
     });
 
+
+    // Add cards from data
+    function loadCards() {
+        for (let i = 0; i < data.length; i++) {
+            addCard(data[i].id, data[i].x, data[i].y, data[i].title)
+        }
+    }
+    loadCards()
+
     function main(currentTime) {
         window.requestAnimationFrame(main);
 
@@ -164,16 +182,20 @@ window.onload = function () {
         let limiter = 5; // Limiter before the line connection direction changes
 
         // Connection lines
-        for (let i = 1; i < document.getElementsByClassName("object").length; i++) {
+        for (let i = 0; i < data.length; i++) {
+            if (data[i].connection == null) {
+                continue
+            }
+
             curveWidth = Math.floor(50 * zoom) // Set default
 
             // Get element connecting to other element
-            let elem = document.getElementById(`card-${i}`)
+            let elem = document.getElementById(`card-${data[i].id}`)
             let x2 = Math.floor(-elem.style.left.replace('px', '') * zoom - cameraPos.x)
             let y2 = Math.floor(-elem.style.top.replace('px', '') * zoom - cameraPos.y)
 
             // Get other element
-            let root = document.getElementById(`card-0`)
+            let root = document.getElementById(`card-${data[i].connection}`)
             let xr = Math.floor(-root.style.left.replace('px', '') * zoom - cameraPos.x)
             let yr = Math.floor(-root.style.top.replace('px', '') * zoom - cameraPos.y)
 
@@ -188,10 +210,11 @@ window.onload = function () {
             // yeah
             ctx.beginPath();
             if (-xr + (root.offsetWidth * zoom) < -x2) {
+                console.log(true)
                 curveWidth = Math.floor(50 * zoom) * clamp(0.1, (xr - x2) / 500, 1)
-                ctx.moveTo(-xr + (root.offsetWidth * zoom) - 1, -yr + (root.offsetHeight / 2) * zoom);
-                ctx.bezierCurveTo(-xr + (root.offsetWidth * zoom) + curveWidth, -yr + (root.offsetHeight / 2) * zoom, 
-                -x2 - curveWidth, -y2 + (elem.offsetHeight / 2) * zoom, 
+                ctx.moveTo(-xr + (root.offsetWidth * zoom) - 2, -yr + (root.offsetHeight / 2) * zoom);
+                ctx.bezierCurveTo(-xr + (root.offsetWidth * zoom) + curveWidth, -yr + (root.offsetHeight / 2) * zoom,
+                -x2 - curveWidth, -y2 + (elem.offsetHeight / 2) * zoom,
                 -x2 + 1, -y2 + (elem.offsetHeight / 2) * zoom);
                 ctx.stroke();
             } else if (-xr + (root.offsetWidth * zoom) + (curveWidth * zoom / limiter) > -x2 - (curveWidth * zoom / limiter) && (-xr + (curveWidth * zoom / limiter) < -x2 + (elem.offsetWidth * zoom) + (curveWidth * zoom / limiter))) {
