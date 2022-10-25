@@ -6,6 +6,17 @@ class rgb {
     }
 }
 
+class cardObject {
+    constructor(x, y, t, c, id) {
+        this.x = x;
+        this.y = y;
+        this.title = t;
+        this.connection = c
+        this.id = id
+        this.colour = 0
+    }
+}
+
 const backgroundColor = 'rgb(100, 150, 200)';
 
 let canvas = null;
@@ -26,30 +37,18 @@ let colorPalette = [
 
 // File structure
 let data = [
-    {
-        title: "Title",
-        x: -50,
-        y: 100,
-        connection: null,
-        colour: 0, // References the id of the colour in colourPalette
-        id: 0,
-    },
-    {
-        title: "Other card",
-        x: 100,
-        y: 150,
-        connection: 0,
-        colour: 0,
-        id: 1,
-    },
-    {
-        title: "Another other card",
-        x: 250,
-        y: 0,
-        connection: 1,
-        colour: 0,
-        id: 2,
-    }
+    new cardObject(
+        0, 0,
+        'Title', null, 0
+    ),
+    new cardObject(
+        100, 100,
+        'Title', null, 1
+    ),
+    new cardObject(
+        -200, 100,
+        'Title', null, 2
+    ),
 ]
 
 function newCard(i, x, y, t) {
@@ -62,6 +61,7 @@ function newCard(i, x, y, t) {
     `
 }
 
+
 let add = false; // Add card
 function addCard(i, x, y, t) {
     // Hardcoded solution for now
@@ -71,6 +71,20 @@ function addCard(i, x, y, t) {
 
     // let i = document.getElementsByClassName("object").length
     document.getElementById("translate").innerHTML += newCard(i, x - 136 / 2, y - 79 / 2, t)
+    let largest = 0;
+    for (let i = 0; i < data.length; i++) {
+        if (data[i].id > largest) { largest = data[i].id }
+    }
+    // data.push(
+    //     {
+    //         title: t,
+    //         x: x,
+    //         y: y,
+    //         connection: null,
+    //         colour: 0,
+    //         id: largest + 1,
+    //     }
+    // )
     // card = document.getElementById(`card-${i}`)
 }
 
@@ -84,8 +98,9 @@ function link(i) {
 }
 
 function linkTo(i) {
-    if (linkInProgress && linkStart !== linkEnd) {
-        linkEnd = i
+    linkEnd = i
+    // Check same i
+    if (linkInProgress && linkStart != linkEnd) {
         data[linkStart].connection = linkEnd
         linkInProgress = false
     }
@@ -109,8 +124,10 @@ window.onload = function () {
 
     resize();
 
-    let cameraPos = new vector2D(canvas.width / 2, canvas.height / 2)
+    let cameraPos = new vector2D(canvas.width / 2, canvas.height / 2);
     let mouseDown = false;
+
+    // Mouse delta
     let initX = 0, initY = 0;
     let dragX = 0, dragY = 0;
     let deltaX = 0, deltaY = 0;
@@ -123,8 +140,8 @@ window.onload = function () {
 
     canvas.addEventListener('mousedown', function (e) {
         if (add) {
-            addCard((mouse.x - cameraPos.x) / zoom, (mouse.y - cameraPos.y) / zoom)
-            document.getElementById('add').classList.remove('selected')
+            addCard((mouse.x - cameraPos.x) / zoom, (mouse.y - cameraPos.y) / zoom);
+            document.getElementById('add').classList.remove('selected');
             add = false;
         } else {
             mouseDown = true;
@@ -229,7 +246,6 @@ window.onload = function () {
             // yeah
             ctx.beginPath();
             if (-xr + (root.offsetWidth * zoom) < -x2) {
-                console.log(true)
                 curveWidth = Math.floor(50 * zoom) * clamp(0.1, (xr - x2) / 500, 1)
                 ctx.moveTo(-xr + (root.offsetWidth * zoom) - 2, -yr + (root.offsetHeight / 2) * zoom);
                 ctx.bezierCurveTo(-xr + (root.offsetWidth * zoom) + curveWidth, -yr + (root.offsetHeight / 2) * zoom,

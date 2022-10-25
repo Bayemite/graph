@@ -1,3 +1,11 @@
+// class rgb {
+//     constructor(r, g, b) {
+//         this.r = r;
+//         this.g = g;
+//         this.b = b;
+//     }
+// }
+
 /**
  *  @function lerp
  *  @param {Number} start number
