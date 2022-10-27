@@ -1,49 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-    <script type="module" src="js/index.js"></script>
-    <link rel="stylesheet" href="index.css">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-    <title>Mindmap</title>
+  <script type="module" src="js/index.js"></script>
+  <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+  <title>Mindmap</title>
 </head>
 
 <body>
   <div class="overlay">
     <h4>Mindmap</h4>
-    <button>
+    <button id="save">
       Save
     </button>
-      <button id="add" onclick="
-        add = !add; 
-        if (add) {
-          document.getElementById('add').classList.add('selected')
-        } else {
-          document.getElementById('add').classList.remove('selected')
-        }
-        ">
-        +
-      </button>
-    </div>
-    <div id="container">
-      <div id="translate">
-        <span id="card-3" class="object" onclick="linkTo(3)">
+    <label class="label">
+      <input id="openFile" accept=".txt, .json, .graph" type="file">
+      <span id="upload">Open</span>
+    </label>
+    <button id="add">
+      +
+    </button>
+  </div>
+  <div id="container">
+    <div id="translate">
+      <!-- <span id="card-3" class="object" onclick="linkTo(3)">
           <p contenteditable role="textbox" class="text">
             Mindmap
           </p>
           <button class="link" onclick="link(3)">Link</button>
-        </span>
-        <!-- <span id="card-1" class="object" style="left: 200px; top: 100px">
+        </span> -->
+      <!-- <span id="card-1" class="object" style="left: 200px; top: 100px">
           <p contenteditable role="textbox" class="text">
             Test
           </p>
         </span> -->
-      </div>
     </div>
-    <canvas id="canvas"></canvas>
-  </body>
+  </div>
+  <canvas id="canvas"></canvas>
+</body>
 
 </html>

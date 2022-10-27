@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
 
+canvas {
+    z-index: -100000;
+}
+
 body,
 canvas {
     padding: 0;
@@ -10,6 +14,16 @@ body {
     overflow: hidden;
     font-family: "DM Sans" !important;
     background-color: #181818;
+}
+
+.material-symbols-outlined {
+    vertical-align: middle;
+    font-size: medium !important;
+    font-variation-settings:
+        'FILL' 0,
+        'wght' 300,
+        'GRAD' 0,
+        'opsz' 48
 }
 
 .overlay {
@@ -31,6 +45,7 @@ body {
 button {
     font-family: "DM Sans" !important;
     font-weight: 400;
+    font-size: small;
     padding: 10px 20px;
     color: white;
     border: 2px solid rgba(200, 200, 200, 1);
@@ -42,6 +57,10 @@ button {
 button:hover {
     background-color: rgba(255, 255, 255, 0.8);
     color: rgb(48, 48, 48);
+}
+
+.pointer-none {
+    pointer-events: none;
 }
 
 .selected {
@@ -87,16 +106,58 @@ button:hover {
     color: rgba(255, 255, 255, 0.5);
 }
 
-.link {
-    position: absolute;
-    text-align: center;
+.actions-button {
     text-anchor: middle;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 8px 15px;
-    margin-top: 5px;
+    text-align: center;
+    padding: 10px 10px;
+    margin-top: 1px;
 
+    background-color: #1a1a1adc;
+    color: white;
+    border: 2px solid rgba(200, 200, 200, 1);
+    border-radius: 30px;
+}
+
+.actions {
+    pointer-events: none;
+    position: absolute;
+    display: inline-flex;
+    text-align: center;
+    opacity: 0;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50px);
+    transition: 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+    z-index: -100;
+    filter: blur(16px);
+    /* transform: translateX(-50%); */
+}
+
+.object:hover > .actions {
+    transform: translateX(-50%) translateY(0px);
+    pointer-events: initial;
+    opacity: 1;
+    filter: blur(0px);
+}
+
+input[type="file"] {
+    /* opacity: 0; */
+    display: none;
+}
+
+#upload {
+    font-family: "DM Sans" !important;
+    font-weight: 400;
+    font-size: small;
+
+    padding: 10px 20px;
     color: white;
     border: 2px solid rgba(200, 200, 200, 1);
     border-radius: 20px;
+    background-color: rgba(150, 150, 150, 0.1);
+    transition: 0.3s;
+}
+
+#upload:hover {
+    background-color: rgba(255, 255, 255, 0.8);
+    color: rgb(48, 48, 48);
 }
