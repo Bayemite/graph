@@ -17,6 +17,8 @@ body {
 }
 
 .material-symbols-outlined {
+    -webkit-user-select: none;
+    user-select: none;
     vertical-align: middle;
     font-size: medium !important;
     font-variation-settings:
@@ -31,11 +33,13 @@ body {
     top: 10px;
     left: 10px;
     padding: 0px 20px 20px 20px;
-    color: white;
     z-index: 100000;
+
+    color: white;
     border: 2px solid rgba(200, 200, 200, 1);
     border-radius: 20px;
     background-color: rgba(150, 150, 150, 0.1);
+
     box-shadow: 0px 0px 50px 0px rgba(0, 0, 0, 0.7);
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
@@ -78,17 +82,39 @@ button:hover {
     left: 0;
 }
 
+.scale-0 {
+    /* transform: scale(0) !important; */
+    
+
+}
+
+@keyframes scaleIn {
+    0% {
+        transform: scale(0);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
 .object {
+    animation: 0.5s scaleIn;
+    animation-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
+
     position: absolute;
     text-align: center;
     text-anchor: middle;
+    
     padding: 1px 20px;
     height: fit-content;
     width: max-content;
     max-width: 20vw;
+
     background-color: rgba(150, 150, 150, 0.1);
     border: 2px solid rgba(200, 200, 200, 1);
     border-radius: 20px;
+
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
 }
@@ -119,13 +145,12 @@ button:hover {
 }
 
 .actions {
-    pointer-events: none;
     position: absolute;
     display: inline-flex;
     text-align: center;
     opacity: 0;
     left: 50%;
-    transform: translateX(-50%) translateY(-50px);
+    transform: translateX(-50%) scale(0);
     transition: 0.4s cubic-bezier(0.23, 1, 0.320, 1);
     z-index: -100;
     filter: blur(16px);
@@ -133,11 +158,16 @@ button:hover {
 }
 
 .object:hover > .actions {
-    transform: translateX(-50%) translateY(0px);
-    pointer-events: initial;
+    transform: translateX(-50%) scale(1);
     opacity: 1;
     filter: blur(0px);
 }
+
+/* .object p:focus + .actions {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+    filter: blur(0px);
+} */
 
 input[type="file"] {
     /* opacity: 0; */

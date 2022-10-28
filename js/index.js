@@ -56,12 +56,13 @@ let linkEnd = 0;
 let linkInProgress = false;
 
 function link(i) {
-    // console.log('link ' + i)
+    console.log('link ' + i)
     linkStart = i;
     linkInProgress = true;
 }
 
 function linkTo(i) {
+    console.log('linkTo ' + i)
     linkEnd = i
     // Check same i
     if (linkInProgress && linkStart != linkEnd) {
@@ -245,6 +246,14 @@ window.onload = function () {
 
     const container = document.getElementById("container");
 
+    canvas.addEventListener('dblclick', function (e) {
+        e.preventDefault();
+        addCard(Math.floor((mouse.x - cameraPos.x) / zoom), Math.floor((mouse.y - cameraPos.y) / zoom));
+    }, true);
+    document.addEventListener('contextmenu', function (e) {
+        e.preventDefault();
+        return false
+    })
     canvas.addEventListener('mousedown', function (e) {
         if (add) {
             addCard(Math.floor((mouse.x - cameraPos.x) / zoom), Math.floor((mouse.y - cameraPos.y) / zoom));
@@ -278,6 +287,7 @@ window.onload = function () {
     canvas.addEventListener('mouseup', function () {
         mouseDown = false;
     });
+    window.onmouseup = event => event.preventDefault();
 
     window.addEventListener('mousewheel', function (evt) {
         let delta = evt.wheelDelta;
@@ -300,6 +310,7 @@ window.onload = function () {
             let fileData;
             try {
                 fileData = JSON.parse(file.result)
+                document.getElementById("title").innerText = fileData.title
                 fileData = fileData.data
             } catch (error) {
                 alert("File format incompatible")
@@ -348,6 +359,7 @@ window.onload = function () {
 
     document.getElementById('save').onclick = function () {
         let saveData = {
+            title: document.getElementById("title").innerText,
             data: []
         }
         for (let i = 0; i < data.length; i++) {
@@ -361,7 +373,7 @@ window.onload = function () {
                 }
             )
         }
-        download(JSON.stringify(saveData), "Mindmap", ".json")
+        download(JSON.stringify(saveData), saveData.title, "application/json")
     }
 
     function main(currentTime) {
@@ -391,8 +403,64 @@ window.onload = function () {
         // Constants
         let curveWidth = Math.floor(50 * zoom)
         let limiter = 5; // Limiter before the line connection direction changes
+        let triRad = 4
 
         // Connection lines
+
+        // Get element connecting to other element
+        let elem = document.getElementById(`card-${data[linkStart].id}`)
+        let x2 = Math.floor(-elem.style.left.replace('px', '') * zoom - cameraPos.x)
+        let y2 = Math.floor(-elem.style.top.replace('px', '') * zoom - cameraPos.y)
+
+        // Get other element
+        // let root = document.getElementById(`card-${data[i].connection}`)
+        let xr = -mouse.x
+        let yr = -mouse.y
+
+        let number = 20;
+
+        if (linkInProgress) {
+            if (x2 < xr) {
+                curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (xr - x2) / zoom / 500, 1)
+                ctx.moveTo(-xr + (number * zoom) - 2, -yr + (number / 2) * zoom);
+                ctx.bezierCurveTo(-xr + (number * zoom) + curveWidth, -yr + (number / 2) * zoom,
+                    -x2 - curveWidth, -y2 + (elem.offsetHeight / 2) * zoom,
+                    -x2 + 1, -y2 + (elem.offsetHeight / 2) * zoom);
+                ctx.stroke();
+                // new util.drawTriangle(ctx, -xr + (number * zoom) - 2 + (triRad + 0.5) * zoom, -yr + (number / 2) * zoom, triRad, zoom, '#fff', -90)
+            } else if (-xr + (number) + (curveWidth * zoom / limiter) > -x2 - (curveWidth * zoom / limiter) && (-xr + (curveWidth * zoom / limiter) < -x2 + (elem.offsetWidth * zoom) + (curveWidth * zoom / limiter))) {
+                if (yr > y2) {
+                    curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (yr - y2) / zoom / 500, 1)
+                    ctx.moveTo(-xr + (number / 2 * zoom) - 1, -yr + (number) * zoom - 1);
+                    ctx.bezierCurveTo(-xr + (number / 2 * zoom), -yr + (number) * zoom + curveWidth,
+                        -x2 + (elem.offsetWidth / 2 * zoom), -y2 - curveWidth,
+                        -x2 + (elem.offsetWidth / 2 * zoom), -y2 + 1);
+                    ctx.stroke();
+                    // new util.drawTriangle(ctx, -xr + (number / 2 * zoom) - 1, -yr + (number) * zoom - 1 + (triRad + 0.5) * zoom, triRad, zoom, '#fff', 0)
+                } else {
+                    curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (y2 - yr) / zoom / 500, 1)
+                    ctx.moveTo(-xr + (number / 2 * zoom) - 1, -yr + 1);
+                    ctx.bezierCurveTo(-xr + (number / 2 * zoom), -yr - curveWidth,
+                        -x2 + (elem.offsetWidth / 2 * zoom), -y2 + (elem.offsetHeight * zoom) + curveWidth,
+                        -x2 + (elem.offsetWidth / 2 * zoom), -y2 + (elem.offsetHeight * zoom) - 1);
+                    ctx.stroke();
+                    // new util.drawTriangle(ctx, -xr + (number / 2 * zoom) - 1, -yr + 1 - (triRad + 0.5) * zoom, triRad, zoom, '#fff', 180)
+                }
+            } else {
+                curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (x2 - xr) / zoom / 500, 1)
+                ctx.moveTo(-xr + 1, -yr + (number / 2) * zoom);
+                ctx.bezierCurveTo(-xr - curveWidth, -yr + (number / 2) * zoom,
+                    -x2 + (elem.offsetWidth * zoom) + curveWidth, -y2 + (elem.offsetHeight / 2) * zoom,
+                    -x2 + (elem.offsetWidth * zoom) - 1, -y2 + (elem.offsetHeight / 2) * zoom);
+                ctx.stroke();
+                // new util.drawTriangle(ctx, -xr + 1 - (triRad + 0.5) * zoom, -yr + (number / 2) * zoom, triRad, zoom, '#fff', 90)
+            }
+            console.log((xr - x2), (yr - y2))
+            console.log(Math.atan((xr + x2) / (yr + y2)) * 180 / Math.PI)
+            // new util.drawTriangle(ctx, -xr + (number * zoom) - 2 + (triRad + 0.5) * zoom, -yr + (number / 2) * zoom, triRad, zoom, '#fff', Math.atan2(xr/x2))
+        }
+
+
         for (let i = 0; i < data.length; i++) {
             if (data[i].connection == null) {
                 continue
@@ -415,7 +483,6 @@ window.onload = function () {
             ctx.strokeStyle = "rgba(200, 200, 200, 1)"
             ctx.lineWidth = 2 * zoom
 
-            let triRad = 4
 
             // These are like
             // Stuff that like
