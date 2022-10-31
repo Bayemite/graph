@@ -122,6 +122,7 @@ function newCard(i, x, y, t) {
     </span>
     `
     linkElem.classList.add("actions-button")
+    linkElem.id = 'link-button'
     linkElem.onclick = function () { link(i) };
     actions.appendChild(linkElem)
 
@@ -132,16 +133,18 @@ function newCard(i, x, y, t) {
     </span>
     `
     remove.classList.add("actions-button")
+    remove.id = 'remove-button'
     remove.onclick = function () { removeElem(i) };
     actions.appendChild(remove)
 
     let move = document.createElement('button');
     move.innerHTML = `
     <span class="material-symbols-outlined">
-    open_with
+        open_with
     </span>
     `
     move.classList.add("actions-button")
+    move.id = 'move-button'
     move.onmousedown = function () {
         moveFlag = true;
         moveCardI = i;
@@ -259,6 +262,8 @@ window.onload = function () {
             addCard(Math.floor((mouse.x - cameraPos.x) / zoom), Math.floor((mouse.y - cameraPos.y) / zoom));
             document.getElementById('add').classList.remove('selected');
             add = false;
+        } else if (linkInProgress) {
+            linkInProgress = false;
         } else {
             mouseDown = true;
             initX = e.pageX, initY = e.pageY;
@@ -291,7 +296,7 @@ window.onload = function () {
 
     window.addEventListener('mousewheel', function (evt) {
         let delta = evt.wheelDelta;
-        let zoomFactor = 0.007;
+        let zoomFactor = 0.0007;
         zoomTarget += delta * zoomFactor;
 
         let zoomOut = 0.3;
@@ -403,7 +408,10 @@ window.onload = function () {
         // Constants
         let curveWidth = Math.floor(50 * zoom)
         let limiter = 5; // Limiter before the line connection direction changes
-        let triRad = 4
+
+        ctx.fillStyle = "#fff"
+        ctx.strokeStyle = "rgba(200, 200, 200, 1)"
+        ctx.lineWidth = 2 * zoom
 
         // Connection lines
 
@@ -414,20 +422,32 @@ window.onload = function () {
 
         // Get other element
         // let root = document.getElementById(`card-${data[i].connection}`)
+        console.log(Math.tan(-(-mouse.x - x2) / (-mouse.y - y2)))
+        let triRad = 4
         let xr = -mouse.x
-        let yr = -mouse.y
-
-        let number = 20;
+        let yr = -mouse.y - triRad * 2 * zoom
+        // xr += 4 * Math.tan(-(-mouse.x - x2) / (-mouse.y - y2)) * (triRad * 2 * zoom)
+        let number = 5;
 
         if (linkInProgress) {
+            let elem = document.getElementById(`card-${data[linkStart].id}`)
+            let x2 = Math.floor(-elem.style.left.replace('px', '') * zoom - cameraPos.x)
+            let y2 = Math.floor(-elem.style.top.replace('px', '') * zoom - cameraPos.y)
+
+            // Get other element
+            // let root = document.getElementById(`card-${data[i].connection}`)
+            console.log(Math.tan(-(-mouse.x - x2) / (-mouse.y - y2)))
+            let triRad = 4
+            let xr = -mouse.x
+            let yr = -mouse.y - triRad * 2 * zoom
             if (x2 < xr) {
                 curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (xr - x2) / zoom / 500, 1)
-                ctx.moveTo(-xr + (number * zoom) - 2, -yr + (number / 2) * zoom);
+                ctx.moveTo(-xr + (number * zoom) - 2, -yr - (number / 2) * zoom);
                 ctx.bezierCurveTo(-xr + (number * zoom) + curveWidth, -yr + (number / 2) * zoom,
                     -x2 - curveWidth, -y2 + (elem.offsetHeight / 2) * zoom,
                     -x2 + 1, -y2 + (elem.offsetHeight / 2) * zoom);
                 ctx.stroke();
-                // new util.drawTriangle(ctx, -xr + (number * zoom) - 2 + (triRad + 0.5) * zoom, -yr + (number / 2) * zoom, triRad, zoom, '#fff', -90)
+                new util.drawTriangle(ctx, -xr + (number * zoom) - 2 + (triRad + 0.5) * zoom, -yr - (number / 2) * zoom, triRad, zoom, '#fff', -90)
             } else if (-xr + (number) + (curveWidth * zoom / limiter) > -x2 - (curveWidth * zoom / limiter) && (-xr + (curveWidth * zoom / limiter) < -x2 + (elem.offsetWidth * zoom) + (curveWidth * zoom / limiter))) {
                 if (yr > y2) {
                     curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (yr - y2) / zoom / 500, 1)
@@ -436,7 +456,7 @@ window.onload = function () {
                         -x2 + (elem.offsetWidth / 2 * zoom), -y2 - curveWidth,
                         -x2 + (elem.offsetWidth / 2 * zoom), -y2 + 1);
                     ctx.stroke();
-                    // new util.drawTriangle(ctx, -xr + (number / 2 * zoom) - 1, -yr + (number) * zoom - 1 + (triRad + 0.5) * zoom, triRad, zoom, '#fff', 0)
+                    new util.drawTriangle(ctx, -xr + (number / 2 * zoom) - 1, -yr + (number) * zoom - 1 + (triRad + 0.5) * zoom, triRad, zoom, '#fff', 0)
                 } else {
                     curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (y2 - yr) / zoom / 500, 1)
                     ctx.moveTo(-xr + (number / 2 * zoom) - 1, -yr + 1);
@@ -444,7 +464,7 @@ window.onload = function () {
                         -x2 + (elem.offsetWidth / 2 * zoom), -y2 + (elem.offsetHeight * zoom) + curveWidth,
                         -x2 + (elem.offsetWidth / 2 * zoom), -y2 + (elem.offsetHeight * zoom) - 1);
                     ctx.stroke();
-                    // new util.drawTriangle(ctx, -xr + (number / 2 * zoom) - 1, -yr + 1 - (triRad + 0.5) * zoom, triRad, zoom, '#fff', 180)
+                    new util.drawTriangle(ctx, -xr + (number / 2 * zoom) - 1, -yr + 1 - (triRad + 0.5) * zoom, triRad, zoom, '#fff', 180)
                 }
             } else {
                 curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (x2 - xr) / zoom / 500, 1)
@@ -453,11 +473,13 @@ window.onload = function () {
                     -x2 + (elem.offsetWidth * zoom) + curveWidth, -y2 + (elem.offsetHeight / 2) * zoom,
                     -x2 + (elem.offsetWidth * zoom) - 1, -y2 + (elem.offsetHeight / 2) * zoom);
                 ctx.stroke();
-                // new util.drawTriangle(ctx, -xr + 1 - (triRad + 0.5) * zoom, -yr + (number / 2) * zoom, triRad, zoom, '#fff', 90)
+                new util.drawTriangle(ctx, -xr + 1 - (triRad + 0.5) * zoom, -yr + (number / 2) * zoom, triRad, zoom, '#fff', 90)
             }
-            console.log((xr - x2), (yr - y2))
-            console.log(Math.atan((xr + x2) / (yr + y2)) * 180 / Math.PI)
-            // new util.drawTriangle(ctx, -xr + (number * zoom) - 2 + (triRad + 0.5) * zoom, -yr + (number / 2) * zoom, triRad, zoom, '#fff', Math.atan2(xr/x2))
+            ctx.closePath();
+            // console.log(-(xr - x2), (yr - y2))
+            // console.log(Math.atan2(-(xr - x2), (yr - y2)) * 180 / Math.PI)
+            // new util.drawTriangle(ctx, -xr + (number * zoom) - 2 + (triRad + 0.5) * zoom, -yr + (number / 2) * zoom, triRad, zoom, '#fff', Math.atan2(-(xr - x2), (yr - y2)) * 180 / Math.PI)
+            // new util.drawTriangle(ctx, -xr + (triRad + 0.5) * zoom, -yr + + (triRad + 0.5) * zoom, triRad, zoom, '#fff', Math.atan2(-(xr - x2), (yr - y2)) * 180 / Math.PI)
         }
 
 
@@ -479,9 +501,7 @@ window.onload = function () {
             let yr = Math.floor(-root.style.top.replace('px', '') * zoom - cameraPos.y)
 
             // Styling
-            ctx.fillStyle = "#fff"
-            ctx.strokeStyle = "rgba(200, 200, 200, 1)"
-            ctx.lineWidth = 2 * zoom
+
 
 
             // These are like

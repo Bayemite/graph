@@ -150,10 +150,10 @@ button:hover {
     text-align: center;
     opacity: 0;
     left: 50%;
-    transform: translateX(-50%) scale(0);
+    transform: translateX(-50%) scale(1);
     transition: 0.4s cubic-bezier(0.23, 1, 0.320, 1);
     z-index: -100;
-    filter: blur(16px);
+    filter: blur(2px);
     /* transform: translateX(-50%); */
 }
 
@@ -168,6 +168,13 @@ button:hover {
     opacity: 1;
     filter: blur(0px);
 } */
+
+.object:hover > #link-button {
+    /* transform: scale(1.2); */
+    transform: scale(0);
+    animation: 0.5s scaleIn;
+    animation-delay: 0.5s;
+}
 
 input[type="file"] {
     /* opacity: 0; */
