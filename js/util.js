@@ -11,9 +11,9 @@ export class cardObject {
         this.x = x;
         this.y = y;
         this.title = t;
-        this.connection = c
-        this.id = id
-        this.colour = 0
+        this.connection = c;
+        this.id = id;
+        this.colour = 0;
     }
 }
 

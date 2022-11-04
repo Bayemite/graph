@@ -7,14 +7,16 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
   <script type="module" src="js/index.js"></script>
+  <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
   <link rel="stylesheet" href="index.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
   <title>Mindmap</title>
 </head>
 
 <body>
-  <div class="overlay">
+  <div class="overlay" id="overlay">
     <h4 contenteditable id="title">Mindmap</h4>
     <button id="save">
       Save
@@ -26,7 +28,32 @@
     <button id="add">
       +
     </button>
+    <div class="accordion" id="accordion-base-0">
+      <div class="accordion-header" onclick="
+      let accordionContent = document.getElementById('accordion-0')
+      let accordion = document.getElementById('accordion-base-0')
+      accordionContent.style.maxHeight = accordionContent.scrollHeight + 'px';
+      accordionContent.classList.toggle('accordion-closed')
+      ">
+        <h5 class="accordion-title">Peer ID</h5>
+        <span class="material-symbols-outlined" style="margin-left: auto;">
+          expand_more
+        </span>
+      </div>
+      <div class="accordion-content" id="accordion-0">
+        <p contenteditable role="textbox" id="peer-id"></p>
+        <button id="connect-button">
+          Connect
+        </button>
+      </div>
+    </div>
   </div>
+  <!-- Notification template -->
+  <!-- <div class="notification">
+    <h4 class="notification-header"></h4>
+    <p class="notification-content">Would you like to remove this card?</p>
+    <button id="notif-button" class="notification-button">Close</button>
+  </div> -->
   <div id="container">
     <div id="translate">
       <!-- <span id="card-3" class="object" onclick="linkTo(3)">
@@ -40,6 +67,7 @@
             Test
           </p>
         </span> -->
+      <div id="break"></div>
     </div>
   </div>
   <canvas id="canvas"></canvas>
