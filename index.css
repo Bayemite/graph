@@ -29,10 +29,10 @@ h4 {
     text-anchor: middle;
     font-size: medium !important;
     font-variation-settings:
-        'FILL' 0,
-        'wght' 300,
-        'GRAD' 0,
-        'opsz' 48
+        'FILL'0,
+        'wght'300,
+        'GRAD'0,
+        'opsz'48
 }
 
 .overlay {
@@ -64,7 +64,7 @@ button {
     /* background-color: rgba(150, 150, 150, 0.1); */
 
     transition: 0.5s background cubic-bezier(0, 0.96, 0, 0.99), 0.5s;
-    background-image: linear-gradient(-65deg, rgb(205, 205, 205) 40%, rgb(40, 40, 40) 42%, rgb(205, 205, 205) 40%, rgb(40, 40, 40) 45%, rgb(40, 40, 40) 48%, rgb(205, 205, 205) 50%, rgb(40, 40, 40) 75%);
+    background-image: linear-gradient(-65deg, rgb(205, 205, 205) 40%, rgb(40, 40, 40) 42%, rgb(205, 205, 205) 40%, rgb(40, 40, 40) 45%, rgb(40, 40, 40) 48%, rgb(205, 205, 205) 50%, rgb(205, 205, 205) 70%, rgb(40, 40, 40) 70%);
     background-size: 400% 100%;
 
     background-position: 0 0;
@@ -175,6 +175,7 @@ button:hover {
     text-anchor: middle;
     padding: 10px 10px;
     margin: 5px;
+    cursor: default;
 }
 
 .text:focus {
@@ -227,6 +228,42 @@ button:hover {
     border-radius: 30px;
 }
 
+/* Color input */
+input[type="color"] {
+    width: 3rem;
+    height: 3rem;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-color: transparent;
+    border: 0;
+    outline: none;
+    border-radius: 100%;
+    /* border: 2px solid rgba(200, 200, 200, 1); */
+}
+input[type="color"]::-webkit-color-swatch {
+    border-radius: 100%;
+    border: 2px solid rgba(200, 200, 200, 1);
+}
+
+.color-picker {
+    width: 2em;
+    height: 2em;
+    border-radius: 50% !important;
+}
+
+/* input[type="color" i] {
+    width: 4rem;
+    height: 4rem;
+    cursor: default;
+    border-radius: 100%;
+    border-width: 2px;
+    border-style: solid;
+    border-color: rgba(200, 200, 200, 1);
+    border-image: initial;
+    padding: 0px 0px;
+} */
+
 .connection-button {
     position: absolute;
     text-anchor: middle;
@@ -274,7 +311,7 @@ button:hover {
     filter: blur(0px);
 } */
 
-.object:hover>#link-button {
+.object:hover>.link-button {
     /* transform: scale(1.2); */
     transform: scale(0);
     animation: 0.5s scaleIn;
@@ -300,7 +337,7 @@ button:hover {
     /* animation-duration: 0.5s; */
     animation: 0.5s notification;
     animation-fill-mode: forwards;
-    
+
     padding: 20px 40px;
     background-color: #2b2b2b;
     color: #ffffff;
@@ -334,11 +371,13 @@ button:hover {
         opacity: 1;
         transform: translate(-50%, -50%) scale(1);
     }
+
     100% {
         transform: translate(-50%, -50%) scale(0.5);
         opacity: 0;
     }
 }
+
 .notification-remove {
     animation: 0.3s notification-remove;
     animation-fill-mode: forwards;

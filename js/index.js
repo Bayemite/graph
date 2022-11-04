@@ -1,20 +1,23 @@
 import * as util from './util.js';
 var peer = new Peer();
 
-peer.on('open', function (id) {
+peer.on('open', function(id)
+{
     console.log('My peer ID is: ' + id);
 });
 
-peer.on('connection', function (conn) {
+peer.on('connection', function(conn)
+{
     console.log(conn)
 });
 
-function connect(id) {
+function connect(id)
+{
     console.log(id)
     var conn = peer.connect(id);
 }
 const connectionButton = document.getElementById('connect-button')
-connectionButton.onclick = function () { connect(document.getElementById('peer-id').innerHTML) }
+connectionButton.onclick = function() { connect(document.getElementById('peer-id').innerHTML) }
 
 const backgroundColor = new util.rgb(100, 150, 200);
 
@@ -58,10 +61,12 @@ let cardsData = {
     // ),
 }
 
-function closeNotif(e) {
+function closeNotif(e)
+{
     // console.log(e, e.parentElement)
     e.parentElement.classList.add("notification-remove")
-    setTimeout(function () {
+    setTimeout(function()
+    {
         e.parentElement.remove()
     }, 302)
 }
@@ -69,9 +74,11 @@ function closeNotif(e) {
 // document.getElementById('notif-button').onclick = function() {closeNotif(this)}
 
 // Add cards from data
-function loadCards() {
+function loadCards()
+{
     let i = -1;
-    for (let card of Object.values(cardsData)) {
+    for (let card of Object.values(cardsData))
+    {
         i++;
         console.log(card.x, card.y)
         addCard(card.x, card.y, card.title, true, i);
@@ -95,7 +102,8 @@ function loadCards() {
 }
 
 // Clears elements for loading new ones
-function clearMap() {
+function clearMap()
+{
     document.getElementById("translate").innerHTML = `
     <div id="break"></div>
     `;
@@ -105,17 +113,20 @@ let linkStart = -1;
 let linkInProgress = false;
 
 // i : id of card (card-'0')
-function link(i) {
+function link(i)
+{
     linkStart = i;
     linkInProgress = true;
 }
 
 // i : id of card
-function linkTo(i) {
+function linkTo(i)
+{
     if (!linkInProgress) return;
-    console.log(i, Object.values(cardsData)[Object.keys(cardsData)[i]], Object.values(cardsData)[i])
+
     // Disallow reconnection
-    if (Object.values(cardsData)[i].connection == linkStart) {
+    if (Object.values(cardsData)[i].connection == linkStart)
+    {
         linkInProgress = false;
         return;
     }
@@ -125,28 +136,32 @@ function linkTo(i) {
     // If click on self just ignore
     if (linkStart == linkEnd) return;
 
-    cardsData[linkStart.toString()].connection = linkEnd;
+    cardsData[linkStart].connection = linkEnd;
+    console.log(cardsData[linkStart].connection);
     linkInProgress = false;
 }
 
-function removeElem(i) {
-    for (let index = 0; index < cardsData.length; index++) {
-        if (cardsData[index].connection == i) {
-            cardsData[index].connection = null
+function deleteElem(i)
+{
+    for (let index = 0; index < cardsData.length; index++)
+    {
+        if (cardsData[index].connection == i)
+        {
+            cardsData[index].connection = null;
         }
     }
-    cardsData.splice(i, 1)
-    console.log(cardsData)
 
-    document.getElementById('translate').removeChild(document.getElementById(`card-${i}`))
-    // clearMap()
-    // loadCards()
+    delete cardsData[i];
+    console.log(cardsData);
+
+    document.getElementById('translate').removeChild(document.getElementById(`card-${i}`));
 }
 
 let moveCardI = 0;
 let moveFlag = false;
 let moveCardOffset = new util.vector2D(0, 0);
-function moveElem() {
+function moveElem()
+{
     let i = moveCardI;
     let card = document.getElementById(`card-${i}`);
     cardsData[Object.keys(cardsData)[`${i}`]].x = Math.floor((mouse.x - cameraPos.x - moveCardOffset.x) / zoom);
@@ -155,7 +170,8 @@ function moveElem() {
     card.style.left = `${cardsData[Object.keys(cardsData)[i]].x}px`;
 }
 
-function newCard(i, x, y, t) {
+function newCard(i, x, y, t)
+{
     if (t == undefined) { t = "" };
 
     let cardContainer = document.createElement('div');
@@ -163,25 +179,21 @@ function newCard(i, x, y, t) {
     cardContainer.id = "card-" + i;
     cardContainer.style = "left:" + Math.floor(x) + "px; top:" + Math.floor(y) + "px";
     cardContainer.classList.add('object');
-    cardContainer.onclick = function () { linkTo(i) };
+    cardContainer.onclick = function() { linkTo(i) };
 
-    cardContainer.onkeyup = function () {
-        cardsData[i.toString()].title = p.innerHTML;
-    };
-    cardContainer.onmousedown = function (e) {
+    cardContainer.onmousedown = function(e)
+    {
         moveFlag = true;
         moveCardI = i;
-        console.log("mouse: " + mouse.x);
-        console.log("pos: " + e.target.getBoundingClientRect().left);
-        moveCardOffset.x = mouse.x-e.target.getBoundingClientRect().left;
-        moveCardOffset.y = mouse.y-e.target.getBoundingClientRect().top;
-        console.log("offset: " + moveCardOffset.x);
+
+        moveCardOffset.x = mouse.x - e.target.getBoundingClientRect().left;
+        moveCardOffset.y = mouse.y - e.target.getBoundingClientRect().top;
     };
-    cardContainer.onmouseup = function (e) {
-        card.getElementsByTagName('p')[0].focus();
-    }
-    cardContainer.onmousemove = function () {
-        if (moveFlag) {
+    cardContainer.onmousemove = function()
+    {
+        if (moveFlag)
+        {
+            let card = cardContainer.getElementsByTagName('span')[0];
             card.getElementsByTagName('p')[0].blur();
         }
     }
@@ -189,23 +201,26 @@ function newCard(i, x, y, t) {
     cardContainer.appendChild(actualCard());
     cardContainer.appendChild(editUI());
 
-    function actualCard() {
+    function actualCard()
+    {
         let card = document.createElement('span');
 
         let p = document.createElement('p');
         p.classList.add('text');
         p.contentEditable = true;
         p.innerHTML = t;
+        p.oninput = () => cardsData[i.toString()].title = p.innerHTML;
 
         card.appendChild(p);
 
         return card;
     }
-    function editUI() {
+    function editUI()
+    {
         let actions = document.createElement('div');
         actions.classList.add("actions");
         // no movement
-        actions.addEventListener('mousedown', function (e) { e.stopPropagation(); }, true);
+        actions.addEventListener('mousedown', function(e) { e.stopPropagation(); }, true);
 
         let linkElem = document.createElement('button');
         linkElem.innerHTML = `
@@ -213,33 +228,41 @@ function newCard(i, x, y, t) {
             share
         </span>
         `;
-        linkElem.classList.add("actions-button");
-        linkElem.id = 'link-button';
-        linkElem.onclick = function () { link(i) };
+        linkElem.classList.add("actions-button", "link-button");
+        linkElem.onclick = function() { link(i) };
         actions.appendChild(linkElem);
 
-        let remove = document.createElement('button');
-        remove.innerHTML = `
+        let deleteCard = document.createElement('button');
+        deleteCard.innerHTML = `
         <span class="material-symbols-outlined">
             delete
         </span>
         `;
-        remove.classList.add("actions-button");
-        remove.id = 'remove-button';
-        remove.onclick = function () { removeElem(i) };
-        actions.appendChild(remove);
+        deleteCard.classList.add("actions-button", "color-edit-button");
+        deleteCard.onclick = function() { deleteElem(i) };
+        actions.appendChild(deleteCard);
 
-        let move = document.createElement('button');
-        move.innerHTML = `
-        <span class="material-symbols-outlined">
-            open_with
-        </span>
+        let colorEdit = document.createElement('button');
+        colorEdit.innerHTML = `
+        <div class="color-picker">
+      <input type="color">
+    </div>
         `;
-        move.classList.add("actions-button");
-        move.id = 'color-edit-button';
+        colorEdit.classList.add("actions-button", "color-edit-button");
+        // colorEdit.onclick = function() { colorEditElem(i) };
+        actions.appendChild(colorEdit);
+
+        // let move = document.createElement('button');
+        // move.innerHTML = `
+        // <span class="material-symbols-outlined">
+        //     open_with
+        // </span>
+        // `;
+        // move.classList.add("actions-button");
+        // move.id = 'color-edit-button';
 
         // move.onmouseup = function () { moveFlag = false };
-        actions.appendChild(move);
+        // actions.appendChild(move);
         return actions;
     }
 
@@ -255,16 +278,20 @@ function newCard(i, x, y, t) {
 
 let add = false; // Add card
 let largest = 0;
-function addCard(x, y, t, newInstance, i) {
+function addCard(x, y, t, newInstance, i)
+{
     // Hardcoded solution for now
     // The textbox will always be placed with the default "Enter text" meaning its width will
     // always be the same
     // The width is 136, height is 79
 
-    if (newInstance) {
+    if (newInstance)
+    {
         document.getElementById("translate").appendChild(newCard(i, x - 136 / 2, y - 79 / 2, t));
-    } else {
-        for (let i = 0; i < Object.keys(cardsData).length; i++) {
+    } else
+    {
+        for (let i = 0; i < Object.keys(cardsData).length; i++)
+        {
             if (Object.keys(cardsData)[i] >= largest) largest = parseInt(Object.keys(cardsData)[i]);
         }
         document.getElementById("translate").appendChild(newCard(largest + 1, x - 136 / 2, y - 79 / 2, t));
@@ -289,12 +316,14 @@ function addCard(x, y, t, newInstance, i) {
 
 
 // Main loop
-window.onload = function () {
+window.onload = function()
+{
     canvas = document.getElementById('canvas');
     ctx = canvas.getContext('2d');
     ctx.imageSmoothingEnabled = true;
 
-    function resize() {
+    function resize()
+    {
         // Resize the canvas to the screen
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -302,11 +331,14 @@ window.onload = function () {
         // ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
     window.addEventListener('resize', resize);
-    document.getElementById("add").onclick = function () {
+    document.getElementById("add").onclick = function()
+    {
         add = !add;
-        if (add) {
+        if (add)
+        {
             document.getElementById('add').classList.add('selected')
-        } else {
+        } else
+        {
             document.getElementById('add').classList.remove('selected')
         }
 
@@ -326,44 +358,54 @@ window.onload = function () {
     targetY = (canvas.height / 2) / zoom;
     mouse = new util.vector2D(0, 0);
 
-    document.addEventListener('mouseup', function (e) {
+    document.addEventListener('mouseup', function(e)
+    {
         moveFlag = false;
     })
 
-    canvas.addEventListener('dblclick', function (e) {
+    canvas.addEventListener('dblclick', function(e)
+    {
         e.preventDefault();
         addCard(Math.floor((mouse.x - cameraPos.x) / zoom), Math.floor((mouse.y - cameraPos.y) / zoom));
     }, true);
-    document.addEventListener('contextmenu', function (e) {
+    document.addEventListener('contextmenu', function(e)
+    {
         e.preventDefault();
     })
-    canvas.addEventListener('mousedown', function (e) {
-        if (add) {
+    canvas.addEventListener('mousedown', function(e)
+    {
+        if (add)
+        {
             addCard(Math.floor((mouse.x - cameraPos.x) / zoom), Math.floor((mouse.y - cameraPos.y) / zoom));
             document.getElementById('add').classList.remove('selected');
             add = false;
-        } else if (linkInProgress) {
+        } else if (linkInProgress)
+        {
             linkInProgress = false;
-        } else {
+        } else
+        {
             mouseDown = true;
             initX = e.pageX, initY = e.pageY;
             dragX = e.pageX, dragY = e.pageY;
         }
     });
 
-    document.addEventListener('mousemove', function (e) {
+    document.addEventListener('mousemove', function(e)
+    {
         mouse.x = e.pageX;
         mouse.y = e.pageY;
 
         // Handle card movement
         // Mouse events are up in card creation
-        if (moveFlag) {
+        if (moveFlag)
+        {
             mouse.x = e.pageX;
             mouse.y = e.pageY;
             moveElem();
         }
 
-        if (mouseDown) {
+        if (mouseDown)
+        {
 
             dragX = e.pageX;
             dragY = e.pageY;
@@ -377,12 +419,14 @@ window.onload = function () {
         }
     });
 
-    document.addEventListener('mouseup', function () {
+    document.addEventListener('mouseup', function()
+    {
         mouseDown = false;
     });
     window.onmouseup = event => event.preventDefault();
 
-    window.addEventListener('mousewheel', function (evt) {
+    window.addEventListener('mousewheel', function(evt)
+    {
         let delta = evt.wheelDelta;
         let zoomFactor = 0.0007;
         zoomTarget += delta * zoomFactor;
@@ -395,23 +439,28 @@ window.onload = function () {
     loadCards()
 
     const fileInput = document.getElementById('openFile');
-    fileInput.onchange = async function () {
+    fileInput.onchange = async function()
+    {
         // let selectedFile = fileInput.files[0];
         let file = new FileReader();
-        file.onload = () => {
+        file.onload = () =>
+        {
             // console.log(file.result)
             let fileData;
-            try {
+            try
+            {
                 fileData = JSON.parse(file.result)
                 document.getElementById("title").innerText = fileData.title
                 fileData = fileData.data
-            } catch (error) {
+            } catch (error)
+            {
                 alert("File format incompatible")
                 console.log("File incompatible")
                 return
             }
             cardsData = {};
-            for (let i of Object.keys(fileData)) {
+            for (let i of Object.keys(fileData))
+            {
                 let iValues = Object.values(fileData)
                 cardsData[i] = (new util.cardObject(
                     iValues.x,
@@ -433,30 +482,35 @@ window.onload = function () {
 
     // Function to download data to a file
     // https://stackoverflow.com/questions/13405129/create-and-save-a-file-with-javascript
-    function download(data, filename, type) {
+    function download(data, filename, type)
+    {
         var file = new Blob([data], { type: type });
         if (window.navigator.msSaveOrOpenBlob) // IE10+
             window.navigator.msSaveOrOpenBlob(file, filename);
-        else { // Others
+        else
+        { // Others
             var a = document.createElement("a"),
                 url = URL.createObjectURL(file);
             a.href = url;
             a.download = filename;
             document.body.appendChild(a);
             a.click();
-            setTimeout(function () {
+            setTimeout(function()
+            {
                 document.body.removeChild(a);
                 window.URL.revokeObjectURL(url);
             }, 0);
         }
     }
 
-    document.getElementById('save').onclick = function () {
+    document.getElementById('save').onclick = function()
+    {
         let saveData = {
             title: document.getElementById("title").innerText,
             data: []
         }
-        for (let i = 0; i < cardsData.length; i++) {
+        for (let i = 0; i < cardsData.length; i++)
+        {
             saveData.data.push(
                 {
                     "x": cardsData[i].x,
@@ -470,7 +524,8 @@ window.onload = function () {
         download(JSON.stringify(saveData), saveData.title, "application/json")
     }
 
-    function main(currentTime) {
+    function main(currentTime)
+    {
         window.requestAnimationFrame(main);
         document.getElementById('break').innerHTML = ""
 
@@ -508,7 +563,8 @@ window.onload = function () {
         let number = 5;
         let triRad = 4
 
-        if (linkInProgress) {
+        if (linkInProgress)
+        {
             // Get element connecting to other mouse
             // console.log(linkStart)
             let elem = document.getElementById(`card-${linkStart}`)
@@ -520,8 +576,8 @@ window.onload = function () {
             // console.log(Math.tan(-(-mouse.x - x2) / (-mouse.y - y2)))
             let xr = -mouse.x
             let yr = -mouse.y - triRad * 2 * zoom
-            if (x2 < xr) {
-                console.log("x2 < xr")
+            if (x2 < xr)
+            {
                 curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (xr + elem.offsetWidth - x2) / zoom / 500, 1)
                 ctx.moveTo(-xr + (number * zoom) - 2, -yr - (number / 2) * zoom);
                 ctx.bezierCurveTo(-xr + (number * zoom) + curveWidth, -yr + (number / 2) * zoom,
@@ -529,8 +585,10 @@ window.onload = function () {
                     -x2 + 1, -y2 + (elem.offsetHeight / 2) * zoom);
                 ctx.stroke();
                 new util.drawTriangle(ctx, -xr + (number * zoom) - 2 + (triRad + 0.5) * zoom, -yr - (number / 2) * zoom, triRad, zoom, '#fff', -90)
-            } else if (-xr + (number) + (curveWidth * zoom / limiter) > -x2 - (curveWidth * zoom / limiter) && (-xr + (curveWidth * zoom / limiter) < -x2 + (elem.offsetWidth * zoom) + (curveWidth * zoom / limiter))) {
-                if (yr > y2) {
+            } else if (-xr + (number) + (curveWidth * zoom / limiter) > -x2 - (curveWidth * zoom / limiter) && (-xr + (curveWidth * zoom / limiter) < -x2 + (elem.offsetWidth * zoom) + (curveWidth * zoom / limiter)))
+            {
+                if (yr > y2)
+                {
                     curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (yr - y2) / zoom / 500, 1)
                     ctx.moveTo(-xr + (number / 2 * zoom) - 1, -yr + (number) * zoom - 1);
                     ctx.bezierCurveTo(-xr + (number / 2 * zoom), -yr + (number) * zoom + curveWidth,
@@ -538,7 +596,8 @@ window.onload = function () {
                         -x2 + (elem.offsetWidth / 2 * zoom), -y2 + 1);
                     ctx.stroke();
                     new util.drawTriangle(ctx, -xr + (number / 2 * zoom) - 1, -yr + (number) * zoom - 1 + (triRad + 0.5) * zoom, triRad, zoom, '#fff', 0)
-                } else {
+                } else
+                {
                     curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (y2 - yr) / zoom / 500, 1)
                     ctx.moveTo(-xr + (number / 2 * zoom) - 1, -yr + 1);
                     ctx.bezierCurveTo(-xr + (number / 2 * zoom), -yr - curveWidth,
@@ -547,7 +606,8 @@ window.onload = function () {
                     ctx.stroke();
                     new util.drawTriangle(ctx, -xr + (number / 2 * zoom) - 1, -yr + 1 - (triRad + 0.5) * zoom, triRad, zoom, '#fff', 180)
                 }
-            } else {
+            } else
+            {
                 curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (x2 - xr) / zoom / 500, 1)
                 ctx.moveTo(-xr + 1, -yr + (number / 2) * zoom);
                 ctx.bezierCurveTo(-xr - curveWidth, -yr + (number / 2) * zoom,
@@ -556,7 +616,6 @@ window.onload = function () {
                 ctx.stroke();
                 new util.drawTriangle(ctx, -xr + 1 - (triRad + 0.5) * zoom, -yr + (number / 2) * zoom, triRad, zoom, '#fff', 90)
             }
-            console.log(curveWidth)
             ctx.closePath();
             // console.log(-(xr - x2), (yr - y2))
             // console.log(Math.atan2(-(xr - x2), (yr - y2)) * 180 / Math.PI)
@@ -565,10 +624,10 @@ window.onload = function () {
         }
 
 
-        for (let i = 0; i < Object.values(cardsData).length; i++) {
-            if (cardsData[i].connection == null) {
-                continue
-            }
+        for (let i of Object.keys(cardsData))
+        {
+            if (cardsData[i].connection == null)
+                continue;
 
             curveWidth = Math.floor(50 * zoom) // Set default
 
@@ -592,7 +651,8 @@ window.onload = function () {
             // Works and like
             // yeah
             ctx.beginPath();
-            if (-xr + (root.offsetWidth * zoom) < -x2) {
+            if (-xr + (root.offsetWidth * zoom) < -x2)
+            {
                 curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (xr - x2) / zoom / 500, 1)
                 ctx.moveTo(-xr + (root.offsetWidth * zoom) - 2, -yr + (root.offsetHeight / 2) * zoom);
                 ctx.bezierCurveTo(-xr + (root.offsetWidth * zoom) + curveWidth, -yr + (root.offsetHeight / 2) * zoom,
@@ -600,8 +660,10 @@ window.onload = function () {
                     -x2 + 1, -y2 + (elem.offsetHeight / 2) * zoom);
                 ctx.stroke();
                 new util.drawTriangle(ctx, -xr + (root.offsetWidth * zoom) - 2 + (triRad + 0.5) * zoom, -yr + (root.offsetHeight / 2) * zoom, triRad, zoom, '#fff', -90)
-            } else if (-xr + (root.offsetWidth * zoom) + (curveWidth * zoom / limiter) > -x2 - (curveWidth * zoom / limiter) && (-xr + (curveWidth * zoom / limiter) < -x2 + (elem.offsetWidth * zoom) + (curveWidth * zoom / limiter))) {
-                if (yr > y2) {
+            } else if (-xr + (root.offsetWidth * zoom) + (curveWidth * zoom / limiter) > -x2 - (curveWidth * zoom / limiter) && (-xr + (curveWidth * zoom / limiter) < -x2 + (elem.offsetWidth * zoom) + (curveWidth * zoom / limiter)))
+            {
+                if (yr > y2)
+                {
                     curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (yr - y2) / zoom / 500, 1)
                     ctx.moveTo(-xr + (root.offsetWidth / 2 * zoom) - 1, -yr + (root.offsetHeight) * zoom - 1);
                     ctx.bezierCurveTo(-xr + (root.offsetWidth / 2 * zoom), -yr + (root.offsetHeight) * zoom + curveWidth,
@@ -609,7 +671,8 @@ window.onload = function () {
                         -x2 + (elem.offsetWidth / 2 * zoom), -y2 + 1);
                     ctx.stroke();
                     new util.drawTriangle(ctx, -xr + (root.offsetWidth / 2 * zoom) - 1, -yr + (root.offsetHeight) * zoom - 1 + (triRad + 0.5) * zoom, triRad, zoom, '#fff', 0)
-                } else {
+                } else
+                {
                     curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (y2 - yr) / zoom / 500, 1)
                     ctx.moveTo(-xr + (root.offsetWidth / 2 * zoom) - 1, -yr + 1);
                     ctx.bezierCurveTo(-xr + (root.offsetWidth / 2 * zoom), -yr - curveWidth,
@@ -618,7 +681,8 @@ window.onload = function () {
                     ctx.stroke();
                     new util.drawTriangle(ctx, -xr + (root.offsetWidth / 2 * zoom) - 1, -yr + 1 - (triRad + 0.5) * zoom, triRad, zoom, '#fff', 180)
                 }
-            } else {
+            } else
+            {
                 curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (x2 - xr) / zoom / 500, 1)
                 ctx.moveTo(-xr + 1, -yr + (root.offsetHeight / 2) * zoom);
                 ctx.bezierCurveTo(-xr - curveWidth, -yr + (root.offsetHeight / 2) * zoom,
