@@ -125,7 +125,7 @@ function linkTo(i)
     if (!linkInProgress) return;
 
     // Disallow reconnection
-    if (Object.values(cardsData)[i].connection == linkStart)
+    if (cardsData[Object.keys(cardsData)[`${i}`]].connection == linkStart)
     {
         linkInProgress = false;
         return;
@@ -143,16 +143,16 @@ function linkTo(i)
 
 function deleteElem(i)
 {
-    for (let index = 0; index < cardsData.length; index++)
+    for (let card in Object.values(cardsData))
     {
-        if (cardsData[index].connection == i)
+        if (card.connection == i)
         {
-            cardsData[index].connection = null;
+            console.log("Found: " + card)
+            card.connection = null;
         }
     }
 
     delete cardsData[i];
-    console.log(cardsData);
 
     document.getElementById('translate').removeChild(document.getElementById(`card-${i}`));
 }
@@ -242,13 +242,11 @@ function newCard(i, x, y, t)
         deleteCard.onclick = function() { deleteElem(i) };
         actions.appendChild(deleteCard);
 
-        let colorEdit = document.createElement('button');
+        let colorEdit = document.createElement('div');
+        colorEdit.classList.add('color-picker')
         colorEdit.innerHTML = `
-        <div class="color-picker">
-      <input type="color">
-    </div>
+        <input type="color">
         `;
-        colorEdit.classList.add("actions-button", "color-edit-button");
         // colorEdit.onclick = function() { colorEditElem(i) };
         actions.appendChild(colorEdit);
 
@@ -632,12 +630,12 @@ window.onload = function()
             curveWidth = Math.floor(50 * zoom) // Set default
 
             // Get element connecting to other element
-            let elem = document.getElementById(`card-${Object.keys(cardsData)[i]}`)
+            let elem = document.getElementById(`card-${i}`)
             let x2 = Math.floor(-elem.style.left.replace('px', '') * zoom - cameraPos.x)
             let y2 = Math.floor(-elem.style.top.replace('px', '') * zoom - cameraPos.y)
 
             // Get other element
-            let root = document.getElementById(`card-${Object.values(cardsData)[i].connection}`)
+            let root = document.getElementById(`card-${cardsData[i].connection}`)
             let xr = Math.floor(-root.style.left.replace('px', '') * zoom - cameraPos.x)
             let yr = Math.floor(-root.style.top.replace('px', '') * zoom - cameraPos.y)
 
