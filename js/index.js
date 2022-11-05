@@ -1,5 +1,6 @@
 import * as util from './util.js';
 var peer = new Peer();
+var cardIds = new util.IDAssign();
 
 peer.on('open', function(id)
 {
@@ -49,11 +50,11 @@ let colorPalette = [
 let cardsData = {
     '0': new util.cardObject(
         0, 0,
-        '', null, 0
+        '', null, cardIds.getNextId()
     ),
     '1': new util.cardObject(
         200, 100,
-        'Title', 0, 1
+        'Title', 0, cardIds.getNextId()
     ),
     // new util.cardObject(
     //     -200, 100,
@@ -76,17 +77,14 @@ function closeNotif(e)
 // Add cards from data
 function loadCards()
 {
-    let i = -1;
     for (let card of Object.values(cardsData))
     {
-        i++;
-        console.log(card.x, card.y)
-        addCard(card.x, card.y, card.title, true, i);
+        addCard(card.x, card.y, card.title, true, card.id);
         // console.log(data[i].connection);
         // if (data[i].connection == null) { continue }
         let breakLink = document.createElement('button');
         breakLink.classList.add('connection-button')
-        breakLink.id = `unlink-${i}`;
+        breakLink.id = `unlink-${card.id}`;
         breakLink.innerHTML = `
         <span class="material-symbols-outlined">
             delete
@@ -125,7 +123,7 @@ function linkTo(i)
     if (!linkInProgress) return;
 
     // Disallow reconnection
-    if (cardsData[Object.keys(cardsData)[`${i}`]].connection == linkStart)
+    if (cardsData[i].connection == linkStart)
     {
         linkInProgress = false;
         return;
@@ -143,16 +141,16 @@ function linkTo(i)
 
 function deleteElem(i)
 {
-    for (let card in Object.values(cardsData))
+    for (let k in Object.keys(cardsData))
     {
-        if (card.connection == i)
+        if (cardsData[k].connection == i)
         {
-            console.log("Found: " + card)
-            card.connection = null;
+            cardsData[k].connection = null;
         }
     }
 
     delete cardsData[i];
+    cardIds.freeId(i);
 
     document.getElementById('translate').removeChild(document.getElementById(`card-${i}`));
 }
@@ -164,15 +162,23 @@ function moveElem()
 {
     let i = moveCardI;
     let card = document.getElementById(`card-${i}`);
-    cardsData[Object.keys(cardsData)[`${i}`]].x = Math.floor((mouse.x - cameraPos.x - moveCardOffset.x) / zoom);
-    cardsData[Object.keys(cardsData)[`${i}`]].y = Math.floor((mouse.y - cameraPos.y - moveCardOffset.y) / zoom);
-    card.style.top = `${cardsData[Object.keys(cardsData)[i]].y}px`;
-    card.style.left = `${cardsData[Object.keys(cardsData)[i]].x}px`;
+    cardsData[i].x = Math.floor((mouse.x - cameraPos.x - moveCardOffset.x) / zoom);
+    cardsData[i].y = Math.floor((mouse.y - cameraPos.y - moveCardOffset.y) / zoom);
+    card.style.top = `${cardsData[i].y}px`;
+    card.style.left = `${cardsData[i].x}px`;
 }
 
 function newCard(i, x, y, t)
 {
     if (t == undefined) { t = "" };
+    
+    cardsData[i] = new util.cardObject();
+    cardsData[i].title = t;
+    cardsData[i].x = x;
+    cardsData[i].y = y;
+    cardsData[i].connection = null;
+    cardsData[i].id = i;
+    cardsData[i].colour = 0;
 
     let cardContainer = document.createElement('div');
 
@@ -288,14 +294,10 @@ function addCard(x, y, t, newInstance, i)
         document.getElementById("translate").appendChild(newCard(i, x - 136 / 2, y - 79 / 2, t));
     } else
     {
-        for (let i = 0; i < Object.keys(cardsData).length; i++)
-        {
-            if (Object.keys(cardsData)[i] >= largest) largest = parseInt(Object.keys(cardsData)[i]);
-        }
-        document.getElementById("translate").appendChild(newCard(largest + 1, x - 136 / 2, y - 79 / 2, t));
-        cardsData[`${(largest) + 1}`] = new util.cardObject(x, y, "", null, largest + 1);
+        document.getElementById("translate").appendChild(newCard(i, x - 136 / 2, y - 79 / 2, t));
+        cardsData[i] = new util.cardObject(x, y, "", null, i);
         // cardsData[`${Number(largest) + 1}`] = "a"
-        console.log(cardsData)
+        console.log(cardsData);
         // cardsData.push()
     }
     // data.push(
@@ -364,7 +366,13 @@ window.onload = function()
     canvas.addEventListener('dblclick', function(e)
     {
         e.preventDefault();
-        addCard(Math.floor((mouse.x - cameraPos.x) / zoom), Math.floor((mouse.y - cameraPos.y) / zoom));
+        addCard(
+            Math.floor((mouse.x - cameraPos.x) / zoom),
+            Math.floor((mouse.y - cameraPos.y) / zoom),
+            "",
+            true,
+            cardIds.getNextId()
+        );
     }, true);
     document.addEventListener('contextmenu', function(e)
     {
@@ -374,7 +382,13 @@ window.onload = function()
     {
         if (add)
         {
-            addCard(Math.floor((mouse.x - cameraPos.x) / zoom), Math.floor((mouse.y - cameraPos.y) / zoom));
+            addCard(
+                Math.floor((mouse.x - cameraPos.x) / zoom),
+                Math.floor((mouse.y - cameraPos.y) / zoom),
+                "",
+                cardIds.getNextId()
+            );
+
             document.getElementById('add').classList.remove('selected');
             add = false;
         } else if (linkInProgress)
@@ -434,7 +448,7 @@ window.onload = function()
         zoomTarget = util.clamp(zoomOut, zoomTarget, zoomIn);
     });
 
-    loadCards()
+    loadCards();
 
     const fileInput = document.getElementById('openFile');
     fileInput.onchange = async function()
@@ -443,7 +457,6 @@ window.onload = function()
         let file = new FileReader();
         file.onload = () =>
         {
-            // console.log(file.result)
             let fileData;
             try
             {
@@ -469,9 +482,9 @@ window.onload = function()
                 )
 
             }
-            clearMap()
-            loadCards()
-            console.log(cardsData)
+            clearMap();
+            loadCards();
+            console.log(cardsData);
 
         }
         file.readAsText(this.files[0]);
@@ -507,15 +520,15 @@ window.onload = function()
             title: document.getElementById("title").innerText,
             data: []
         }
-        for (let i = 0; i < cardsData.length; i++)
+        for (let card of Object.values(cardsData))
         {
             saveData.data.push(
                 {
-                    "x": cardsData[i].x,
-                    "y": cardsData[i].y,
-                    "title": cardsData[i].title,
-                    "connection": cardsData[i].connection,
-                    "id": cardsData[i].id,
+                    "x": card.x,
+                    "y": card.y,
+                    "title": card.title,
+                    "connection": card.connection,
+                    "id": card.id,
                 }
             )
         }
@@ -622,22 +635,22 @@ window.onload = function()
         }
 
 
-        for (let i of Object.keys(cardsData))
+        for (let card of Object.values(cardsData))
         {
-            if (cardsData[i].connection == null)
+            if (card.connection == null)
                 continue;
 
             curveWidth = Math.floor(50 * zoom) // Set default
 
             // Get element connecting to other element
-            let elem = document.getElementById(`card-${i}`)
-            let x2 = Math.floor(-elem.style.left.replace('px', '') * zoom - cameraPos.x)
-            let y2 = Math.floor(-elem.style.top.replace('px', '') * zoom - cameraPos.y)
+            let elem = document.getElementById(`card-${card.id}`);
+            let x2 = Math.floor(-elem.style.left.replace('px', '') * zoom - cameraPos.x);
+            let y2 = Math.floor(-elem.style.top.replace('px', '') * zoom - cameraPos.y);
 
             // Get other element
-            let root = document.getElementById(`card-${cardsData[i].connection}`)
-            let xr = Math.floor(-root.style.left.replace('px', '') * zoom - cameraPos.x)
-            let yr = Math.floor(-root.style.top.replace('px', '') * zoom - cameraPos.y)
+            let root = document.getElementById(`card-${card.connection}`);
+            let xr = Math.floor(-root.style.left.replace('px', '') * zoom - cameraPos.x);
+            let yr = Math.floor(-root.style.top.replace('px', '') * zoom - cameraPos.y);
 
 
 
