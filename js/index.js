@@ -248,11 +248,20 @@ function newCard(i, x, y, t)
         deleteCard.onclick = function() { deleteElem(i) };
         actions.appendChild(deleteCard);
 
+        let clrPicker = document.createElement('div')
+        clrPicker.classList.add('color-picker')
         let colorEdit = document.createElement('div');
-        colorEdit.classList.add('color-picker')
+        let colorInput = document.createElement('input');
+        colorInput.type = 'text'
+        colorInput.value = 'rgb(200, 200, 200)'
+        colorInput.setAttribute('data-coloris', true)
+        colorEdit.classList.add('clr-field')
+        colorEdit.style.color = 'rgb(200, 200, 200)'
         colorEdit.innerHTML = `
-        <input type="color">
+        <button type="button" aria-labelledby="clr-open-label"></button>
         `;
+        colorEdit.appendChild(colorInput);
+        clrPicker.appendChild(colorEdit)
         // colorEdit.onclick = function() { colorEditElem(i) };
         actions.appendChild(colorEdit);
 
@@ -376,7 +385,7 @@ window.onload = function()
     }, true);
     document.addEventListener('contextmenu', function(e)
     {
-        e.preventDefault();
+        // e.preventDefault();
     })
     canvas.addEventListener('mousedown', function(e)
     {
