@@ -879,7 +879,7 @@
       '<div id="clr-hue-marker"></div>'+
     '</div>'+
     '<div class="clr-alpha">'+
-      `<input id="clr-alpha-slider" type="range" min="0" max="100" step="1" aria-label="${settings.a11y.alphaSlider}">`+
+      `<input id="clr-alpha-slider" type="range" min="10" max="100" step="1" aria-label="${settings.a11y.alphaSlider}">`+
       '<div id="clr-alpha-marker"></div>'+
       '<span></span>'+
     '</div>'+

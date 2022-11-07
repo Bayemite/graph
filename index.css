@@ -160,7 +160,7 @@ button:hover {
     width: max-content;
     max-width: 20vw;
 
-    background-color: rgba(150, 150, 150, 0.1);
+    background-color: rgba(200, 200, 200, 0.1);
     border: 2px solid rgba(200, 200, 200, 1);
     border-radius: 20px;
 
@@ -229,29 +229,6 @@ button:hover {
     border: 2px solid rgba(200, 200, 200, 1);
     border-radius: 100%;
 }
-
-/* Color input */
-input[type="color"] {
-    margin-top: -0.2rem;
-    width: 2.9rem;
-    height: 3.1rem;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    background-color: transparent;
-    border: 0;
-    outline: none;
-    border-radius: 100%;
-    /* border: 2px solid rgba(200, 200, 200, 1); */
-}
-input[type="color"]::-webkit-color-swatch {
-    border-radius: 100%;
-    border: 2px solid rgba(200, 200, 200, 1);
-}
-/* input[type="color"]::-webkit-color-swatch-wrapper {
-    padding: 0; 
-    background-color: #181818;
-} */
 
 .color-picker {
     width: 2em;

@@ -252,20 +252,16 @@ function newCard(i, x, y, t) {
         // Callback function to execute when mutations are observed
         const callback = (mutationList, observer) => {
             for (const mutation of mutationList) {
-                // if (mutation.type === 'childList') {
-                //     console.log('A child node has been added or removed.');
-                // } else if (mutation.type === 'attributes') {
-                //     console.log(`The ${mutation.attributeName} attribute was modified.`);
-
-                // }
-                // console.log(`The ${mutation.attributeName} attribute was modified.`);
                 if (mutation.attributeName == 'style') {
                     cardContainer.style.borderColor = colorEdit.style.color
-                    console.log(colorEdit.style.color.split(','))
                     if (colorEdit.style.color.split(',')[3] !== undefined) {
                         let temp = colorEdit.style.color.split(',')
-                        console.log(temp)
-                        temp[3] = (parseFloat(temp[3].replace(')', ""))/4).toString() + ')'
+                        temp[3] = (parseFloat(temp[3].replace(')', ""))/10).toString() + ')'
+                        cardContainer.style.backgroundColor = temp
+                    } else {
+                        let temp = colorEdit.style.color
+                        temp = temp.replace('rgb', 'rgba')
+                        temp = temp.replace(')', ', 0.1)')
                         cardContainer.style.backgroundColor = temp
                     }
                 }
