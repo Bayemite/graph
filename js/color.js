@@ -35,7 +35,7 @@ Coloris({
   
     // Enable or disable alpha support.
     // When disabled, it will strip the alpha value from the existing color value in all formats.
-    alpha: false,
+    alpha: true,
   
     // Set to true to always include the alpha value in the color value even if the opacity is 100%.
     forceAlpha: false,
