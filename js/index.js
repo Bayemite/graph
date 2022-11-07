@@ -47,11 +47,11 @@ let colorPalette = [
 let cardsData = {
     '0': new util.cardObject(
         0, 0,
-        '', null, cardIds.getNextId()
+        '', null, cardIds.getNextId(), 'rgb(200, 200, 200)'
     ),
     '1': new util.cardObject(
         200, 100,
-        'Title', 0, cardIds.getNextId()
+        'Title', 0, cardIds.getNextId(), 'rgb(200, 200, 200)'
     ),
     // new util.cardObject(
     //     -200, 100,
@@ -254,6 +254,8 @@ function newCard(i, x, y, t) {
             for (const mutation of mutationList) {
                 if (mutation.attributeName == 'style') {
                     cardContainer.style.borderColor = colorEdit.style.color
+                    Object.values(cardsData)[Object.keys(cardsData)[i]].colour = colorEdit.style.color
+                    console.log(cardsData)
                     if (colorEdit.style.color.split(',')[3] !== undefined) {
                         let temp = colorEdit.style.color.split(',')
                         temp[3] = (parseFloat(temp[3].replace(')', ""))/10).toString() + ')'
