@@ -35,20 +35,21 @@ let focusedCard = null;
 
 // File structure
 // key is card-'0', corresponds to html id
-let cardsData = {
-    [cardIds.getNextId()]: new util.cardObject(
+let cardsData = new Map();
+cardsData.set(
+    cardIds.getNextId(),
+    new util.cardObject(
         0, 0,
         '', null, 'rgb(200, 200, 200)'
-    ),
-    [cardIds.getNextId()]: new util.cardObject(
+    )
+);
+cardsData.set(
+    cardIds.getNextId(),
+    new util.cardObject(
         200, 100,
         'Title', 0, 'rgb(200, 200, 200)'
-    ),
-    // new util.cardObject(
-    //     -200, 100,
-    //     'Title', 0, 2
-    // ),
-}
+    )
+);
 
 // cardIds.next = Math.max.apply(0, Object.keys(cardsData)) + 1
 
@@ -66,8 +67,7 @@ function closeNotif(e) {
 
 // Add cards from data
 function loadCards() {
-    for (let cardId of Object.keys(cardsData)) {
-        let card = Object.values(cardsData)[cardId]
+    for (const [cardId, card] of cardsData) {
         addCard(card.x, card.y, card.title, true, cardId, card.connection);
         // console.log(data[i].connection);
         // if (data[i].connection == null) { continue }
@@ -109,7 +109,7 @@ function linkTo(i) {
     if (!linkInProgress) return;
 
     // Disallow reconnection
-    if (cardsData[i].connection == linkStart) {
+    if (cardsData.get(i).connection == linkStart) {
         linkInProgress = false;
         return;
     }
@@ -119,19 +119,19 @@ function linkTo(i) {
     // If click on self just ignore
     if (linkStart == linkEnd) return;
 
-    cardsData[linkStart].connection = linkEnd;
-    console.log(cardsData[linkStart].connection);
+    cardsData.get(linkStart).connection = linkEnd;
+    console.log(cardsData.get(linkStart).connection);
     linkInProgress = false;
 }
 
 function deleteElem(i) {
-    for (let k in Object.keys(cardsData)) {
-        if (cardsData[k].connection == i) {
-            cardsData[k].connection = null;
+    for (let card of cardsData.values()) {
+        if (card.connection == i) {
+            card.connection = null;
         }
     }
 
-    delete cardsData[i];
+    cardsData.delete(i);
     cardIds.freeId(i);
 
     document.getElementById('translate').removeChild(document.getElementById(`card-${i}`));
@@ -143,22 +143,22 @@ let moveCardOffset = new util.vector2D(0, 0);
 function moveElem() {
     let i = moveCardI;
     let card = document.getElementById(`card-${i}`);
-    cardsData[i].x = Math.floor((mouse.x - cameraPos.x - moveCardOffset.x) / zoom);
-    cardsData[i].y = Math.floor((mouse.y - cameraPos.y - moveCardOffset.y) / zoom);
-    card.style.top = `${cardsData[i].y}px`;
-    card.style.left = `${cardsData[i].x}px`;
+    cardsData.get(i).x = Math.floor((mouse.x - cameraPos.x - moveCardOffset.x) / zoom);
+    cardsData.get(i).y = Math.floor((mouse.y - cameraPos.y - moveCardOffset.y) / zoom);
+    card.style.top = `${cardsData.get(i).y}px`;
+    card.style.left = `${cardsData.get(i).x}px`;
 }
 
 function newCard(i, x, y, t, c) {
     if (t == undefined) { t = "" };
 
-    cardsData[i] = new util.cardObject();
-    cardsData[i].title = t;
-    cardsData[i].x = x;
-    cardsData[i].y = y;
-    cardsData[i].connection = c;
-    cardsData[i].id = i;
-    cardsData[i].colour = 0;
+    cardsData.set(i, new util.cardObject());
+    cardsData.get(i).title = t;
+    cardsData.get(i).x = x;
+    cardsData.get(i).y = y;
+    cardsData.get(i).connection = c;
+    cardsData.get(i).id = i;
+    cardsData.get(i).colour = 0;
 
     let cardContainer = document.createElement('div');
 
@@ -191,7 +191,7 @@ function newCard(i, x, y, t, c) {
         p.classList.add('text');
         p.contentEditable = true;
         p.innerHTML = t;
-        p.oninput = () => cardsData[i.toString()].title = p.innerHTML;
+        p.oninput = () => cardsData.get(i).title = p.innerHTML;
 
         card.appendChild(p);
 
@@ -227,7 +227,7 @@ function newCard(i, x, y, t, c) {
         clrPicker.classList.add('color-picker');
         let colorEdit = document.createElement('div');
         let colorInput = document.createElement('input');
-        colorInput.onchange = function() {
+        colorInput.onchange = function () {
             // Set colour swatch settings
             cardColours[i] = colorEdit.style.color
             window.colorSettings([...new Set(Object.values(cardColours))])
@@ -255,8 +255,8 @@ function newCard(i, x, y, t, c) {
             for (const mutation of mutationList) {
                 if (mutation.attributeName == 'style') {
                     // Set colour variables
-                    cardContainer.style.borderColor = colorEdit.style.color
-                    Object.values(cardsData)[Object.keys(cardsData)[i]].colour = colorEdit.style.color
+                    cardContainer.style.borderColor = colorEdit.style.color;
+                    cardsData.get(i).colour = colorEdit.style.color;
 
                     // console.log(cardsData)
                     if (colorEdit.style.color.split(',')[3] !== undefined) {
@@ -315,7 +315,7 @@ function addCard(x, y, t, newInstance, i, c) {
         document.getElementById("translate").appendChild(newCard(i, x - 136 / 2, y - 79 / 2, t, c));
     } else {
         document.getElementById("translate").appendChild(newCard(i, x - 136 / 2, y - 79 / 2, t));
-        cardsData[i] = new util.cardObject(x, y, "", null, i);
+        cardsData.set(i, new util.cardObject(x, y, "", null, i));
         // cardsData[`${Number(largest) + 1}`] = "a"
         console.log(cardsData);
         // cardsData.push()
@@ -470,17 +470,18 @@ window.onload = function () {
                 console.log("File incompatible")
                 return
             }
-            cardsData = {};
+            cardsData.clear();
             for (let i of Object.keys(fileData)) {
                 let iValues = Object.values(fileData)
-                cardsData[i] = (new util.cardObject(
-                    iValues.x,
-                    iValues.y,
-                    iValues.title,
-                    iValues.connection,
-                    iValues.color
-                )
-                )
+                cardsData.set(i,
+                    new util.cardObject(
+                        iValues.x,
+                        iValues.y,
+                        iValues.title,
+                        iValues.connection,
+                        iValues.color
+                    )
+                );
 
             }
             clearMap();
@@ -517,8 +518,7 @@ window.onload = function () {
             title: document.getElementById("title").innerText,
             data: {}
         }
-        for (let cardId of Object.keys(cardsData)) {
-            let card = Object.values(cardsData)[cardId]
+        for (let [cardId, card] of cardsData) {
             saveData.data[cardId] = {
                 "x": card.x,
                 "y": card.y,
@@ -527,7 +527,7 @@ window.onload = function () {
                 // "id": card.id,
                 "colour": card.colour,
             }
-            
+
         }
         download(JSON.stringify(saveData), saveData.title, "application/json")
     }
@@ -625,8 +625,7 @@ window.onload = function () {
         }
 
 
-        for (let cardId of Object.keys(cardsData)) {
-            let card = Object.values(cardsData)[cardId]
+        for (let [cardId, card] of cardsData) {
             if (card.connection == null)
                 continue;
 
