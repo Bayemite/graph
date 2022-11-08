@@ -1,4 +1,11 @@
+# TO FIX!
+- Loading from file breaks connections
+
+# Inconvenient
 - Make it so that clicking on the card container also focuses on the input
+- Hover to open UI under card sometimes disappears when trying to move cursor to buttons
+
+# Features
 - Color change: text, arrows (where to put UI though?)
 - Multi connections
 - Printer friendliness (day mode: background white)
