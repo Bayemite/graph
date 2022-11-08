@@ -1,4 +1,4 @@
-function colorSettings(input) {
+window.colorSettings = function(input) {
     Coloris({
 
         // The bound input fields are wrapped in a div that adds a thumbnail showing the current color
@@ -59,11 +59,11 @@ function colorSettings(input) {
         // An array of the desired color swatches to display. If omitted or the array is empty,
         // the color swatches will be disabled.
         swatches: [
-            "rgb(51, 153, 255)",
-            "rgb(0, 100, 210)",
-            "rgb(115, 230, 20)",
-            "rgb(0, 204, 136)",
-            "rgb(255, 170, 20)",
+            'rgb(51, 153, 255)',
+            'rgb(0, 100, 210)',
+            'rgb(115, 230, 20)',
+            'rgb(0, 204, 136)',
+            'rgb(255, 170, 20)',
             ...input
         ],
 
@@ -80,4 +80,6 @@ function colorSettings(input) {
     });
 }
 
-console.log(cardsData)
+window.colorSettings([])
+
+// console.log(window.cardsData)

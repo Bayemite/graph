@@ -324,6 +324,7 @@ input.clr-color:focus {
 
 .clr-field input {
   cursor: default;
+  user-select: none;
   padding: 0;
   width: 2.2rem;
   height: 2.2rem;

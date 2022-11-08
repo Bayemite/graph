@@ -1,5 +1,4 @@
 import * as util from './util.js';
-
 var peer = new Peer();
 var cardIds = new util.IDAssign();
 
@@ -34,15 +33,6 @@ let cameraPos;
 
 let focusedCard = null;
 
-// RGB class in functions.js
-let colorPalette = [
-    new util.rgb(51, 153, 255),
-    new util.rgb(0, 100, 210),
-    new util.rgb(115, 230, 20),
-    new util.rgb(0, 204, 136),
-    new util.rgb(255, 170, 20),
-]
-
 // File structure
 // key is card-'0', corresponds to html id
 let cardsData = {
@@ -60,7 +50,8 @@ let cardsData = {
     // ),
 }
 cardIds.next = Math.max.apply(0, Object.keys(cardsData)) + 1
-console.log(cardIds)
+
+let cardColours = {}
 
 function closeNotif(e) {
     // console.log(e, e.parentElement)
@@ -231,15 +222,20 @@ function newCard(i, x, y, t, c) {
         deleteCard.onclick = function () { deleteElem(i) };
         actions.appendChild(deleteCard);
 
-        let clrPicker = document.createElement('div')
-        clrPicker.classList.add('color-picker')
+        let clrPicker = document.createElement('div');
+        clrPicker.classList.add('color-picker');
         let colorEdit = document.createElement('div');
         let colorInput = document.createElement('input');
-        colorInput.type = 'text'
-        colorInput.value = 'rgb(200, 200, 200)'
-        colorInput.setAttribute('data-coloris', true)
-        colorEdit.classList.add('clr-field')
-        colorEdit.style.color = 'rgb(200, 200, 200)'
+        colorInput.onchange = function() {
+            // Set colour swatch settings
+            cardColours[i] = colorEdit.style.color
+            window.colorSettings([...new Set(Object.values(cardColours))])
+        }
+        colorInput.type = 'text';
+        colorInput.value = 'rgb(200, 200, 200)';
+        colorInput.setAttribute('data-coloris', true);
+        colorEdit.classList.add('clr-field');
+        colorEdit.style.color = 'rgb(200, 200, 200)';
         colorEdit.innerHTML = `
         <button type="button" aria-labelledby="clr-open-label"></button>
         `;
@@ -257,12 +253,14 @@ function newCard(i, x, y, t, c) {
         const callback = (mutationList, observer) => {
             for (const mutation of mutationList) {
                 if (mutation.attributeName == 'style') {
+                    // Set colour variables
                     cardContainer.style.borderColor = colorEdit.style.color
                     Object.values(cardsData)[Object.keys(cardsData)[i]].colour = colorEdit.style.color
-                    console.log(cardsData)
+
+                    // console.log(cardsData)
                     if (colorEdit.style.color.split(',')[3] !== undefined) {
                         let temp = colorEdit.style.color.split(',')
-                        temp[3] = (parseFloat(temp[3].replace(')', ""))/10).toString() + ')'
+                        temp[3] = (parseFloat(temp[3].replace(')', "")) / 10).toString() + ')'
                         cardContainer.style.backgroundColor = temp
                     } else {
                         let temp = colorEdit.style.color
@@ -390,7 +388,7 @@ window.onload = function () {
         );
     }, true);
     document.addEventListener('contextmenu', function (e) {
-        // e.preventDefault();
+        e.preventDefault();
     })
     canvas.addEventListener('mousedown', function (e) {
         if (add) {
