@@ -65,26 +65,37 @@ function closeNotif(e) {
 
 // document.getElementById('notif-button').onclick = function() {closeNotif(this)}
 
+function addUnlink(cardId) {
+    let breakLink = document.createElement('button');
+    breakLink.classList.add('connection-button')
+    breakLink.id = `unlink-${cardId}`;
+    breakLink.innerHTML = `
+            <span class="material-symbols-outlined">
+                delete
+            </span>
+            `
+    breakLink.onclick = function () {
+        unlink(cardId)
+    }
+    breakLink.style.left = `${100}px`;
+    document.getElementById('break').appendChild(breakLink);
+}
+function removeUnlink(cardId) {
+    document.getElementById('break').removeChild(document.getElementById(`unlink-${cardId}`));
+}
+
+function unlink(i) {
+    cardsData.get(i).connection = null
+    removeUnlink(i)
+}
+
 // Add cards from data
 function loadCards() {
     for (const [cardId, card] of cardsData) {
         addCard(card.x, card.y, card.title, true, cardId, card.connection);
-        // console.log(data[i].connection);
-        // if (data[i].connection == null) { continue }
-        let breakLink = document.createElement('button');
-        breakLink.classList.add('connection-button')
-        breakLink.id = `unlink-${cardId}`;
-        breakLink.innerHTML = `
-        <span class="material-symbols-outlined">
-            delete
-        </span>
-        `
-        // breakLink.onclick = `
-        // unlink(${i})
-        // `
-        breakLink.style.left = `${300}px`;
-        // console.log(breakLink);
-        document.getElementById('break').appendChild(breakLink);
+        if (card.connection == null) { continue }
+
+        addUnlink(cardId)
     }
 }
 
@@ -122,6 +133,7 @@ function linkTo(i) {
     cardsData.get(linkStart).connection = linkEnd;
     console.log(cardsData.get(linkStart).connection);
     linkInProgress = false;
+    addUnlink(linkStart)
 }
 
 function deleteElem(i) {
@@ -342,22 +354,10 @@ window.onload = function () {
     ctx.imageSmoothingEnabled = true;
 
     function resize() {
-        // Resize the canvas to the screen
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-        // ctx.fillStyle = backgroundColor; // Background colour
-        // ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
     window.addEventListener('resize', resize);
-    // document.getElementById("add").onclick = function () {
-    //     add = !add;
-    //     if (add) {
-    //         document.getElementById('add').classList.add('selected')
-    //     } else {
-    //         document.getElementById('add').classList.remove('selected')
-    //     }
-
-    // }
     resize();
 
     cameraPos = new util.vector2D(canvas.width / 2, canvas.height / 2);
@@ -438,20 +438,18 @@ window.onload = function () {
         }
     });
 
-    document.addEventListener('mouseup', function () {
-        mouseDown = false;
-    });
+    document.onmouseup = event => mouseDown = false;
     window.onmouseup = event => event.preventDefault();
 
-    window.addEventListener('mousewheel', function (evt) {
-        let delta = evt.wheelDelta;
+    window.onmousewheel = event => {
+        let delta = event.wheelDelta;
         let zoomFactor = 0.0007;
         zoomTarget += delta * zoomFactor;
 
         let zoomOut = 0.3;
         let zoomIn = 3;
         zoomTarget = util.clamp(zoomOut, zoomTarget, zoomIn);
-    });
+    };
 
     loadCards();
 
@@ -472,7 +470,7 @@ window.onload = function () {
             }
             cardsData.clear();
             for (let i of Object.keys(fileData)) {
-                let iValues = Object.values(fileData)
+                let iValues = Object.values(fileData)[i]
                 cardsData.set(i,
                     new util.cardObject(
                         iValues.x,
@@ -484,6 +482,8 @@ window.onload = function () {
                 );
 
             }
+            cardIds.next = Math.max.apply(0, Object.keys(cardsData)) + 1
+
             clearMap();
             loadCards();
             console.log(cardsData);
@@ -513,7 +513,7 @@ window.onload = function () {
         }
     }
 
-    document.getElementById('save').onclick = function () {
+    document.getElementById('save').onclick = () => {
         let saveData = {
             title: document.getElementById("title").innerText,
             data: {}
@@ -532,27 +532,28 @@ window.onload = function () {
         download(JSON.stringify(saveData), saveData.title, "application/json")
     }
 
-    function main(currentTime) {
-        window.requestAnimationFrame(main);
-        document.getElementById('break').innerHTML = ""
+    function cameraMovement() {
+        let prevZoom = zoom;
+        zoom = util.lerp(zoom, zoomTarget, 0.3);
+        let deltaZoom = zoom - prevZoom;
+        let offsetZoomX = deltaZoom * (window.innerWidth / 2 - mouse.x);
+        let offsetZoomY = deltaZoom * (window.innerHeight / 2 - mouse.y);
+        targetX += offsetZoomX;
+        targetY += offsetZoomY;
 
         let translateLerpScale = 0.9;
-
-        zoom = util.lerp(zoom, zoomTarget, 0.3);
         cameraPos.x = util.lerp(cameraPos.x, targetX, translateLerpScale);
         cameraPos.y = util.lerp(cameraPos.y, targetY, translateLerpScale);
-        ctx.fillStyle = "#fff"
-        document.getElementById('translate').style.transform = `translate(${cameraPos.x}px, ${cameraPos.y}px) scale(${zoom})`;
+        let transformNode = document.getElementById('translate');
+        transformNode.style.transform = `translate(${cameraPos.x}px, ${cameraPos.y}px) scale(${zoom})`;
+    }
 
-        // Template get position of cursor in "map space"
-        // document.getElementById(`card-0`).style.left = `${(mouse.x - cameraPos.x) / zoom}px`
-        // document.getElementById(`card-0`).style.top = `${(mouse.y - cameraPos.y) / zoom}px`
-
-        // Zoom needs fixing, needs to be anchored in the middle of the screen not 0, 0
-        // ctx.fillStyle = backgroundColor; // Background colour
-        // ctx.fillRect(0, 0, canvas.width, canvas.height);
+    function main(currentTime) {
+        window.requestAnimationFrame(main);
+        cameraMovement();
 
         // Clear canvas
+        ctx.fillStyle = "#fff";
         ctx.clearRect(0, 0, canvas.width, canvas.height)
         // ctx.fillRect((mouse.x + cameraPos.x) - canvas.width / 2 - 25, (mouse.y - cameraPos.y) + canvas.height / 2 - 25, 50, 50)
 
@@ -641,7 +642,7 @@ window.onload = function () {
             let xr = Math.floor(-root.style.left.replace('px', '') * zoom - cameraPos.x);
             let yr = Math.floor(-root.style.top.replace('px', '') * zoom - cameraPos.y);
 
-
+            let unlink = document.getElementById(`unlink-${cardId}`)
 
             // Styling
             // Wait where did it go lol
@@ -650,6 +651,7 @@ window.onload = function () {
             // Stuff that like
             // Works and like
             // yeah
+            // massive L
             ctx.beginPath();
             if (-xr + (root.offsetWidth * zoom) < -x2) {
                 curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (xr - x2) / zoom / 500, 1)
@@ -659,6 +661,9 @@ window.onload = function () {
                     -x2 + 1, -y2 + (elem.offsetHeight / 2) * zoom);
                 ctx.stroke();
                 new util.drawTriangle(ctx, -xr + (root.offsetWidth * zoom) - 2 + (triRad + 0.5) * zoom, -yr + (root.offsetHeight / 2) * zoom, triRad, zoom, '#fff', -90)
+                unlink.style.left = `${((Math.floor(elem.style.left.replace('px', '')) + (Math.floor(root.style.left.replace('px', '')) + root.offsetWidth)) / 2) - unlink.offsetWidth / 2}px`
+                unlink.style.top = `${((Math.floor(elem.style.top.replace('px', '')) + (Math.floor(root.style.top.replace('px', '')) + root.offsetHeight)) / 2) - unlink.offsetHeight / 2}px`
+                // document.getElementById(`unlink-${cardId}`).style.left = '200px'
             } else if (-xr + (root.offsetWidth * zoom) + (curveWidth * zoom / limiter) > -x2 - (curveWidth * zoom / limiter) && (-xr + (curveWidth * zoom / limiter) < -x2 + (elem.offsetWidth * zoom) + (curveWidth * zoom / limiter))) {
                 if (yr > y2) {
                     curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (yr - y2) / zoom / 500, 1)
