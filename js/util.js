@@ -8,7 +8,6 @@ export class IDAssign{
     {
         if(this.spare.length > 0)
             return this.spare.shift();
-        console.log(this.next)
         return this.next++;;
     }
     freeId(id)
