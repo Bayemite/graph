@@ -1,14 +1,19 @@
 # TO FIX!
-- Loading from file breaks connections
+- Random reference errors when adding deleting cards for more than a few times
 
 # Inconvenient
-- Make it so that clicking on the card container also focuses on the input
+- Make it so that clicking on the card container also focuses on the input （rather than only the center input)
 - Hover to open UI under card sometimes disappears when trying to move cursor to buttons
 
 # Features
-- Color change: text, arrows (where to put UI though?)
+- Color change: text, arrows (where to put UI though, appear on text focus?)
 - Multi connections
 - Printer friendliness (day mode: background white)
 - Bold, italics, etc. for text
-- Peer connections for collaboration (hard)
-- Resizing card manually
+- Peer connections for collaboration (hard, started)
+- Resizing card manually (nice to have)
+- Images in cards
+
+## Done
+- Deleting card leaves connection del btn 
+- Loading from file breaks connections

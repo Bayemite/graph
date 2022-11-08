@@ -59,12 +59,14 @@ window.colorSettings = function(input) {
         // An array of the desired color swatches to display. If omitted or the array is empty,
         // the color swatches will be disabled.
         swatches: [
+            ...new Set([
             'rgb(51, 153, 255)',
             'rgb(0, 100, 210)',
             'rgb(115, 230, 20)',
             'rgb(0, 204, 136)',
             'rgb(255, 170, 20)',
             ...input
+            ])
         ],
 
         // Set to true to use the color picker as an inline widget. In this mode the color picker is
