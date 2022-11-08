@@ -8,6 +8,7 @@ export class IDAssign{
     {
         if(this.spare.length > 0)
             return this.spare.shift();
+        console.log(this.next)
         return this.next++;;
     }
     freeId(id)
@@ -25,12 +26,11 @@ export class rgb {
 }
 
 export class cardObject {
-    constructor(x, y, t, c, id, colour) {
+    constructor(x, y, t, c, colour) {
         this.x = x;
         this.y = y;
         this.title = t;
         this.connection = c;
-        this.id = id;
         this.colour = colour;
     }
 }

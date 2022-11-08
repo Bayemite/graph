@@ -1,4 +1,5 @@
 import * as util from './util.js';
+
 var peer = new Peer();
 var cardIds = new util.IDAssign();
 
@@ -47,17 +48,19 @@ let colorPalette = [
 let cardsData = {
     '0': new util.cardObject(
         0, 0,
-        '', null, cardIds.getNextId(), 'rgb(200, 200, 200)'
+        '', null, 'rgb(200, 200, 200)'
     ),
     '1': new util.cardObject(
         200, 100,
-        'Title', 0, cardIds.getNextId(), 'rgb(200, 200, 200)'
+        'Title', 0, 'rgb(200, 200, 200)'
     ),
     // new util.cardObject(
     //     -200, 100,
     //     'Title', 0, 2
     // ),
 }
+cardIds.next = Math.max.apply(0, Object.keys(cardsData)) + 1
+console.log(cardIds)
 
 function closeNotif(e) {
     // console.log(e, e.parentElement)
@@ -71,13 +74,14 @@ function closeNotif(e) {
 
 // Add cards from data
 function loadCards() {
-    for (let card of Object.values(cardsData)) {
-        addCard(card.x, card.y, card.title, true, card.id);
+    for (let cardId of Object.keys(cardsData)) {
+        let card = Object.values(cardsData)[cardId]
+        addCard(card.x, card.y, card.title, true, cardId, card.connection);
         // console.log(data[i].connection);
         // if (data[i].connection == null) { continue }
         let breakLink = document.createElement('button');
         breakLink.classList.add('connection-button')
-        breakLink.id = `unlink-${card.id}`;
+        breakLink.id = `unlink-${cardId}`;
         breakLink.innerHTML = `
         <span class="material-symbols-outlined">
             delete
@@ -153,14 +157,14 @@ function moveElem() {
     card.style.left = `${cardsData[i].x}px`;
 }
 
-function newCard(i, x, y, t) {
+function newCard(i, x, y, t, c) {
     if (t == undefined) { t = "" };
 
     cardsData[i] = new util.cardObject();
     cardsData[i].title = t;
     cardsData[i].x = x;
     cardsData[i].y = y;
-    cardsData[i].connection = null;
+    cardsData[i].connection = c;
     cardsData[i].id = i;
     cardsData[i].colour = 0;
 
@@ -302,14 +306,14 @@ function newCard(i, x, y, t) {
 
 let add = false; // Add card
 let largest = 0;
-function addCard(x, y, t, newInstance, i) {
+function addCard(x, y, t, newInstance, i, c) {
     // Hardcoded solution for now
     // The textbox will always be placed with the default "Enter text" meaning its width will
     // always be the same
     // The width is 136, height is 79
 
     if (newInstance) {
-        document.getElementById("translate").appendChild(newCard(i, x - 136 / 2, y - 79 / 2, t));
+        document.getElementById("translate").appendChild(newCard(i, x - 136 / 2, y - 79 / 2, t, c));
     } else {
         document.getElementById("translate").appendChild(newCard(i, x - 136 / 2, y - 79 / 2, t));
         cardsData[i] = new util.cardObject(x, y, "", null, i);
@@ -381,7 +385,8 @@ window.onload = function () {
             Math.floor((mouse.y - cameraPos.y) / zoom),
             "",
             true,
-            cardIds.getNextId()
+            cardIds.getNextId(),
+            null
         );
     }, true);
     document.addEventListener('contextmenu', function (e) {
@@ -393,7 +398,8 @@ window.onload = function () {
                 Math.floor((mouse.x - cameraPos.x) / zoom),
                 Math.floor((mouse.y - cameraPos.y) / zoom),
                 "",
-                cardIds.getNextId()
+                cardIds.getNextId(),
+                null
             );
 
             document.getElementById('add').classList.remove('selected');
@@ -472,7 +478,8 @@ window.onload = function () {
                     iValues.x,
                     iValues.y,
                     iValues.title,
-                    iValues.connection
+                    iValues.connection,
+                    iValues.color
                 )
                 )
 
@@ -518,7 +525,8 @@ window.onload = function () {
                     "y": card.y,
                     "title": card.title,
                     "connection": card.connection,
-                    "id": card.id,
+                    // "id": card.id,
+                    "colour": card.colour,
                 }
             )
         }
@@ -618,14 +626,15 @@ window.onload = function () {
         }
 
 
-        for (let card of Object.values(cardsData)) {
+        for (let cardId of Object.keys(cardsData)) {
+            let card = Object.values(cardsData)[cardId]
             if (card.connection == null)
                 continue;
 
             curveWidth = Math.floor(50 * zoom) // Set default
 
             // Get element connecting to other element
-            let elem = document.getElementById(`card-${card.id}`);
+            let elem = document.getElementById(`card-${cardId}`);
             let x2 = Math.floor(-elem.style.left.replace('px', '') * zoom - cameraPos.x);
             let y2 = Math.floor(-elem.style.top.replace('px', '') * zoom - cameraPos.y);
 
