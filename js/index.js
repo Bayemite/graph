@@ -451,15 +451,18 @@ window.onload = function () {
     document.onmouseup = event => mouseDown = false;
     window.onmouseup = event => event.preventDefault();
 
-    window.onmousewheel = event => {
-        let delta = event.wheelDelta;
-        let zoomFactor = 0.0007;
-        zoomTarget += delta * zoomFactor;
+    window.addEventListener('wheel',
+        (event) => {
+            event.preventDefault();
+            let delta = event.wheelDelta;
+            let zoomFactor = 0.0007;
+            zoomTarget += delta * zoomFactor;
 
-        let zoomOut = 0.3;
-        let zoomIn = 3;
-        zoomTarget = util.clamp(zoomOut, zoomTarget, zoomIn);
-    };
+            let zoomOut = 0.3;
+            let zoomIn = 3;
+            zoomTarget = util.clamp(zoomOut, zoomTarget, zoomIn);
+        }, { passive: false }
+    );
 
     loadCards();
 
