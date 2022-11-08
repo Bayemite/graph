@@ -280,6 +280,9 @@ button:hover {
     transform: scale(0.75);
     filter: blur(1px);
 
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+
     /* transition: 0.5s background cubic-bezier(0, 0.96, 0, 0.99), 0s left, 0.5s all; */
     /* transition: all 0.5s linear, left 0.2s \
     
