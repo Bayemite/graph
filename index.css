@@ -105,7 +105,7 @@ button:hover {
 .accordion {
     background-color: rgba(73, 73, 73, 0.139);
     margin-top: 10px;
-    padding: 15px;
+    padding: 0 15px;
     border-radius: 10px;
     border: 2px solid rgba(200, 200, 200, 1);
 }
@@ -133,6 +133,7 @@ button:hover {
 
 .accordion-content {
     transition: max-height 0.15s cubic-bezier(0.075, 0.82, 0.165, 1);
+    padding: 5px 0;
 }
 
 .accordion-closed {
