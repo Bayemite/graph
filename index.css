@@ -48,6 +48,7 @@ h4 {
 
 .overlay {
     position: absolute;
+    width: 12rem;
     top: 10px;
     left: 10px;
     padding: 0px 20px 20px 20px;

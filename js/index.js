@@ -36,11 +36,11 @@ let focusedCard = null;
 // File structure
 // key is card-'0', corresponds to html id
 let cardsData = {
-    '0': new util.cardObject(
+    [cardIds.getNextId()]: new util.cardObject(
         0, 0,
         '', null, 'rgb(200, 200, 200)'
     ),
-    '1': new util.cardObject(
+    [cardIds.getNextId()]: new util.cardObject(
         200, 100,
         'Title', 0, 'rgb(200, 200, 200)'
     ),
@@ -49,7 +49,8 @@ let cardsData = {
     //     'Title', 0, 2
     // ),
 }
-cardIds.next = Math.max.apply(0, Object.keys(cardsData)) + 1
+
+// cardIds.next = Math.max.apply(0, Object.keys(cardsData)) + 1
 
 let cardColours = {}
 
@@ -348,15 +349,15 @@ window.onload = function () {
         // ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
     window.addEventListener('resize', resize);
-    document.getElementById("add").onclick = function () {
-        add = !add;
-        if (add) {
-            document.getElementById('add').classList.add('selected')
-        } else {
-            document.getElementById('add').classList.remove('selected')
-        }
+    // document.getElementById("add").onclick = function () {
+    //     add = !add;
+    //     if (add) {
+    //         document.getElementById('add').classList.add('selected')
+    //     } else {
+    //         document.getElementById('add').classList.remove('selected')
+    //     }
 
-    }
+    // }
     resize();
 
     cameraPos = new util.vector2D(canvas.width / 2, canvas.height / 2);
@@ -465,7 +466,7 @@ window.onload = function () {
                 document.getElementById("title").innerText = fileData.title
                 fileData = fileData.data
             } catch (error) {
-                alert("File format incompatible")
+                alert("Could not load file")
                 console.log("File incompatible")
                 return
             }
@@ -514,19 +515,19 @@ window.onload = function () {
     document.getElementById('save').onclick = function () {
         let saveData = {
             title: document.getElementById("title").innerText,
-            data: []
+            data: {}
         }
-        for (let card of Object.values(cardsData)) {
-            saveData.data.push(
-                {
-                    "x": card.x,
-                    "y": card.y,
-                    "title": card.title,
-                    "connection": card.connection,
-                    // "id": card.id,
-                    "colour": card.colour,
-                }
-            )
+        for (let cardId of Object.keys(cardsData)) {
+            let card = Object.values(cardsData)[cardId]
+            saveData.data[cardId] = {
+                "x": card.x,
+                "y": card.y,
+                "title": card.title,
+                "connection": card.connection,
+                // "id": card.id,
+                "colour": card.colour,
+            }
+            
         }
         download(JSON.stringify(saveData), saveData.title, "application/json")
     }

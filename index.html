@@ -20,16 +20,18 @@
 <body>
   <div class="overlay" id="overlay">
     <h4 contenteditable id="title">Mindmap</h4>
-    <button id="save">
-      Save
-    </button>
-    <label class="label">
-      <input id="openFile" accept=".txt, .json, .graph" type="file">
-      <span id="upload">Open</span>
-    </label>
-    <button id="add">
+    <div style="text-align: center;">
+      <button id="save">
+        Save
+      </button>
+      <label class="label">
+        <input id="openFile" accept=".txt, .json, .graph" type="file">
+        <span id="upload">Open</span>
+      </label>
+    </div>
+    <!-- <button id="add">
       +
-    </button>
+    </button> -->
     <div class="accordion" id="accordion-base-0">
       <div class="accordion-header" onclick="
       let accordionContent = document.getElementById('accordion-0')
