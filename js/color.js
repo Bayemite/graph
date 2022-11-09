@@ -1,4 +1,4 @@
-window.colorSettings = function(input) {
+window.colorSettings = function (input) {
     Coloris({
 
         // The bound input fields are wrapped in a div that adds a thumbnail showing the current color
@@ -60,12 +60,12 @@ window.colorSettings = function(input) {
         // the color swatches will be disabled.
         swatches: [
             ...new Set([
-            'rgb(51, 153, 255)',
-            'rgb(0, 100, 210)',
-            'rgb(115, 230, 20)',
-            'rgb(0, 204, 136)',
-            'rgb(255, 170, 20)',
-            ...input
+                'rgb(51, 153, 255)',
+                'rgb(0, 100, 210)',
+                'rgb(115, 230, 20)',
+                'rgb(0, 204, 136)',
+                'rgb(255, 170, 20)',
+                ...input
             ])
         ],
 
@@ -80,8 +80,8 @@ window.colorSettings = function(input) {
         // In inline mode, this is the default color that is set when the picker is initialized.
         defaultColor: '#000000'
     });
-}
+};
 
-window.colorSettings([])
+window.colorSettings([]);
 
 // console.log(window.cardsData)

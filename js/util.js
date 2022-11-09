@@ -1,23 +1,20 @@
-export class IDAssign{
-    constructor()
-    {
+export class IDAssign {
+    constructor () {
         this.spare = [];
         this.next = 0;
     }
-    getNextId()
-    {
-        if(this.spare.length > 0)
+    getNextId() {
+        if (this.spare.length > 0)
             return this.spare.shift();
         return this.next++;;
     }
-    freeId(id)
-    {
+    freeId(id) {
         this.spare.push(id);
     }
 }
 
 export class rgb {
-    constructor(r, g, b) {
+    constructor (r, g, b) {
         this.r = r;
         this.g = g;
         this.b = b;
@@ -25,7 +22,7 @@ export class rgb {
 }
 
 export class cardObject {
-    constructor(x, y, t, c, colour) {
+    constructor (x, y, t, c, colour) {
         this.x = x;
         this.y = y;
         this.title = t;
@@ -35,7 +32,7 @@ export class cardObject {
 }
 
 export class vector2D {
-    constructor(x, y) {
+    constructor (x, y) {
         this.x = x;
         this.y = y;
     }
@@ -102,7 +99,7 @@ export function drawTriangle(ctx, x, y, radius, zoom, fill, angle) {
         ctx.stroke();
         ctx.fillStyle = fill;
         ctx.fill();
-    }
+    };
 
     // this.update = function (x, y, zoom, angle, zoomScalar) {
     //     // ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);

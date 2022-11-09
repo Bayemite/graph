@@ -7,15 +7,15 @@ peer.on('open', function (id) {
 });
 
 peer.on('connection', function (conn) {
-    console.log(conn)
+    console.log(conn);
 });
 
 function connect(id) {
-    console.log(id)
+    console.log(id);
     var conn = peer.connect(id);
 }
-const connectionButton = document.getElementById('connect-button')
-connectionButton.onclick = function () { connect(document.getElementById('peer-id').innerHTML) }
+const connectionButton = document.getElementById('connect-button');
+connectionButton.onclick = function () { connect(document.getElementById('peer-id').innerHTML); };
 
 const backgroundColor = new util.rgb(100, 150, 200);
 
@@ -40,62 +40,66 @@ cardsData.set(
     cardIds.getNextId(),
     new util.cardObject(
         0, 0,
-        '', null, 'rgb(200, 200, 200)'
+        '',
+        new Set(),
+        'rgb(200, 200, 200)'
     )
 );
 cardsData.set(
     cardIds.getNextId(),
     new util.cardObject(
         200, 100,
-        'Title', 0, 'rgb(200, 200, 200)'
+        'Title',
+        new Set(0),
+        'rgb(200, 200, 200)'
     )
 );
 
 // cardIds.next = Math.max.apply(0, Object.keys(cardsData)) + 1
 
-let cardColours = {}
+let cardColours = {};
 
 function closeNotif(e) {
     // console.log(e, e.parentElement)
-    e.parentElement.classList.add("notification-remove")
+    e.parentElement.classList.add("notification-remove");
     setTimeout(function () {
-        e.parentElement.remove()
-    }, 302)
+        e.parentElement.remove();
+    }, 302);
 }
 
 // document.getElementById('notif-button').onclick = function() {closeNotif(this)}
 
-function addUnlink(cardId) {
+function addUnlink(start, end) {
     let breakLink = document.createElement('button');
-    breakLink.classList.add('connection-button')
-    breakLink.id = `unlink-${cardId}`;
+    breakLink.classList.add('connection-button');
+    breakLink.id = `unlink-${start}-${end}`;
     breakLink.innerHTML = `
             <span class="material-symbols-outlined">
                 delete
             </span>
-            `
-    breakLink.onclick = () => deleteLink(cardId);
+            `;
+    breakLink.onclick = () => deleteLink(start, end);
 
     breakLink.style.left = `${100}px`;
     document.getElementById('break').appendChild(breakLink);
 }
-function removeBreakLink(cardId) {
-    document.getElementById('break').removeChild(document.getElementById(`unlink-${cardId}`));
+function removeBreakLink(start, end) {
+    document.getElementById('break').removeChild(document.getElementById(`unlink-${start}-${end}`));
 }
 
-function deleteLink(i) {
-    cardsData.get(i).connection = null;
-    removeBreakLink(i);
+function deleteLink(start, end) {
+    cardsData.get(start).connection.delete(end);
+    removeBreakLink(start, end);
 }
 
 // Add cards from data
 function loadCards() {
     for (const [cardId, card] of cardsData) {
-        console.log(card)
+        console.log(card);
         addCard(card.x, card.y, card.title, true, cardId, card.connection, card.colour);
-        if (card.connection == null) { continue }
+        if (card.connection == null) { continue; }
 
-        addUnlink(cardId)
+        addUnlink(cardId);
     }
 }
 
@@ -116,41 +120,41 @@ function link(i) {
 }
 
 // i : id of card
-function linkTo(i) {
+function linkTo(linkEnd) {
     if (!linkInProgress) return;
 
     // Disallow reconnection
-    if (cardsData.get(i).connection == linkStart) {
+    if (cardsData.get(linkEnd).connection.has(linkStart)) {
         linkInProgress = false;
         return;
     }
 
     // Disallow same connection
-    if (cardsData.get(linkStart).connection == i) {
+    if (cardsData.get(linkStart).connection.has(linkEnd)) {
         linkInProgress = false;
         return;
     }
 
-    let linkEnd = i;
-
     // If click on self just ignore
     if (linkStart == linkEnd) return;
 
-    cardsData.get(linkStart).connection = linkEnd;
-    console.log(cardsData.get(linkStart).connection);
+    cardsData.get(linkStart).connection.add(linkEnd);
     linkInProgress = false;
-    addUnlink(linkStart)
+    addUnlink(linkStart, linkEnd);
 }
 
 function deleteElem(i) {
-    if (cardsData.get(i).connection != null) {
-        document.getElementById('break').removeChild(document.getElementById(`unlink-${i}`))
+    let connections = cardsData.get(i).connection;
+    if (connections.size > 0) {
+        let unlinkContainer = document.getElementById('break');
+        for (let connection of connections.values())
+            unlinkContainer.removeChild(document.getElementById(`unlink-${i}-${connection}`));
     }
-    console.log(cardsData)
+    // console.log(cardsData)
     for (let card of cardsData.values()) {
         if (card.connection == i) {
             card.connection = null;
-            document.getElementById('break').removeChild(document.getElementById(`unlink-${card.id}`))
+            document.getElementById('break').removeChild(document.getElementById(`unlink-${card.id}`));
         }
     }
 
@@ -173,7 +177,7 @@ function moveElem() {
 }
 
 function newCard(i, x, y, t, c) {
-    if (t == undefined) { t = "" };
+    if (t == undefined) { t = ""; };
 
     cardsData.set(i, new util.cardObject());
     cardsData.get(i).title = t;
@@ -188,7 +192,7 @@ function newCard(i, x, y, t, c) {
     cardContainer.id = "card-" + i;
     cardContainer.style = "left:" + Math.floor(x) + "px; top:" + Math.floor(y) + "px";
     cardContainer.classList.add('object');
-    cardContainer.onclick = function () { linkTo(i) };
+    cardContainer.onclick = function () { linkTo(i); };
 
     cardContainer.onmousedown = function (e) {
         moveFlag = true;
@@ -202,7 +206,7 @@ function newCard(i, x, y, t, c) {
             let card = cardContainer.getElementsByTagName('span')[0];
             card.getElementsByTagName('p')[0].blur();
         }
-    }
+    };
 
     cardContainer.appendChild(actualCard());
     cardContainer.appendChild(editUI());
@@ -233,7 +237,7 @@ function newCard(i, x, y, t, c) {
         </span>
         `;
         linkElem.classList.add("actions-button", "link-button");
-        linkElem.onclick = function () { link(i) };
+        linkElem.onclick = function () { link(i); };
         actions.appendChild(linkElem);
 
         let deleteCard = document.createElement('button');
@@ -243,7 +247,7 @@ function newCard(i, x, y, t, c) {
         </span>
         `;
         deleteCard.classList.add("actions-button", "color-edit-button");
-        deleteCard.onclick = function () { deleteElem(i) };
+        deleteCard.onclick = function () { deleteElem(i); };
         actions.appendChild(deleteCard);
 
         let clrPicker = document.createElement('div');
@@ -252,9 +256,9 @@ function newCard(i, x, y, t, c) {
         let colorInput = document.createElement('input');
         colorInput.onchange = function () {
             // Set colour swatch settings
-            cardColours[i] = colorEdit.style.color
-            window.colorSettings(Object.values(cardColours))
-        }
+            cardColours[i] = colorEdit.style.color;
+            window.colorSettings(Object.values(cardColours));
+        };
         colorInput.type = 'text';
         colorInput.value = 'rgb(200, 200, 200)';
         colorInput.setAttribute('data-coloris', true);
@@ -264,7 +268,7 @@ function newCard(i, x, y, t, c) {
         <button type="button" aria-labelledby="clr-open-label"></button>
         `;
         colorEdit.appendChild(colorInput);
-        clrPicker.appendChild(colorEdit)
+        clrPicker.appendChild(colorEdit);
         // colorEdit.onclick = function() { colorEditElem(i) };
         actions.appendChild(colorEdit);
 
@@ -283,14 +287,14 @@ function newCard(i, x, y, t, c) {
 
                     // console.log(cardsData)
                     if (colorEdit.style.color.split(',')[3] !== undefined) {
-                        let temp = colorEdit.style.color.split(',')
-                        temp[3] = (parseFloat(temp[3].replace(')', "")) / 10).toString() + ')'
-                        cardContainer.style.backgroundColor = temp
+                        let temp = colorEdit.style.color.split(',');
+                        temp[3] = (parseFloat(temp[3].replace(')', "")) / 10).toString() + ')';
+                        cardContainer.style.backgroundColor = temp;
                     } else {
-                        let temp = colorEdit.style.color
-                        temp = temp.replace('rgb', 'rgba')
-                        temp = temp.replace(')', ', 0.1)')
-                        cardContainer.style.backgroundColor = temp
+                        let temp = colorEdit.style.color;
+                        temp = temp.replace('rgb', 'rgba');
+                        temp = temp.replace(')', ', 0.1)');
+                        cardContainer.style.backgroundColor = temp;
                     }
                 }
             }
@@ -336,14 +340,14 @@ function addCard(x, y, t, newInstance, i, c, colour) {
 
     if (newInstance) {
         document.getElementById("translate").appendChild(newCard(i, x - 136 / 2, y - 79 / 2, t, c));
-        let cardContainer = document.getElementById(`card-${i}`)
-        if (colour == undefined || colour == 0) { return }
+        let cardContainer = document.getElementById(`card-${i}`);
+        if (colour == undefined || colour == 0) { return; }
         // Set colour when loading
         cardContainer.style.borderColor = colour;
-        let temp = colour
-        temp = temp.replace('rgb', 'rgba')
-        temp = temp.replace(')', ', 0.1)')
-        cardContainer.style.backgroundColor = temp
+        let temp = colour;
+        temp = temp.replace('rgb', 'rgba');
+        temp = temp.replace(')', ', 0.1)');
+        cardContainer.style.backgroundColor = temp;
     } else {
         document.getElementById("translate").appendChild(newCard(i, x - 136 / 2, y - 79 / 2, t));
         cardsData.set(i, new util.cardObject(x, y, "", null, i));
@@ -394,7 +398,7 @@ window.onload = function () {
 
     document.addEventListener('mouseup', function (e) {
         moveFlag = false;
-    })
+    });
 
     canvas.addEventListener('dblclick', function (e) {
         e.preventDefault();
@@ -409,7 +413,7 @@ window.onload = function () {
     }, true);
     document.addEventListener('contextmenu', function (e) {
         e.preventDefault();
-    })
+    });
     canvas.addEventListener('mousedown', function (e) {
         if (add) {
             addCard(
@@ -482,17 +486,17 @@ window.onload = function () {
         file.onload = () => {
             let fileData;
             try {
-                fileData = JSON.parse(file.result)
-                document.getElementById("title").innerText = fileData.title
-                fileData = fileData.data
+                fileData = JSON.parse(file.result);
+                document.getElementById("title").innerText = fileData.title;
+                fileData = fileData.data;
             } catch (error) {
-                alert("Could not load file")
-                console.log("File incompatible")
-                return
+                alert("Could not load file");
+                console.log("File incompatible");
+                return;
             }
             cardsData.clear();
             for (let i of Object.keys(fileData)) {
-                let iValues = Object.values(fileData)[i]
+                let iValues = Object.values(fileData)[i];
                 cardsData.set(i,
                     new util.cardObject(
                         iValues.x,
@@ -504,16 +508,16 @@ window.onload = function () {
                 );
 
             }
-            cardIds.next = Math.max.apply(0, Object.keys(cardsData)) + 1
+            cardIds.next = Math.max.apply(0, Object.keys(cardsData)) + 1;
 
             clearMap();
             loadCards();
             console.log(cardsData);
 
-        }
+        };
         file.readAsText(this.files[0]);
-        fileInput.value = ''
-    }
+        fileInput.value = '';
+    };
 
     // Function to download data to a file
     // https://stackoverflow.com/questions/13405129/create-and-save-a-file-with-javascript
@@ -539,7 +543,7 @@ window.onload = function () {
         let saveData = {
             title: document.getElementById("title").innerText,
             data: {}
-        }
+        };
         for (let [cardId, card] of cardsData) {
             saveData.data[cardId] = {
                 "x": card.x,
@@ -548,11 +552,11 @@ window.onload = function () {
                 "connection": card.connection,
                 // "id": card.id,
                 "colour": card.colour,
-            }
+            };
 
         }
         download(JSON.stringify(saveData), saveData.title, "application/json");
-    }
+    };
 
     function cameraMovement() {
         let prevZoom = zoom;
@@ -617,33 +621,33 @@ window.onload = function () {
                     -y2 + (elem.offsetHeight / 2) * zoom
                 );
                 ctx.stroke();
-                new util.drawTriangle(ctx, -xr + (number * zoom) - 2 + (triRad + 0.5) * zoom, -yr - (number / 2) * zoom, triRad, zoom, '#fff', -90)
+                new util.drawTriangle(ctx, -xr + (number * zoom) - 2 + (triRad + 0.5) * zoom, -yr - (number / 2) * zoom, triRad, zoom, '#fff', -90);
             } else if (-xr + (number) + (curveWidth * zoom / limiter) > -x2 - (curveWidth * zoom / limiter) && (-xr + (curveWidth * zoom / limiter) < -x2 + (elem.offsetWidth * zoom) + (curveWidth * zoom / limiter))) {
                 if (yr > y2) {
-                    curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (yr - y2) / zoom / 500, 1)
+                    curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (yr - y2) / zoom / 500, 1);
                     ctx.moveTo(-xr + (number / 2 * zoom) - 1, -yr + (number) * zoom - 1);
                     ctx.bezierCurveTo(-xr + (number / 2 * zoom), -yr + (number) * zoom + curveWidth,
                         -x2 + (elem.offsetWidth / 2 * zoom), -y2 - curveWidth,
                         -x2 + (elem.offsetWidth / 2 * zoom), -y2 + 1);
                     ctx.stroke();
-                    new util.drawTriangle(ctx, -xr + (number / 2 * zoom) - 1, -yr + (number) * zoom - 1 + (triRad + 0.5) * zoom, triRad, zoom, '#fff', 0)
+                    new util.drawTriangle(ctx, -xr + (number / 2 * zoom) - 1, -yr + (number) * zoom - 1 + (triRad + 0.5) * zoom, triRad, zoom, '#fff', 0);
                 } else {
-                    curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (y2 - yr) / zoom / 500, 1)
+                    curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (y2 - yr) / zoom / 500, 1);
                     ctx.moveTo(-xr + (number / 2 * zoom) - 1, -yr + 1);
                     ctx.bezierCurveTo(-xr + (number / 2 * zoom), -yr - curveWidth,
                         -x2 + (elem.offsetWidth / 2 * zoom), -y2 + (elem.offsetHeight * zoom) + curveWidth,
                         -x2 + (elem.offsetWidth / 2 * zoom), -y2 + (elem.offsetHeight * zoom) - 1);
                     ctx.stroke();
-                    new util.drawTriangle(ctx, -xr + (number / 2 * zoom) - 1, -yr + 1 - (triRad + 0.5) * zoom, triRad, zoom, '#fff', 180)
+                    new util.drawTriangle(ctx, -xr + (number / 2 * zoom) - 1, -yr + 1 - (triRad + 0.5) * zoom, triRad, zoom, '#fff', 180);
                 }
             } else {
-                curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (x2 - xr) / zoom / 500, 1)
+                curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (x2 - xr) / zoom / 500, 1);
                 ctx.moveTo(-xr + 1, -yr + (number / 2) * zoom);
                 ctx.bezierCurveTo(-xr - curveWidth, -yr + (number / 2) * zoom,
                     -x2 + (elem.offsetWidth * zoom) + curveWidth, -y2 + (elem.offsetHeight / 2) * zoom,
                     -x2 + (elem.offsetWidth * zoom) - 1, -y2 + (elem.offsetHeight / 2) * zoom);
                 ctx.stroke();
-                new util.drawTriangle(ctx, -xr + 1 - (triRad + 0.5) * zoom, -yr + (number / 2) * zoom, triRad, zoom, '#fff', 90)
+                new util.drawTriangle(ctx, -xr + 1 - (triRad + 0.5) * zoom, -yr + (number / 2) * zoom, triRad, zoom, '#fff', 90);
             }
             ctx.closePath();
             // console.log(-(xr - x2), (yr - y2))
@@ -657,7 +661,7 @@ window.onload = function () {
             if (card.connection == null)
                 continue;
 
-            curveWidth = Math.floor(50 * zoom) // Set default
+            curveWidth = Math.floor(50 * zoom); // Set default
 
             // Get element connecting to other element
             let elem = document.getElementById(`card-${cardId}`);
@@ -669,7 +673,7 @@ window.onload = function () {
             let xr = Math.floor(-root.style.left.replace('px', '') * zoom - cameraPos.x);
             let yr = Math.floor(-root.style.top.replace('px', '') * zoom - cameraPos.y);
 
-            let unlink = document.getElementById(`unlink-${cardId}`)
+            let unlink = document.getElementById(`unlink-${cardId}`);
 
             // Styling
             // Wait where did it go lol
@@ -681,49 +685,49 @@ window.onload = function () {
             // massive L
             ctx.beginPath();
             if (-xr + (root.offsetWidth * zoom) < -x2) {
-                curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (xr - x2) / zoom / 500, 1)
+                curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (xr - x2) / zoom / 500, 1);
                 ctx.moveTo(-xr + (root.offsetWidth * zoom) - 2, -yr + (root.offsetHeight / 2) * zoom);
                 ctx.bezierCurveTo(-xr + (root.offsetWidth * zoom) + curveWidth, -yr + (root.offsetHeight / 2) * zoom,
                     -x2 - curveWidth, -y2 + (elem.offsetHeight / 2) * zoom,
                     -x2 + 1, -y2 + (elem.offsetHeight / 2) * zoom);
                 ctx.stroke();
-                new util.drawTriangle(ctx, -xr + (root.offsetWidth * zoom) - 2 + (triRad + 0.5) * zoom, -yr + (root.offsetHeight / 2) * zoom, triRad, zoom, '#fff', -90)
-                unlink.style.left = `${((Math.floor(elem.style.left.replace('px', '')) + (Math.floor(root.style.left.replace('px', '')) + root.offsetWidth)) / 2) - unlink.offsetWidth / 2}px`
-                unlink.style.top = `${((Math.floor(elem.style.top.replace('px', '')) + (Math.floor(root.style.top.replace('px', '')) + root.offsetHeight)) / 2) - unlink.offsetHeight / 2}px`
+                new util.drawTriangle(ctx, -xr + (root.offsetWidth * zoom) - 2 + (triRad + 0.5) * zoom, -yr + (root.offsetHeight / 2) * zoom, triRad, zoom, '#fff', -90);
+                unlink.style.left = `${((Math.floor(elem.style.left.replace('px', '')) + (Math.floor(root.style.left.replace('px', '')) + root.offsetWidth)) / 2) - unlink.offsetWidth / 2}px`;
+                unlink.style.top = `${((Math.floor(elem.style.top.replace('px', '')) + (Math.floor(root.style.top.replace('px', '')) + root.offsetHeight)) / 2) - unlink.offsetHeight / 2}px`;
             } else if (-xr + (root.offsetWidth * zoom) + (curveWidth * zoom / limiter) > -x2 - (curveWidth * zoom / limiter) && (-xr + (curveWidth * zoom / limiter) < -x2 + (elem.offsetWidth * zoom) + (curveWidth * zoom / limiter))) {
                 if (yr > y2) {
-                    curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (yr - y2) / zoom / 500, 1)
+                    curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (yr - y2) / zoom / 500, 1);
                     ctx.moveTo(-xr + (root.offsetWidth / 2 * zoom) - 1, -yr + (root.offsetHeight) * zoom - 1);
                     ctx.bezierCurveTo(-xr + (root.offsetWidth / 2 * zoom), -yr + (root.offsetHeight) * zoom + curveWidth,
                         -x2 + (elem.offsetWidth / 2 * zoom), -y2 - curveWidth,
                         -x2 + (elem.offsetWidth / 2 * zoom), -y2 + 1);
                     ctx.stroke();
-                    new util.drawTriangle(ctx, -xr + (root.offsetWidth / 2 * zoom) - 1, -yr + (root.offsetHeight) * zoom - 1 + (triRad + 0.5) * zoom, triRad, zoom, '#fff', 0)
-                    unlink.style.left = `${(((Math.floor(elem.style.left.replace('px', '')) + elem.offsetWidth / 2)) + (Math.floor(root.style.left.replace('px', '')) + root.offsetWidth / 2)) / 2 - unlink.offsetWidth / 2}px`
-                    unlink.style.top = `${(((Math.floor(elem.style.top.replace('px', '')) + elem.offsetHeight) + (Math.floor(root.style.top.replace('px', '')))) / 2) - unlink.offsetHeight / 2}px`
+                    new util.drawTriangle(ctx, -xr + (root.offsetWidth / 2 * zoom) - 1, -yr + (root.offsetHeight) * zoom - 1 + (triRad + 0.5) * zoom, triRad, zoom, '#fff', 0);
+                    unlink.style.left = `${(((Math.floor(elem.style.left.replace('px', '')) + elem.offsetWidth / 2)) + (Math.floor(root.style.left.replace('px', '')) + root.offsetWidth / 2)) / 2 - unlink.offsetWidth / 2}px`;
+                    unlink.style.top = `${(((Math.floor(elem.style.top.replace('px', '')) + elem.offsetHeight) + (Math.floor(root.style.top.replace('px', '')))) / 2) - unlink.offsetHeight / 2}px`;
 
                 } else {
-                    curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (y2 - yr) / zoom / 500, 1)
+                    curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (y2 - yr) / zoom / 500, 1);
                     ctx.moveTo(-xr + (root.offsetWidth / 2 * zoom) - 1, -yr + 1);
                     ctx.bezierCurveTo(-xr + (root.offsetWidth / 2 * zoom), -yr - curveWidth,
                         -x2 + (elem.offsetWidth / 2 * zoom), -y2 + (elem.offsetHeight * zoom) + curveWidth,
                         -x2 + (elem.offsetWidth / 2 * zoom), -y2 + (elem.offsetHeight * zoom) - 1);
                     ctx.stroke();
-                    new util.drawTriangle(ctx, -xr + (root.offsetWidth / 2 * zoom) - 1, -yr + 1 - (triRad + 0.5) * zoom, triRad, zoom, '#fff', 180)
-                    unlink.style.left = `${(((Math.floor(elem.style.left.replace('px', '')) + elem.offsetWidth / 2)) + (Math.floor(root.style.left.replace('px', '')) + root.offsetWidth / 2)) / 2 - unlink.offsetWidth / 2}px`
-                    unlink.style.top = `${((Math.floor(elem.style.top.replace('px', '')) + (Math.floor(root.style.top.replace('px', '')) + root.offsetHeight)) / 2) - unlink.offsetHeight / 2}px`
+                    new util.drawTriangle(ctx, -xr + (root.offsetWidth / 2 * zoom) - 1, -yr + 1 - (triRad + 0.5) * zoom, triRad, zoom, '#fff', 180);
+                    unlink.style.left = `${(((Math.floor(elem.style.left.replace('px', '')) + elem.offsetWidth / 2)) + (Math.floor(root.style.left.replace('px', '')) + root.offsetWidth / 2)) / 2 - unlink.offsetWidth / 2}px`;
+                    unlink.style.top = `${((Math.floor(elem.style.top.replace('px', '')) + (Math.floor(root.style.top.replace('px', '')) + root.offsetHeight)) / 2) - unlink.offsetHeight / 2}px`;
 
                 }
             } else {
-                curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (x2 - xr) / zoom / 500, 1)
+                curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (x2 - xr) / zoom / 500, 1);
                 ctx.moveTo(-xr + 1, -yr + (root.offsetHeight / 2) * zoom);
                 ctx.bezierCurveTo(-xr - curveWidth, -yr + (root.offsetHeight / 2) * zoom,
                     -x2 + (elem.offsetWidth * zoom) + curveWidth, -y2 + (elem.offsetHeight / 2) * zoom,
                     -x2 + (elem.offsetWidth * zoom) - 1, -y2 + (elem.offsetHeight / 2) * zoom);
                 ctx.stroke();
-                new util.drawTriangle(ctx, -xr + 1 - (triRad + 0.5) * zoom, -yr + (root.offsetHeight / 2) * zoom, triRad, zoom, '#fff', 90)
-                unlink.style.left = `${(((Math.floor(elem.style.left.replace('px', '')) + elem.offsetWidth) + (Math.floor(root.style.left.replace('px', '')))) / 2) - unlink.offsetWidth / 2}px`
-                unlink.style.top = `${((Math.floor(elem.style.top.replace('px', '')) + (Math.floor(root.style.top.replace('px', '')) + root.offsetHeight)) / 2) - unlink.offsetHeight / 2}px`
+                new util.drawTriangle(ctx, -xr + 1 - (triRad + 0.5) * zoom, -yr + (root.offsetHeight / 2) * zoom, triRad, zoom, '#fff', 90);
+                unlink.style.left = `${(((Math.floor(elem.style.left.replace('px', '')) + elem.offsetWidth) + (Math.floor(root.style.left.replace('px', '')))) / 2) - unlink.offsetWidth / 2}px`;
+                unlink.style.top = `${((Math.floor(elem.style.top.replace('px', '')) + (Math.floor(root.style.top.replace('px', '')) + root.offsetHeight)) / 2) - unlink.offsetHeight / 2}px`;
 
             }
         }
