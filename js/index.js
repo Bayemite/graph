@@ -91,7 +91,8 @@ function deleteLink(i) {
 // Add cards from data
 function loadCards() {
     for (const [cardId, card] of cardsData) {
-        addCard(card.x, card.y, card.title, true, cardId, card.connection);
+        console.log(card)
+        addCard(card.x, card.y, card.title, true, cardId, card.connection, card.colour);
         if (card.connection == null) { continue }
 
         addUnlink(cardId)
@@ -327,7 +328,7 @@ function newCard(i, x, y, t, c) {
 
 let add = false; // Add card
 let largest = 0;
-function addCard(x, y, t, newInstance, i, c) {
+function addCard(x, y, t, newInstance, i, c, colour) {
     // Hardcoded solution for now
     // The textbox will always be placed with the default "Enter text" meaning its width will
     // always be the same
@@ -335,6 +336,14 @@ function addCard(x, y, t, newInstance, i, c) {
 
     if (newInstance) {
         document.getElementById("translate").appendChild(newCard(i, x - 136 / 2, y - 79 / 2, t, c));
+        let cardContainer = document.getElementById(`card-${i}`)
+        if (colour == undefined || colour == 0) { return }
+        // Set colour when loading
+        cardContainer.style.borderColor = colour;
+        let temp = colour
+        temp = temp.replace('rgb', 'rgba')
+        temp = temp.replace(')', ', 0.1)')
+        cardContainer.style.backgroundColor = temp
     } else {
         document.getElementById("translate").appendChild(newCard(i, x - 136 / 2, y - 79 / 2, t));
         cardsData.set(i, new util.cardObject(x, y, "", null, i));
@@ -490,7 +499,7 @@ window.onload = function () {
                         iValues.y,
                         iValues.title,
                         iValues.connection,
-                        iValues.color
+                        iValues.colour
                     )
                 );
 
