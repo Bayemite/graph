@@ -26,7 +26,10 @@ export class cardObject {
         this.x = x;
         this.y = y;
         this.title = t;
-        this.connection = c;
+        if (c === null)
+            this.connection = new Set();
+        else
+            this.connection = c;
         this.colour = colour;
     }
 }

@@ -50,7 +50,7 @@ cardsData.set(
     new util.cardObject(
         200, 100,
         'Title',
-        new Set(0),
+        new Set([0]),
         'rgb(200, 200, 200)'
     )
 );
@@ -70,6 +70,7 @@ function closeNotif(e) {
 // document.getElementById('notif-button').onclick = function() {closeNotif(this)}
 
 function addUnlink(start, end) {
+    console.log(`addUnlink(${start},${end})`);
     let breakLink = document.createElement('button');
     breakLink.classList.add('connection-button');
     breakLink.id = `unlink-${start}-${end}`;
@@ -97,9 +98,10 @@ function loadCards() {
     for (const [cardId, card] of cardsData) {
         console.log(card);
         addCard(card.x, card.y, card.title, true, cardId, card.connection, card.colour);
-        if (card.connection == null) { continue; }
+        if (card.connection.size == 0) { continue; }
 
-        addUnlink(cardId);
+        for (let c of card.connection.values())
+            addUnlink(cardId, c);
     }
 }
 
@@ -123,6 +125,10 @@ function link(i) {
 function linkTo(linkEnd) {
     if (!linkInProgress) return;
 
+    if (cardsData.get(linkEnd) === undefined) {
+        console.log(linkEnd + " is undefined.");
+        console.log(cardsData);
+    }
     // Disallow reconnection
     if (cardsData.get(linkEnd).connection.has(linkStart)) {
         linkInProgress = false;
@@ -152,9 +158,9 @@ function deleteElem(i) {
     }
     // console.log(cardsData)
     for (let card of cardsData.values()) {
-        if (card.connection == i) {
-            card.connection = null;
-            document.getElementById('break').removeChild(document.getElementById(`unlink-${card.id}`));
+        if (card.connection.has(i)) {
+            card.connection.delete(i);
+            document.getElementById('break').removeChild(document.getElementById(`unlink-${card.id}-${i}`));
         }
     }
 
@@ -176,23 +182,15 @@ function moveElem() {
     card.style.left = `${cardsData.get(i).x}px`;
 }
 
-function newCard(i, x, y, t, c) {
+function newCard(i, x, y, t) {
     if (t == undefined) { t = ""; };
-
-    cardsData.set(i, new util.cardObject());
-    cardsData.get(i).title = t;
-    cardsData.get(i).x = x;
-    cardsData.get(i).y = y;
-    cardsData.get(i).connection = c;
-    cardsData.get(i).id = i;
-    cardsData.get(i).colour = 0;
 
     let cardContainer = document.createElement('div');
 
     cardContainer.id = "card-" + i;
     cardContainer.style = "left:" + Math.floor(x) + "px; top:" + Math.floor(y) + "px";
     cardContainer.classList.add('object');
-    cardContainer.onclick = function () { linkTo(i); };
+    cardContainer.onclick = () => linkTo(i);
 
     cardContainer.onmousedown = function (e) {
         moveFlag = true;
@@ -329,8 +327,6 @@ function newCard(i, x, y, t, c) {
     // `;
 }
 
-
-let add = false; // Add card
 let largest = 0;
 function addCard(x, y, t, newInstance, i, c, colour) {
     // Hardcoded solution for now
@@ -339,8 +335,9 @@ function addCard(x, y, t, newInstance, i, c, colour) {
     // The width is 136, height is 79
 
     if (newInstance) {
-        document.getElementById("translate").appendChild(newCard(i, x - 136 / 2, y - 79 / 2, t, c));
+        document.getElementById("translate").appendChild(newCard(i, x - 136 / 2, y - 79 / 2, t));
         let cardContainer = document.getElementById(`card-${i}`);
+        cardsData.set(i, new util.cardObject(x, y, "", c, i));
         if (colour == undefined || colour == 0) { return; }
         // Set colour when loading
         cardContainer.style.borderColor = colour;
@@ -350,9 +347,9 @@ function addCard(x, y, t, newInstance, i, c, colour) {
         cardContainer.style.backgroundColor = temp;
     } else {
         document.getElementById("translate").appendChild(newCard(i, x - 136 / 2, y - 79 / 2, t));
-        cardsData.set(i, new util.cardObject(x, y, "", null, i));
         // cardsData[`${Number(largest) + 1}`] = "a"
         console.log(cardsData);
+        cardsData.set(i, new util.cardObject(x, y, "", c, i));
         // cardsData.push()
     }
     // data.push(
@@ -415,18 +412,7 @@ window.onload = function () {
         e.preventDefault();
     });
     canvas.addEventListener('mousedown', function (e) {
-        if (add) {
-            addCard(
-                Math.floor((mouse.x - cameraPos.x) / zoom),
-                Math.floor((mouse.y - cameraPos.y) / zoom),
-                "",
-                cardIds.getNextId(),
-                null
-            );
-
-            document.getElementById('add').classList.remove('selected');
-            add = false;
-        } else if (linkInProgress) {
+        if (linkInProgress) {
             linkInProgress = false;
         } else {
             mouseDown = true;
@@ -502,7 +488,7 @@ window.onload = function () {
                         iValues.x,
                         iValues.y,
                         iValues.title,
-                        iValues.connection,
+                        new Set(iValues.connection),
                         iValues.colour
                     )
                 );
@@ -549,7 +535,7 @@ window.onload = function () {
                 "x": card.x,
                 "y": card.y,
                 "title": card.title,
-                "connection": card.connection,
+                "connection": Array.from(card.connection),
                 // "id": card.id,
                 "colour": card.colour,
             };
@@ -656,79 +642,92 @@ window.onload = function () {
             // new util.drawTriangle(ctx, -xr + (triRad + 0.5) * zoom, -yr + + (triRad + 0.5) * zoom, triRad, zoom, '#fff', Math.atan2(-(xr - x2), (yr - y2)) * 180 / Math.PI)
         }
 
-
         for (let [cardId, card] of cardsData) {
-            if (card.connection == null)
+            if (card.connection.size == 0)
                 continue;
 
             curveWidth = Math.floor(50 * zoom); // Set default
 
             // Get element connecting to other element
             let elem = document.getElementById(`card-${cardId}`);
+            if (elem == null) {
+                console.log(`card-${cardId} is null`);
+                continue;
+            }
             let x2 = Math.floor(-elem.style.left.replace('px', '') * zoom - cameraPos.x);
             let y2 = Math.floor(-elem.style.top.replace('px', '') * zoom - cameraPos.y);
 
             // Get other element
-            let root = document.getElementById(`card-${card.connection}`);
-            let xr = Math.floor(-root.style.left.replace('px', '') * zoom - cameraPos.x);
-            let yr = Math.floor(-root.style.top.replace('px', '') * zoom - cameraPos.y);
+            for (let connection of card.connection.values()) {
+                let root = document.getElementById(`card-${connection}`);
+                if (root == null) {
+                    console.log(`card-${connection} is null`);
+                    continue;
+                }
+                let xr = Math.floor(-root.style.left.replace('px', '') * zoom - cameraPos.x);
+                let yr = Math.floor(-root.style.top.replace('px', '') * zoom - cameraPos.y);
 
-            let unlink = document.getElementById(`unlink-${cardId}`);
+                let unlink = document.getElementById(`unlink-${cardId}-${connection}`);
+                if (unlink == null) {
+                    console.log(`unlink-${cardId}-${connection} is null`);
+                    continue;
+                }
 
-            // Styling
-            // Wait where did it go lol
+                // Styling
+                // Wait where did it go lol
 
-            // These are like
-            // Stuff that like
-            // Works and like
-            // yeah
-            // massive L
-            ctx.beginPath();
-            if (-xr + (root.offsetWidth * zoom) < -x2) {
-                curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (xr - x2) / zoom / 500, 1);
-                ctx.moveTo(-xr + (root.offsetWidth * zoom) - 2, -yr + (root.offsetHeight / 2) * zoom);
-                ctx.bezierCurveTo(-xr + (root.offsetWidth * zoom) + curveWidth, -yr + (root.offsetHeight / 2) * zoom,
-                    -x2 - curveWidth, -y2 + (elem.offsetHeight / 2) * zoom,
-                    -x2 + 1, -y2 + (elem.offsetHeight / 2) * zoom);
-                ctx.stroke();
-                new util.drawTriangle(ctx, -xr + (root.offsetWidth * zoom) - 2 + (triRad + 0.5) * zoom, -yr + (root.offsetHeight / 2) * zoom, triRad, zoom, '#fff', -90);
-                unlink.style.left = `${((Math.floor(elem.style.left.replace('px', '')) + (Math.floor(root.style.left.replace('px', '')) + root.offsetWidth)) / 2) - unlink.offsetWidth / 2}px`;
-                unlink.style.top = `${((Math.floor(elem.style.top.replace('px', '')) + (Math.floor(root.style.top.replace('px', '')) + root.offsetHeight)) / 2) - unlink.offsetHeight / 2}px`;
-            } else if (-xr + (root.offsetWidth * zoom) + (curveWidth * zoom / limiter) > -x2 - (curveWidth * zoom / limiter) && (-xr + (curveWidth * zoom / limiter) < -x2 + (elem.offsetWidth * zoom) + (curveWidth * zoom / limiter))) {
-                if (yr > y2) {
-                    curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (yr - y2) / zoom / 500, 1);
-                    ctx.moveTo(-xr + (root.offsetWidth / 2 * zoom) - 1, -yr + (root.offsetHeight) * zoom - 1);
-                    ctx.bezierCurveTo(-xr + (root.offsetWidth / 2 * zoom), -yr + (root.offsetHeight) * zoom + curveWidth,
-                        -x2 + (elem.offsetWidth / 2 * zoom), -y2 - curveWidth,
-                        -x2 + (elem.offsetWidth / 2 * zoom), -y2 + 1);
+                // These are like
+                // Stuff that like
+                // Works and like
+                // yeah
+                // massive L
+                ctx.beginPath();
+                if (-xr + (root.offsetWidth * zoom) < -x2) {
+                    curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (xr - x2) / zoom / 500, 1);
+                    ctx.moveTo(-xr + (root.offsetWidth * zoom) - 2, -yr + (root.offsetHeight / 2) * zoom);
+                    ctx.bezierCurveTo(-xr + (root.offsetWidth * zoom) + curveWidth, -yr + (root.offsetHeight / 2) * zoom,
+                        -x2 - curveWidth, -y2 + (elem.offsetHeight / 2) * zoom,
+                        -x2 + 1, -y2 + (elem.offsetHeight / 2) * zoom);
                     ctx.stroke();
-                    new util.drawTriangle(ctx, -xr + (root.offsetWidth / 2 * zoom) - 1, -yr + (root.offsetHeight) * zoom - 1 + (triRad + 0.5) * zoom, triRad, zoom, '#fff', 0);
-                    unlink.style.left = `${(((Math.floor(elem.style.left.replace('px', '')) + elem.offsetWidth / 2)) + (Math.floor(root.style.left.replace('px', '')) + root.offsetWidth / 2)) / 2 - unlink.offsetWidth / 2}px`;
-                    unlink.style.top = `${(((Math.floor(elem.style.top.replace('px', '')) + elem.offsetHeight) + (Math.floor(root.style.top.replace('px', '')))) / 2) - unlink.offsetHeight / 2}px`;
+                    new util.drawTriangle(ctx, -xr + (root.offsetWidth * zoom) - 2 + (triRad + 0.5) * zoom, -yr + (root.offsetHeight / 2) * zoom, triRad, zoom, '#fff', -90);
+                    unlink.style.left = `${((Math.floor(elem.style.left.replace('px', '')) + (Math.floor(root.style.left.replace('px', '')) + root.offsetWidth)) / 2) - unlink.offsetWidth / 2}px`;
+                    unlink.style.top = `${((Math.floor(elem.style.top.replace('px', '')) + (Math.floor(root.style.top.replace('px', '')) + root.offsetHeight)) / 2) - unlink.offsetHeight / 2}px`;
+                } else if (-xr + (root.offsetWidth * zoom) + (curveWidth * zoom / limiter) > -x2 - (curveWidth * zoom / limiter) && (-xr + (curveWidth * zoom / limiter) < -x2 + (elem.offsetWidth * zoom) + (curveWidth * zoom / limiter))) {
+                    if (yr > y2) {
+                        curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (yr - y2) / zoom / 500, 1);
+                        ctx.moveTo(-xr + (root.offsetWidth / 2 * zoom) - 1, -yr + (root.offsetHeight) * zoom - 1);
+                        ctx.bezierCurveTo(-xr + (root.offsetWidth / 2 * zoom), -yr + (root.offsetHeight) * zoom + curveWidth,
+                            -x2 + (elem.offsetWidth / 2 * zoom), -y2 - curveWidth,
+                            -x2 + (elem.offsetWidth / 2 * zoom), -y2 + 1);
+                        ctx.stroke();
+                        new util.drawTriangle(ctx, -xr + (root.offsetWidth / 2 * zoom) - 1, -yr + (root.offsetHeight) * zoom - 1 + (triRad + 0.5) * zoom, triRad, zoom, '#fff', 0);
+                        unlink.style.left = `${(((Math.floor(elem.style.left.replace('px', '')) + elem.offsetWidth / 2)) + (Math.floor(root.style.left.replace('px', '')) + root.offsetWidth / 2)) / 2 - unlink.offsetWidth / 2}px`;
+                        unlink.style.top = `${(((Math.floor(elem.style.top.replace('px', '')) + elem.offsetHeight) + (Math.floor(root.style.top.replace('px', '')))) / 2) - unlink.offsetHeight / 2}px`;
 
+                    } else {
+                        curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (y2 - yr) / zoom / 500, 1);
+                        ctx.moveTo(-xr + (root.offsetWidth / 2 * zoom) - 1, -yr + 1);
+                        ctx.bezierCurveTo(-xr + (root.offsetWidth / 2 * zoom), -yr - curveWidth,
+                            -x2 + (elem.offsetWidth / 2 * zoom), -y2 + (elem.offsetHeight * zoom) + curveWidth,
+                            -x2 + (elem.offsetWidth / 2 * zoom), -y2 + (elem.offsetHeight * zoom) - 1);
+                        ctx.stroke();
+                        new util.drawTriangle(ctx, -xr + (root.offsetWidth / 2 * zoom) - 1, -yr + 1 - (triRad + 0.5) * zoom, triRad, zoom, '#fff', 180);
+                        unlink.style.left = `${(((Math.floor(elem.style.left.replace('px', '')) + elem.offsetWidth / 2)) + (Math.floor(root.style.left.replace('px', '')) + root.offsetWidth / 2)) / 2 - unlink.offsetWidth / 2}px`;
+                        unlink.style.top = `${((Math.floor(elem.style.top.replace('px', '')) + (Math.floor(root.style.top.replace('px', '')) + root.offsetHeight)) / 2) - unlink.offsetHeight / 2}px`;
+
+                    }
                 } else {
-                    curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (y2 - yr) / zoom / 500, 1);
-                    ctx.moveTo(-xr + (root.offsetWidth / 2 * zoom) - 1, -yr + 1);
-                    ctx.bezierCurveTo(-xr + (root.offsetWidth / 2 * zoom), -yr - curveWidth,
-                        -x2 + (elem.offsetWidth / 2 * zoom), -y2 + (elem.offsetHeight * zoom) + curveWidth,
-                        -x2 + (elem.offsetWidth / 2 * zoom), -y2 + (elem.offsetHeight * zoom) - 1);
+                    curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (x2 - xr) / zoom / 500, 1);
+                    ctx.moveTo(-xr + 1, -yr + (root.offsetHeight / 2) * zoom);
+                    ctx.bezierCurveTo(-xr - curveWidth, -yr + (root.offsetHeight / 2) * zoom,
+                        -x2 + (elem.offsetWidth * zoom) + curveWidth, -y2 + (elem.offsetHeight / 2) * zoom,
+                        -x2 + (elem.offsetWidth * zoom) - 1, -y2 + (elem.offsetHeight / 2) * zoom);
                     ctx.stroke();
-                    new util.drawTriangle(ctx, -xr + (root.offsetWidth / 2 * zoom) - 1, -yr + 1 - (triRad + 0.5) * zoom, triRad, zoom, '#fff', 180);
-                    unlink.style.left = `${(((Math.floor(elem.style.left.replace('px', '')) + elem.offsetWidth / 2)) + (Math.floor(root.style.left.replace('px', '')) + root.offsetWidth / 2)) / 2 - unlink.offsetWidth / 2}px`;
+                    new util.drawTriangle(ctx, -xr + 1 - (triRad + 0.5) * zoom, -yr + (root.offsetHeight / 2) * zoom, triRad, zoom, '#fff', 90);
+                    unlink.style.left = `${(((Math.floor(elem.style.left.replace('px', '')) + elem.offsetWidth) + (Math.floor(root.style.left.replace('px', '')))) / 2) - unlink.offsetWidth / 2}px`;
                     unlink.style.top = `${((Math.floor(elem.style.top.replace('px', '')) + (Math.floor(root.style.top.replace('px', '')) + root.offsetHeight)) / 2) - unlink.offsetHeight / 2}px`;
 
                 }
-            } else {
-                curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (x2 - xr) / zoom / 500, 1);
-                ctx.moveTo(-xr + 1, -yr + (root.offsetHeight / 2) * zoom);
-                ctx.bezierCurveTo(-xr - curveWidth, -yr + (root.offsetHeight / 2) * zoom,
-                    -x2 + (elem.offsetWidth * zoom) + curveWidth, -y2 + (elem.offsetHeight / 2) * zoom,
-                    -x2 + (elem.offsetWidth * zoom) - 1, -y2 + (elem.offsetHeight / 2) * zoom);
-                ctx.stroke();
-                new util.drawTriangle(ctx, -xr + 1 - (triRad + 0.5) * zoom, -yr + (root.offsetHeight / 2) * zoom, triRad, zoom, '#fff', 90);
-                unlink.style.left = `${(((Math.floor(elem.style.left.replace('px', '')) + elem.offsetWidth) + (Math.floor(root.style.left.replace('px', '')))) / 2) - unlink.offsetWidth / 2}px`;
-                unlink.style.top = `${((Math.floor(elem.style.top.replace('px', '')) + (Math.floor(root.style.top.replace('px', '')) + root.offsetHeight)) / 2) - unlink.offsetHeight / 2}px`;
-
             }
         }
     }
