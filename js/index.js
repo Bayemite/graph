@@ -3,10 +3,6 @@ var cardIds = new util.IDAssign();
 
 const backgroundColor = new util.rgb(100, 150, 200);
 
-let canvas = null;
-let ctx = null;
-
-let zoomScale = 0.001;
 let zoomTarget = 1.0;
 let zoom = 1;
 
@@ -358,8 +354,8 @@ window.onload = function () {
     // Stub, unused at the moment
     let peerConnection = new util.PeerConnection();
 
-    canvas = document.getElementById('canvas');
-    ctx = canvas.getContext('2d');
+    let canvas = document.getElementById('canvas');
+    let ctx = canvas.getContext('2d');
     ctx.imageSmoothingEnabled = true;
 
     function resize() {
@@ -376,7 +372,6 @@ window.onload = function () {
     let initX = 0, initY = 0;
     let dragX = 0, dragY = 0;
     let deltaX = 0, deltaY = 0;
-    let finalX = 0, finalY = 0;
 
     targetX = (canvas.width / 2) / zoom;
     targetY = (canvas.height / 2) / zoom;
@@ -439,7 +434,7 @@ window.onload = function () {
     document.onmouseup = event => mouseDown = false;
     window.onmouseup = event => event.preventDefault();
 
-    window.addEventListener('wheel',
+    document.addEventListener('wheel',
         (event) => {
             event.preventDefault();
             let delta = event.wheelDelta;
