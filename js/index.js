@@ -157,10 +157,12 @@ function deleteElem(i) {
             unlinkContainer.removeChild(document.getElementById(`unlink-${i}-${connection}`));
     }
     // console.log(cardsData)
-    for (let card of cardsData.values()) {
+    for (let [cardId, card] of cardsData) {
         if (card.connection.has(i)) {
             card.connection.delete(i);
-            document.getElementById('break').removeChild(document.getElementById(`unlink-${card.id}-${i}`));
+            console.log(document.getElementById('break'));
+            console.log(`unlink-${cardId}-${i}`);
+            document.getElementById('break').removeChild(document.getElementById(`unlink-${cardId}-${i}`));
         }
     }
 
