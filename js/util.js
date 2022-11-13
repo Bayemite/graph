@@ -1,5 +1,20 @@
 // Basically a file dump for extraneous definitions used in index.js
 
+export class PeerConnection {
+    constructor () {
+        this.peer = new Peer();
+        this.peer.on('open', (id) => console.log('My peer ID is: ' + id));
+        this.peer.on('connection', (conn) => console.log("Connected: " + conn));
+
+        const connectionButton = document.getElementById('connect-button');
+        connectionButton.onclick = function () { connect(document.getElementById('peer-id').innerHTML); };
+    }
+
+    connect(id) {
+        this.peer.connect(id);
+    }
+}
+
 export class IDAssign {
     constructor () {
         this.spare = [];

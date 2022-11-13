@@ -1,21 +1,5 @@
 import * as util from './util.js';
-var peer = new Peer();
 var cardIds = new util.IDAssign();
-
-peer.on('open', function (id) {
-    console.log('My peer ID is: ' + id);
-});
-
-peer.on('connection', function (conn) {
-    console.log(conn);
-});
-
-function connect(id) {
-    console.log(id);
-    var conn = peer.connect(id);
-}
-const connectionButton = document.getElementById('connect-button');
-connectionButton.onclick = function () { connect(document.getElementById('peer-id').innerHTML); };
 
 const backgroundColor = new util.rgb(100, 150, 200);
 
@@ -371,6 +355,9 @@ function addCard(x, y, t, newInstance, i, c, colour) {
 
 // Main loop
 window.onload = function () {
+    // Stub, unused at the moment
+    let peerConnection = new util.PeerConnection();
+
     canvas = document.getElementById('canvas');
     ctx = canvas.getContext('2d');
     ctx.imageSmoothingEnabled = true;
