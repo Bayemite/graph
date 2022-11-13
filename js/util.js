@@ -1,3 +1,5 @@
+// Basically a file dump for extraneous definitions used in index.js
+
 export class IDAssign {
     constructor () {
         this.spare = [];
