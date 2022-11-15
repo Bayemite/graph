@@ -76,7 +76,6 @@ function deleteLink(start, end) {
 // Add cards from data
 function loadCards() {
     for (const [cardId, card] of cardsData) {
-        console.log(card);
         addCard(card.x, card.y, card.title, true, cardId, card.connection, card.colour);
         if (card.connection.size == 0) { continue; }
 
