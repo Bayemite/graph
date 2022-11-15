@@ -1,5 +1,19 @@
 // Basically a file dump for extraneous definitions used in index.js
 
+export function checkArgs(args, paramCount) {
+    if (args === null || args === undefined) { console.error("Call checkArgs with arguments object and arg count"); return; }
+    if(args.length != paramCount){
+        console.error(`Arg count does not match param count of ${paramCount}:`, args);
+        return;
+    }
+    for (let i = 0; i < args.length; i++) {
+        if (args[i] === undefined || args[i] === null) {
+            console.error(`Arg ${i} null or undefined:`, args);
+            return;
+        }
+    }
+}
+
 export class PeerConnection {
     constructor () {
         this.peer = new Peer();
@@ -43,10 +57,7 @@ export class cardObject {
         this.x = x;
         this.y = y;
         this.title = t;
-        if (c === null)
-            this.connection = new Set();
-        else
-            this.connection = c;
+        this.connection = c;
         this.colour = colour;
     }
 }

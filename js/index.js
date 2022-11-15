@@ -164,7 +164,7 @@ function moveElem() {
     card.style.left = `${cardsData.get(i).x}px`;
 }
 
-function newCard(i, x, y, t) {
+function genHTMLCard(i, x, y, t) {
     if (t == undefined) { t = ""; };
 
     let cardContainer = document.createElement('div');
@@ -310,42 +310,25 @@ function newCard(i, x, y, t) {
 }
 
 let largest = 0;
-function addCard(x, y, t, newInstance, i, c, colour) {
+function addCard(x, y, t, newInstance, cardId, connection, colour) {
+    util.checkArgs(arguments, 7);
     // Hardcoded solution for now
     // The textbox will always be placed with the default "Enter text" meaning its width will
     // always be the same
     // The width is 136, height is 79
 
     if (newInstance) {
-        document.getElementById("translate").appendChild(newCard(i, x - 136 / 2, y - 79 / 2, t));
-        let cardContainer = document.getElementById(`card-${i}`);
-        cardsData.set(i, new util.cardObject(x, y, "", c, i));
-        if (colour == undefined || colour == 0) { return; }
+        document.getElementById("translate").appendChild(genHTMLCard(cardId, x - 136 / 2, y - 79 / 2, t));
+        let cardContainer = document.getElementById(`card-${cardId}`);
         // Set colour when loading
         cardContainer.style.borderColor = colour;
-        let temp = colour;
-        temp = temp.replace('rgb', 'rgba');
-        temp = temp.replace(')', ', 0.1)');
-        cardContainer.style.backgroundColor = temp;
+        colour = colour.replace('rgb', 'rgba');
+        colour = colour.replace(')', ', 0.1)');
+        cardContainer.style.backgroundColor = colour;
     } else {
-        document.getElementById("translate").appendChild(newCard(i, x - 136 / 2, y - 79 / 2, t));
-        // cardsData[`${Number(largest) + 1}`] = "a"
-        console.log(cardsData);
-        cardsData.set(i, new util.cardObject(x, y, "", c, i));
-        // cardsData.push()
+        document.getElementById("translate").appendChild(genHTMLCard(cardId, x - 136 / 2, y - 79 / 2, t));
     }
-    // data.push(
-    //     {
-    //         title: t,
-    //         x: x,
-    //         y: y,
-    //         connection: null,
-    //         colour: 0,
-    //         id: largest + 1,
-    //     }
-    // )
-    // card = document.getElementById(`card-${i}`)
-
+    cardsData.set(cardId, new util.cardObject(x, y, "", connection, colour));
 }
 
 
@@ -389,7 +372,8 @@ window.onload = function () {
             "",
             true,
             cardIds.getNextId(),
-            null
+            new Set(),
+            "rgb(200, 200, 200)"
         );
     }, true);
     document.addEventListener('contextmenu', function (e) {
@@ -523,7 +507,6 @@ window.onload = function () {
                 // "id": card.id,
                 "colour": card.colour,
             };
-
         }
         download(JSON.stringify(saveData), saveData.title, "application/json");
     };
