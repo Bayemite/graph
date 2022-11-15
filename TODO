@@ -1,6 +1,5 @@
 # TO FIX!‽
 - Random reference errors when adding deleting cards for more than a few times
-- Fix value of colour saved when the colour has not changed from initialisation
 
 # Inconvenient
 - Make it so that clicking on the card container also focuses on the input （rather than only the center input)
