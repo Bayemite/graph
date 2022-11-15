@@ -76,7 +76,6 @@ function deleteLink(start, end) {
 // Add cards from data
 function loadCards() {
     for (const [cardId, card] of cardsData) {
-        console.log(card);
         addCard(card.x, card.y, card.title, true, cardId, card.connection, card.colour);
         if (card.connection.size == 0) { continue; }
 
@@ -319,7 +318,6 @@ function addCard(x, y, t, newInstance, i, c, colour) {
     if (newInstance) {
         document.getElementById("translate").appendChild(newCard(i, x - 136 / 2, y - 79 / 2, t));
         let cardContainer = document.getElementById(`card-${i}`);
-        cardsData.set(i, new util.cardObject(x, y, "", c, i));
         if (colour == undefined || colour == 0) { return; }
         // Set colour when loading
         cardContainer.style.borderColor = colour;
@@ -329,23 +327,8 @@ function addCard(x, y, t, newInstance, i, c, colour) {
         cardContainer.style.backgroundColor = temp;
     } else {
         document.getElementById("translate").appendChild(newCard(i, x - 136 / 2, y - 79 / 2, t));
-        // cardsData[`${Number(largest) + 1}`] = "a"
-        console.log(cardsData);
-        cardsData.set(i, new util.cardObject(x, y, "", c, i));
-        // cardsData.push()
     }
-    // data.push(
-    //     {
-    //         title: t,
-    //         x: x,
-    //         y: y,
-    //         connection: null,
-    //         colour: 0,
-    //         id: largest + 1,
-    //     }
-    // )
-    // card = document.getElementById(`card-${i}`)
-
+    cardsData.set(i, new util.cardObject(x, y, "", c, colour));
 }
 
 
@@ -523,7 +506,6 @@ window.onload = function () {
                 // "id": card.id,
                 "colour": card.colour,
             };
-
         }
         download(JSON.stringify(saveData), saveData.title, "application/json");
     };
