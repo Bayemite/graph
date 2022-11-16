@@ -1,3 +1,6 @@
+# Requires Sherlock Holmes
+- Many multiple connections will break after save then load
+
 # TO FIX!‽
 - Save should not reload page
 - Saving then reopening: card location & multiple connections change
