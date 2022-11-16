@@ -75,7 +75,7 @@ function deleteLink(start, end) {
 // Add cards from data
 function loadCards() {
     for (const [cardId, card] of cardsData) {
-        addCard(card.x, card.y, card.title, true, cardId, card.connection, card.colour);
+        addCard(card.x, card.y, card.title, cardId, card.connection, card.colour);
         if (card.connection.size == 0) { continue; }
 
         for (let c of card.connection.values())
@@ -261,20 +261,12 @@ function genHTMLCard(i, x, y, t) {
             for (const mutation of mutationList) {
                 if (mutation.attributeName == 'style') {
                     // Set colour variables
-                    cardContainer.style.borderColor = colorEdit.style.color;
-                    cardsData.get(i).colour = colorEdit.style.color;
-
-                    // console.log(cardsData)
-                    if (colorEdit.style.color.split(',')[3] !== undefined) {
-                        let temp = colorEdit.style.color.split(',');
-                        temp[3] = (parseFloat(temp[3].replace(')', "")) / 10).toString() + ')';
-                        cardContainer.style.backgroundColor = temp;
-                    } else {
-                        let temp = colorEdit.style.color;
-                        temp = temp.replace('rgb', 'rgba');
-                        temp = temp.replace(')', ', 0.1)');
-                        cardContainer.style.backgroundColor = temp;
-                    }
+                    let color = colorEdit.style.color;
+                    cardContainer.style.borderColor = color;
+                    cardsData.get(i).colour = color;
+                    let components = util.colorValues(color);
+                    components[3] = 0.1; // set alpha
+                    cardContainer.style.backgroundColor = "rgba(" + components.join(', ') + ")";
                 }
             }
         };
@@ -309,25 +301,22 @@ function genHTMLCard(i, x, y, t) {
 }
 
 let largest = 0;
-function addCard(x, y, t, newInstance, cardId, connection, colour) {
-    util.checkArgs(arguments, 7);
+function addCard(x, y, t, cardId, connection, colour) {
+    util.checkArgs(arguments, 6);
     // Hardcoded solution for now
     // The textbox will always be placed with the default "Enter text" meaning its width will
     // always be the same
     // The width is 136, height is 79
 
-    if (newInstance) {
-        document.getElementById("translate").appendChild(genHTMLCard(cardId, x - 136 / 2, y - 79 / 2, t));
-        let cardContainer = document.getElementById(`card-${cardId}`);
-        // Set colour when loading
-        cardContainer.style.borderColor = colour;
-        colour = colour.replace('rgb', 'rgba');
-        colour = colour.replace(')', ', 0.1)');
-        cardContainer.style.backgroundColor = colour;
-    } else {
-        document.getElementById("translate").appendChild(genHTMLCard(cardId, x - 136 / 2, y - 79 / 2, t));
-    }
+    document.getElementById("translate").appendChild(genHTMLCard(cardId, x - 136 / 2, y - 79 / 2, t));
+    let cardContainer = document.getElementById(`card-${cardId}`);
+    // Set colour
+    cardContainer.style.borderColor = colour;
+    let components = util.colorValues(colour);
+    components[3] = 0.1;
+    cardContainer.style.backgroundColor = "rgba(" + components.join(", ") + ")";
     cardsData.set(cardId, new util.cardObject(x, y, "", connection, colour));
+
 }
 
 // returns id of card
@@ -337,7 +326,6 @@ function addDefaultCard() {
         Math.floor((mouse.x - cameraPos.x) / zoom),
         Math.floor((mouse.y - cameraPos.y) / zoom),
         "",
-        true,
         id,
         new Set(),
         "rgb(200, 200, 200)"
@@ -381,9 +369,6 @@ window.onload = function () {
         e.preventDefault();
         addDefaultCard();
     }, true);
-    document.addEventListener('contextmenu', function (e) {
-        e.preventDefault();
-    });
     canvas.addEventListener('mousedown', function (e) {
         if (linkInProgress) {
             if (e.button == 0) {
@@ -458,20 +443,23 @@ window.onload = function () {
                 return;
             }
             cardsData.clear();
+            let maxId = 0;
             for (let i of Object.keys(fileData)) {
+                maxId = Math.max(i, maxId);
                 let iValues = Object.values(fileData)[i];
+                if (!iValues) continue;
                 cardsData.set(i,
                     new util.cardObject(
                         iValues.x,
                         iValues.y,
                         iValues.title,
-                        new Set(iValues.connection),
+                        new Set(Array.from(iValues.connection)),
                         iValues.colour
                     )
                 );
 
             }
-            cardIds.next = Math.max.apply(0, Object.keys(cardsData)) + 1;
+            cardIds.next = maxId + 1;
 
             clearMap();
             loadCards();
