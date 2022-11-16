@@ -129,6 +129,7 @@ function linkTo(linkEnd) {
 }
 
 function deleteElem(i) {
+    if (linkInProgress) return;
     let connections = cardsData.get(i).connection;
     if (connections.size > 0) {
         let unlinkContainer = document.getElementById('break');
@@ -330,6 +331,20 @@ function addCard(x, y, t, newInstance, cardId, connection, colour) {
     cardsData.set(cardId, new util.cardObject(x, y, "", connection, colour));
 }
 
+// returns id of card
+function addDefaultCard() {
+    let id = cardIds.getNextId();
+    addCard(
+        Math.floor((mouse.x - cameraPos.x) / zoom),
+        Math.floor((mouse.y - cameraPos.y) / zoom),
+        "",
+        true,
+        id,
+        new Set(),
+        "rgb(200, 200, 200)"
+    );
+    return id;
+}
 
 // Main loop
 window.onload = function () {
@@ -365,22 +380,19 @@ window.onload = function () {
 
     canvas.addEventListener('dblclick', function (e) {
         e.preventDefault();
-        addCard(
-            Math.floor((mouse.x - cameraPos.x) / zoom),
-            Math.floor((mouse.y - cameraPos.y) / zoom),
-            "",
-            true,
-            cardIds.getNextId(),
-            new Set(),
-            "rgb(200, 200, 200)"
-        );
+        addDefaultCard();
     }, true);
     document.addEventListener('contextmenu', function (e) {
         e.preventDefault();
     });
     canvas.addEventListener('mousedown', function (e) {
         if (linkInProgress) {
-            linkInProgress = false;
+            console.log(e.button);
+            if (e.button == 0) {
+                let id = addDefaultCard();
+                linkTo(id);
+            }
+            else { linkInProgress = false; }
         } else {
             mouseDown = true;
             initX = e.pageX, initY = e.pageY;
