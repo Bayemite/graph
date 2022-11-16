@@ -50,7 +50,6 @@ function closeNotif(e) {
 // document.getElementById('notif-button').onclick = function() {closeNotif(this)}
 
 function addUnlink(start, end) {
-    console.log(`addUnlink(${start},${end})`);
     let breakLink = document.createElement('button');
     breakLink.classList.add('connection-button');
     breakLink.id = `unlink-${start}-${end}`;
@@ -387,7 +386,6 @@ window.onload = function () {
     });
     canvas.addEventListener('mousedown', function (e) {
         if (linkInProgress) {
-            console.log(e.button);
             if (e.button == 0) {
                 let id = addDefaultCard();
                 linkTo(id);
