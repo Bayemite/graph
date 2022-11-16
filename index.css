@@ -276,7 +276,7 @@ button:hover {
     color: white;
     border: 1.5px solid rgba(200, 200, 200, 1);
     border-radius: 40%;
-    opacity: 0.8;
+    opacity: 0;
 
     /* -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px); */
