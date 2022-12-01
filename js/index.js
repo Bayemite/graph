@@ -425,50 +425,64 @@ window.onload = function () {
         }, { passive: false }
     );
 
-    loadCards();
+    function loadData(parsedData) {
+        document.getElementById("title").innerText = parsedData.title;
+        parsedData = parsedData.data;
+        cardsData.clear();
+        let maxId = 0;
+        for (let i of Object.keys(parsedData)) {
+            maxId = Math.max(i, maxId);
+            let iValues = Object.values(parsedData)[i];
+            if (!iValues) continue;
+            cardsData.set(i,
+                new util.cardObject(
+                    iValues.x,
+                    iValues.y,
+                    iValues.title,
+                    new Set(Array.from(iValues.connection)),
+                    iValues.colour
+                )
+            );
+
+        }
+        cardIds.next = maxId + 1;
+
+        clearMap();
+        loadCards();
+        console.log(cardsData);
+    }
+
+    function tryParseSave(file) {
+        let data;
+        try {
+            data = JSON.parse(file);
+
+        } catch (error) {
+            alert("Could not load file");
+            console.log("File incompatible");
+            return;
+        }
+        return data;
+    }
 
     const fileInput = document.getElementById('openFile');
     fileInput.onchange = async function () {
         // let selectedFile = fileInput.files[0];
         let file = new FileReader();
         file.onload = () => {
-            let fileData;
-            try {
-                fileData = JSON.parse(file.result);
-                document.getElementById("title").innerText = fileData.title;
-                fileData = fileData.data;
-            } catch (error) {
-                alert("Could not load file");
-                console.log("File incompatible");
-                return;
-            }
-            cardsData.clear();
-            let maxId = 0;
-            for (let i of Object.keys(fileData)) {
-                maxId = Math.max(i, maxId);
-                let iValues = Object.values(fileData)[i];
-                if (!iValues) continue;
-                cardsData.set(i,
-                    new util.cardObject(
-                        iValues.x,
-                        iValues.y,
-                        iValues.title,
-                        new Set(Array.from(iValues.connection)),
-                        iValues.colour
-                    )
-                );
-
-            }
-            cardIds.next = maxId + 1;
-
-            clearMap();
-            loadCards();
-            console.log(cardsData);
-
+            let fileData = tryParseSave(file.result);
+            loadData(fileData);
         };
         file.readAsText(this.files[0]);
         fileInput.value = '';
     };
+
+    let localSave = window.localStorage.getItem('localSave');
+    if (localSave)
+        loadData(tryParseSave(localSave));
+    else
+        loadCards();
+
 
     // Function to download data to a file
     // https://stackoverflow.com/questions/13405129/create-and-save-a-file-with-javascript
@@ -490,7 +504,7 @@ window.onload = function () {
         }
     }
 
-    document.getElementById('save').onclick = () => {
+    function genSave() {
         let saveData = {
             title: document.getElementById("title").innerText,
             data: {}
@@ -505,7 +519,14 @@ window.onload = function () {
                 "colour": card.colour,
             };
         }
+        return saveData;
+    };
+    document.getElementById('save').onclick = () => {
+        let saveData = genSave();
         download(JSON.stringify(saveData), saveData.title, "application/json");
+    };
+    window.onbeforeunload = (e) => {
+        window.localStorage.setItem('localSave', JSON.stringify(genSave())); console.log("saved");
     };
 
     function cameraMovement() {
@@ -524,7 +545,7 @@ window.onload = function () {
 
         let transformNode = document.getElementById('translate');
         transformNode.style.transform = `translate(${cameraPos.x}px, ${cameraPos.y}px) scale(${zoom})`;
-    }
+    };
 
     function main(currentTime) {
         window.requestAnimationFrame(main);
