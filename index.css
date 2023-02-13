@@ -33,10 +33,10 @@ h4 {
     text-anchor: middle;
     font-size: medium !important;
     font-variation-settings:
-        'FILL'0,
-        'wght'300,
-        'GRAD'0,
-        'opsz'48
+        'FILL' 0,
+        'wght' 300,
+        'GRAD' 0,
+        'opsz' 48
 }
 
 .overlay {
@@ -104,11 +104,11 @@ button:hover {
 
 .accordion {
     background-color: rgba(73, 73, 73, 0.139);
-    margin-top: 10px;
+    margin-top: 1rem;
     padding: 0 15px;
     border-radius: 10px;
     border: 2px solid rgba(200, 200, 200, 1);
-    display: none;
+    /* display: none; */
 }
 
 .accordion-header {
@@ -245,21 +245,26 @@ button:hover {
     height: 2em;
     border-radius: 50% !important;
 }
+
 #clr-picker {
     z-index: 10000000000;
 }
 
-/* input[type="color" i] {
-    width: 4rem;
-    height: 4rem;
-    cursor: default;
-    border-radius: 100%;
-    border-width: 2px;
-    border-style: solid;
-    border-color: rgba(200, 200, 200, 1);
-    border-image: initial;
-    padding: 0px 0px;
-} */
+/* Keyframes named connection */
+@keyframes connection {
+
+    /* at 0, opacity 0 */
+    0% {
+        opacity: 0;
+        transform: scale(0);
+    }
+
+    /* at 1, opacity 0.2 */
+    100% {
+        opacity: 0.5;
+        transform: scale(0.75);
+    }
+}
 
 .connection-button {
     position: absolute;
@@ -272,28 +277,21 @@ button:hover {
     text-align: center;
     padding: 8px;
 
-    /* background-color: #1a1a1a; */
     color: white;
     border: 1.5px solid rgba(200, 200, 200, 1);
     border-radius: 40%;
-    opacity: 0;
+    opacity: 0.5;
 
     /* -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px); */
     transform: scale(0.75);
     filter: blur(1px);
-
     box-shadow: 0 0 0 0px rgba(0, 0, 0, 0.2);
+    animation: connection 1s cubic-bezier(0.165, 0.84, 0.44, 1);
 
-    /* -webkit-backdrop-filter: blur(4px);
-    backdrop-filter: blur(4px); */
-
-    /* transition: 0.5s background cubic-bezier(0, 0.96, 0, 0.99), 0s left, 0.5s all; */
-    /* transition: all 0.5s linear, left 0.2s \
-    
-    
-    \ease, background 0.5s cubic-bezier(0, 0.96, 0, 0.99) !important; */
+    transition: 0.5s all, 0.2s opacity, 0.2s transform, 0s left, top;
 }
+
 .connection-button:hover {
     opacity: 1;
     border-radius: 50%;
@@ -312,7 +310,7 @@ button:hover {
     opacity: 0;
     left: 50%;
     transform: translateX(-50%) scale(0);
-    transition: 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+    transition: 0.3s cubic-bezier(0.23, 1, 0.320, 1);
     z-index: -100;
     filter: blur(8px);
     /* transform: translateX(-50%); */
@@ -337,9 +335,9 @@ button:hover {
     animation-delay: 0.5s;
 }
 
-@keyframes notification {
+@keyframes dialog {
     0% {
-        transform: translate(-50%, -50%) scale(0.5);
+        transform: translate(-50%, -50%) scale(0.4, 0.5);
         opacity: 0;
         /* scale: 0; */
     }
@@ -351,10 +349,8 @@ button:hover {
     }
 }
 
-.notification {
-    /* animation-name: scaleIn; */
-    /* animation-duration: 0.5s; */
-    animation: 0.5s notification;
+.dialog {
+    animation: 0.5s dialog;
     animation-fill-mode: forwards;
 
     padding: 20px 40px;
@@ -369,23 +365,32 @@ button:hover {
     z-index: 10000000;
 }
 
-.notification-header {
+.dialog-header {
     padding: 0;
     margin: 1rem 0;
 }
 
-.notification-content {
+.dialog-content {
     padding: 0;
     margin: 1rem 0;
 }
 
-.notification-button {
+.dialog-button {
+    /* transition: margin-left 0s, transform 0s, all 0.5s;
+    margin-left: 50%;
+    transform: translateX(-50%); */
+}
+
+.dialog-button-container {
     transition: margin-left 0s, transform 0s, all 0.5s;
     margin-left: 50%;
     transform: translateX(-50%);
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
 }
 
-@keyframes notification-remove {
+@keyframes dialog-remove {
     0% {
         opacity: 1;
         transform: translate(-50%, -50%) scale(1);
@@ -397,9 +402,32 @@ button:hover {
     }
 }
 
-.notification-remove {
-    animation: 0.3s notification-remove;
+.dialog-remove {
+    animation: 0.3s dialog-remove;
     animation-fill-mode: forwards;
+    left: 50vw;
+    top: 50vh;
+}
+
+.obstructor {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(74, 74, 74, 0.5);
+    pointer-events: all;
+    z-index: 10000;
+
+    filter: blur(4px);
+
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    transition: 0.3s;
+}
+
+.obstructor-remove {
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    background-color: rgba(255, 255, 255, 0);
 }
 
 input[type="file"] {

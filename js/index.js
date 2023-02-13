@@ -39,15 +39,15 @@ cardsData.set(
 
 let cardColours = {};
 
-function closeNotif(e) {
+function closeDialog(e) {
     // console.log(e, e.parentElement)
-    e.parentElement.classList.add("notification-remove");
+    e.parentElement.classList.add("dialog-remove");
     setTimeout(function () {
         e.parentElement.remove();
     }, 302);
 }
 
-// document.getElementById('notif-button').onclick = function() {closeNotif(this)}
+// document.getElementById('dialog-button').onclick = function () { closeDialog(this) }
 
 function addUnlink(start, end) {
     let breakLink = document.createElement('button');
@@ -219,14 +219,15 @@ function genHTMLCard(i, x, y, t) {
         linkElem.onclick = function () { link(i); };
         actions.appendChild(linkElem);
 
+        let deleteDialog = new util.Dialog("Warning", "Are you sure you want to delete this card? This will delete all of its connections.", true, "Cancel", deleteElem, i, "Delete")
         let deleteCard = document.createElement('button');
         deleteCard.innerHTML = `
         <span class="material-symbols-outlined">
             delete
         </span>
         `;
-        deleteCard.classList.add("actions-button", "color-edit-button");
-        deleteCard.onclick = function () { deleteElem(i); };
+        deleteCard.classList.add("actions-button");
+        deleteCard.onclick = function () { deleteDialog.show(); };
         actions.appendChild(deleteCard);
 
         let clrPicker = document.createElement('div');
@@ -336,7 +337,7 @@ function addDefaultCard() {
 // Main loop
 window.onload = function () {
     // Stub, unused at the moment
-    let peerConnection = new util.PeerConnection();
+    // let peerConnection = new util.PeerConnection();
 
     let canvas = document.getElementById('canvas');
     let ctx = canvas.getContext('2d');
@@ -396,7 +397,6 @@ window.onload = function () {
         }
 
         if (mouseDown) {
-
             dragX = e.pageX;
             dragY = e.pageY;
 
