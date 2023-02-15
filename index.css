@@ -41,7 +41,7 @@ h4 {
 
 .overlay {
     position: absolute;
-    width: 12rem;
+    width: 14rem;
     top: 10px;
     left: 10px;
     padding: 0px 20px 20px 20px;
@@ -221,7 +221,8 @@ button:hover {
     color: rgba(255, 255, 255, 0.5);
 }
 
-#connect-button {
+#connect-button,
+#host-peer-button {
     margin-top: 10px;
     width: 100%;
 }
@@ -383,10 +384,13 @@ button:hover {
 
 .dialog-button-container {
     transition: margin-left 0s, transform 0s, all 0.5s;
-    margin-left: 50%;
-    transform: translateX(-50%);
+
+    width: 100%;
+    text-align: center;
     display: flex;
     flex-direction: row;
+    justify-content: center;
+    align-items: center;
     gap: 1rem;
 }
 

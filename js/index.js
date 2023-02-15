@@ -194,7 +194,7 @@ function genHTMLCard(i, x, y, t) {
         let card = document.createElement('span');
 
         let p = document.createElement('p');
-        p.classList.add('text');
+        p.classList.add('text', 'card-text');
         p.contentEditable = true;
         p.innerHTML = t;
         p.oninput = () => cardsData.get(i).title = p.innerHTML;
@@ -451,6 +451,134 @@ window.onload = function () {
         loadCards();
         console.log(cardsData);
     }
+
+    function copy(that) {
+        var inp = document.createElement('input');
+        document.body.appendChild(inp)
+        inp.value = that.textContent
+        inp.select();
+        document.execCommand('copy', false);
+        inp.remove();
+    }
+
+    function newPeerDialog(id) {
+        console.log('My peer ID is: ' + id)
+        let hostDialog = new util.Dialog("Host ID", `Others can join your session using the following id: <div onclick='copy(this)'>${id}</div>`, false, "Ok")
+        hostDialog.show();
+    }
+
+    function connectPeerDialog(conn) {
+        console.log("Connected: ")
+        console.log(conn)
+        let hostDialog = new util.Dialog("User Connected", `A user joined your session: ${conn.peer}`, false, "Ok")
+        hostDialog.show();
+    }
+
+    document.getElementById("host-peer-button").onclick = function () {
+        let peerObject = new Peer("Test");
+        peerObject.on('open', (id) => newPeerDialog(id));
+        peerObject.on('connection', (conn) => {
+            connectPeerDialog(conn);
+
+            // Listen for incoming data on the dataConnection object
+            conn.on('data', (data) => {
+                console.log("Received data:", data);
+            });
+        });
+    };
+
+
+    /*function connectToHost(hostId) {
+        const peer = new Peer();
+
+        peer.on('open', (id) => {
+            console.log(`Connected with ID: ${id}`);
+            const conn = peer.connect(hostId);
+            conn.on('open', () => {
+                let connectDialog = new util.Dialog("Connected to host", `Successfully connected to host`, false, "Ok")
+                connectDialog.show()
+                console.log(`Connected to host: ${hostId}`);
+            });
+        });
+
+        peer.on('error', (error) => {
+            console.error(error);
+        });
+    }*/
+
+
+    // document.getElementById("connect-button").onclick = () => connectToHost(document.getElementById("peer-id").innerText.trim());
+
+    function connectToHost(hostId) {
+        const peer = new Peer();
+
+        let conn;
+
+        peer.on('open', (id) => {
+            console.log(`Connected with ID: ${id}`);
+            conn = peer.connect(hostId);
+            conn.on('open', () => {
+                console.log(`Connected to host: ${hostId}`);
+            });
+        });
+
+        peer.on('error', (error) => {
+            console.error(error);
+        });
+
+        const updateNodeText = function (node, text) {
+            if (conn) {
+                conn.send({ type: 'updateNodeText', nodeId: node.id, text: text });
+                console.log('conn')
+            }
+        };
+
+        return { conn, updateNodeText };
+    }
+
+    function observeNodeTextChanges(node, updateNodeText) {
+        const observer = new MutationObserver((mutations) => {
+            const text = node.innerText.trim();
+            updateNodeText(node, text);
+            console.log(text);
+        });
+
+        observer.observe(node, { characterData: true, subtree: true });
+    }
+
+    function attachObserversToExistingNodes(updateNodeText) {
+        const nodes = document.querySelectorAll('.card-text');
+        nodes.forEach(node => observeNodeTextChanges(node, updateNodeText));
+    }
+
+    function attachObserverToNewNodes(updateNodeText) {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'childList' && mutation.addedNodes) {
+                    mutation.addedNodes.forEach((node) => {
+                        if (node.nodeName === 'P' && node.classList.includes('card-text')) {
+                            observeNodeTextChanges(node, updateNodeText);
+                        }
+                    });
+                }
+            });
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true });
+    }
+
+
+    document.getElementById("connect-button").onclick = () => {
+        const peerId = document.getElementById("peer-id").innerText.trim();
+        const { conn, updateNodeText } = connectToHost(peerId);
+
+        // Attach mutation observers to existing and new nodes
+        attachObserversToExistingNodes(updateNodeText);
+        attachObserverToNewNodes(updateNodeText);
+    };
+
+
+
 
     function tryParseSave(file) {
         let data;

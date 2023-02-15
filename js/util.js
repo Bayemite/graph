@@ -66,6 +66,14 @@ export class PeerConnection {
     connect(id) {
         this.peer.connect(id);
     }
+
+    peer() {
+        return this.peer
+    }
+
+    id() {
+        return this.peer.id
+    }
 }
 
 export class IDAssign {

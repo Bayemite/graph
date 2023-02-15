@@ -32,7 +32,7 @@
     <!-- <button id="add">
       +
     </button> -->
-    <div class="accordion" id="accordion-base-0">
+    <div class="accordion" id="accordion-base-0" data-host=null>
       <div class="accordion-header" onclick="
       let accordionContent = document.getElementById('accordion-0')
       let accordion = document.getElementById('accordion-base-0')
@@ -44,13 +44,47 @@
           expand_more
         </span>
       </div>
-      <div class="accordion-content" id="accordion-0">
-        <p contenteditable role="textbox" id="peer-id"></p>
-        <button style="margin-bottom: 1rem;" id="connect-button">
-          Connect
+      <div style="display: flex; gap: 0.4rem;
+      align-items: center;
+      justify-content: center; margin-bottom: 1rem;">
+        <!-- <button id="back-button" style="padding: 0; width: 2.5rem; height: 2.5rem;" onclick="
+        document.getElementById('accordion-base-0').dataset.host = null
+        ">
+          <span class="material-symbols-outlined" style="margin-left: auto;">
+            arrow_back
+          </span>
+        </button> -->
+        <button id="host-button" onclick="
+        document.getElementById('join-dialog').style.display = 'none'
+        document.getElementById('host-dialog').style.display = 'inherit'
+        ">
+          Host
+        </button>
+        <button id="join-button" onclick="
+        document.getElementById('join-dialog').style.display = 'inherit'
+        document.getElementById('host-dialog').style.display = 'none'
+        ">
+          Join
         </button>
       </div>
+      <div class="accordion-content" id="accordion-0">
+        <div id="join-dialog">
+          <p contenteditable role="textbox" id="peer-id"></p>
+          <button style="margin-bottom: 1rem;" id="connect-button">
+            Connect
+          </button>
+        </div>
+        <div id="host-dialog">
+          <button style="margin-top: 0; margin-bottom: 1rem;" id="host-peer-button">
+            Host
+          </button>
+        </div>
+      </div>
     </div>
+    <script>
+      document.getElementById('join-dialog').style.display = 'inherit'
+      document.getElementById('host-dialog').style.display = 'none'
+    </script>
   </div>
   <div id="dialog-container">
 
