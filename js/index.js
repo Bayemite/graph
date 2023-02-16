@@ -13,9 +13,40 @@ let cameraPos;
 
 let focusedCard = null;
 
+// Function which will later defined, 
+// but is defined here in order to be 
+// used in the set observer
+let sendData = function (key, value) {
+    // nothing yet
+}
+
+let host = false
+let activeConnection = false
+let clientConnection = null;
+
 // File structure
 // key is card-'0', corresponds to html id
 let cardsData = new Map();
+// Observer to check for changes in cardsData
+// Overrides the default set command, though keeps a backup
+
+// Define the existing set function to be renamed
+const originalSet = cardsData.set.bind(cardsData);
+
+// Rename the original set function to something else
+cardsData.customSet = originalSet;
+
+// Define the new set function with observer functionality
+cardsData.set = function (key, value) {
+    originalSet(key, value);
+
+    sendData(key, value);
+    // call the observer here
+    console.log(`Map entry with key ${key} has been updated with value:`);
+    console.log(value);
+};
+
+
 cardsData.set(
     cardIds.getNextId(),
     new util.cardObject(
@@ -157,8 +188,13 @@ let moveCardOffset = new util.vector2D(0, 0);
 function moveElem() {
     let i = moveCardI;
     let card = document.getElementById(`card-${i}`);
-    cardsData.get(i).x = Math.floor((mouse.x - cameraPos.x - moveCardOffset.x) / zoom);
-    cardsData.get(i).y = Math.floor((mouse.y - cameraPos.y - moveCardOffset.y) / zoom);
+    // cardsData.get(i).x = Math.floor((mouse.x - cameraPos.x - moveCardOffset.x) / zoom);
+    // cardsData.get(i).y = Math.floor((mouse.y - cameraPos.y - moveCardOffset.y) / zoom);
+    let x = Math.floor((mouse.x - cameraPos.x - moveCardOffset.x) / zoom);
+    let y = Math.floor((mouse.y - cameraPos.y - moveCardOffset.y) / zoom);
+    let cardData = cardsData.get(i);
+    cardsData.set(i, new util.cardObject(x, y, cardData.title, cardData.connection, cardData.colour));
+
     card.style.top = `${cardsData.get(i).y}px`;
     card.style.left = `${cardsData.get(i).x}px`;
 }
@@ -197,7 +233,9 @@ function genHTMLCard(i, x, y, t) {
         p.classList.add('text', 'card-text');
         p.contentEditable = true;
         p.innerHTML = t;
-        p.oninput = () => cardsData.get(i).title = p.innerHTML;
+        // p.oninput = () => cardsData.get(i).title = p.innerHTML;
+        let cardData = cardsData.get(i);
+        p.oninput = () => cardsData.set(i, new util.cardObject(cardData.x, cardData.y, p.innerHTML, cardData.connection, cardData.colour));
 
         card.appendChild(p);
 
@@ -503,6 +541,15 @@ window.onload = function () {
             // Listen for incoming data on the dataConnection object
             conn.on('data', (data) => {
                 console.log("Received data:", data);
+                if (data["type"] == 'updateNodeText') {
+                    cardsData.customSet(data["key"], new util.cardObject(data["value"].x, data["value"].y, data["value"].title, new Set(data["value"].connection), data["value"].colour));
+                    let c = document.getElementById(`card-${data["key"]}`)
+                    // let p = the paragraph element with class text inside it
+                    let p = c.getElementsByClassName("text")[0];
+                    p.innerHTML = data["value"].title;
+                    c.style.top = `${data["value"].y}px`;
+                    c.style.left = `${data["value"].x}px`;
+                }
             });
         });
     };
@@ -535,11 +582,13 @@ window.onload = function () {
         let conn;
 
         peer.on('open', (id) => {
-            console.log(`Connected with ID: ${id}`);
+            console.log(`Connected to PeerJS with ID: ${id}`);
             conn = peer.connect(hostId);
 
             conn.on('open', () => {
                 console.log(`Connected to host: ${hostId}`);
+                host = false;
+                activeConnection = true
             });
 
             conn.on("data", (data) => {
@@ -554,58 +603,71 @@ window.onload = function () {
             console.error(error);
         });
 
-        const updateNodeText = function (node, text) {
+        const updateNodeText = function (key, card) {
             if (conn) {
-                conn.send({ type: 'updateNodeText', nodeId: node.id, text: text });
                 console.log('conn')
+                let data = {
+                    "x": card.x,
+                    "y": card.y,
+                    "title": card.title,
+                    "connection": Array.from(card.connection),
+                    "colour": card.colour,
+                };
+                conn.send({ type: 'updateNodeText', key: key, value: data });
             }
         };
 
         return { conn, updateNodeText };
     }
 
-    function observeNodeTextChanges(node, updateNodeText) {
-        const observer = new MutationObserver((mutations) => {
-            const text = node.innerText.trim();
-            updateNodeText(node, text);
-            console.log(text);
-        });
+    // function observeNodeTextChanges(node, updateNodeText) {
+    //     const observer = new MutationObserver((mutations) => {
+    //         const text = node.innerText.trim();
+    //         updateNodeText(node, text);
+    //         console.log(text);
+    //     });
 
-        observer.observe(node, { characterData: true, subtree: true });
-    }
+    //     observer.observe(node, { characterData: true, subtree: true });
+    // }
 
-    function attachObserversToExistingNodes(updateNodeText) {
-        const nodes = document.querySelectorAll('.card-text');
-        nodes.forEach(node => observeNodeTextChanges(node, updateNodeText));
-    }
+    // function attachObserversToExistingNodes(updateNodeText) {
+    //     const nodes = document.querySelectorAll('.card-text');
+    //     nodes.forEach(node => observeNodeTextChanges(node, updateNodeText));
+    // }
 
-    function attachObserverToNewNodes(updateNodeText) {
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.type === 'childList' && mutation.addedNodes) {
-                    mutation.addedNodes.forEach((node) => {
-                        if (node.nodeName === 'P' && node.classList.includes('card-text')) {
-                            observeNodeTextChanges(node, updateNodeText);
-                        }
-                    });
-                }
-            });
-        });
+    // function attachObserverToNewNodes(updateNodeText) {
+    //     const observer = new MutationObserver((mutations) => {
+    //         mutations.forEach((mutation) => {
+    //             if (mutation.type === 'childList' && mutation.addedNodes) {
+    //                 mutation.addedNodes.forEach((node) => {
+    //                     if (node.nodeName === 'P' && node.classList.includes('card-text')) {
+    //                         observeNodeTextChanges(node, updateNodeText);
+    //                     }
+    //                 });
+    //             }
+    //         });
+    //     });
 
-        observer.observe(document.body, { childList: true, subtree: true });
-    }
+    //     observer.observe(document.body, { childList: true, subtree: true });
+    // }
 
 
     document.getElementById("connect-button").onclick = () => {
         const peerId = document.getElementById("peer-id").innerText.trim();
         const { conn, updateNodeText } = connectToHost(peerId);
 
+        clientConnection = conn
+        // sendData = function (key, value) {
+        //     if (conn) {
+        //         conn.send({ type: 'updateNodeText', nodeId: key, text: value });
+        //         console.log('conn')
+        //     }
+        // }
+        sendData = updateNodeText
         // Attach mutation observers to existing and new nodes
-        attachObserversToExistingNodes(updateNodeText);
-        attachObserverToNewNodes(updateNodeText);
+        // attachObserversToExistingNodes(updateNodeText);
+        // attachObserverToNewNodes(updateNodeText);
     };
-
-
 
 
     function tryParseSave(file) {
