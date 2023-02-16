@@ -733,7 +733,7 @@ window.onload = function () {
         download(saveData, saveData.title, "application/json");
     };
     window.onbeforeunload = (e) => {
-        window.localStorage.setItem('localSave', genSave(title)); 
+        window.localStorage.setItem('localSave', genSave(title));
         console.log("Saved to localStorage");
     };
 

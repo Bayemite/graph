@@ -34,7 +34,7 @@ export function colorValues(color) {
         if (color.indexOf('rgba') === -1)
             color += ',1'; // convert 'rgb(R,G,B)' to 'rgb(R,G,B)A' which looks awful but will pass the regxep below
         return color.match(/[\.\d]+/g).map(function (a) {
-            return +a
+            return +a;
         });
     }
 }
@@ -45,7 +45,7 @@ export function checkArgs(args, paramCount) {
         console.error(`Arg count does not match param count of ${paramCount}:`, args);
         return;
     }
-    for (let i = 0; i < args.length; i++) {
+    for (let i = 0;i < args.length;i++) {
         if (args[i] === undefined || args[i] === null) {
             console.error(`Arg ${i} null or undefined:`, args);
             return;
@@ -54,7 +54,7 @@ export function checkArgs(args, paramCount) {
 }
 
 export class PeerConnection {
-    constructor() {
+    constructor () {
         this.peer = new Peer();
         this.peer.on('open', (id) => console.log('My peer ID is: ' + id));
         this.peer.on('connection', (conn) => console.log("Connected: " + conn));
@@ -68,16 +68,16 @@ export class PeerConnection {
     }
 
     peer() {
-        return this.peer
+        return this.peer;
     }
 
     id() {
-        return this.peer.id
+        return this.peer.id;
     }
 }
 
 export class IDAssign {
-    constructor() {
+    constructor () {
         this.spare = [];
         this.next = 0;
     }
@@ -92,7 +92,7 @@ export class IDAssign {
 }
 
 export class rgb {
-    constructor(r, g, b) {
+    constructor (r, g, b) {
         this.r = r;
         this.g = g;
         this.b = b;
@@ -100,7 +100,7 @@ export class rgb {
 }
 
 export class cardObject {
-    constructor(x, y, t, c, colour) {
+    constructor (x, y, t, c, colour) {
         this.x = x;
         this.y = y;
         this.title = t;
@@ -110,7 +110,7 @@ export class cardObject {
 }
 
 export class vector2D {
-    constructor(x, y) {
+    constructor (x, y) {
         this.x = x;
         this.y = y;
     }
@@ -207,14 +207,14 @@ function closeDialog(name) {
 }
 
 export class Dialog {
-    constructor(title, text, execute, message1, func, index, message2) {
+    constructor (title, text, execute, message1, func, index, message2) {
         this.title = title;
         this.text = text;
         this.func;
         this.index;
-        this.message1 = message1
-        this.message2 = message2
-        this.execute = execute
+        this.message1 = message1;
+        this.message2 = message2;
+        this.execute = execute;
         if (this.execute) {
             this.func = func;
             this.index = index;
@@ -248,8 +248,14 @@ export class Dialog {
         }
 
         document.getElementsByClassName('obstructor')[0].onclick = (e) => {
-            e.stopImmediatePropagation()
+            e.stopImmediatePropagation();
             closeDialog(this.title);
-        }
+        };
+    }
+}
+
+export class CardsData {
+    constructor () {
+        this.data = new Map();
     }
 }
