@@ -18,10 +18,10 @@ let focusedCard = null;
 // used in the set observer
 let sendData = function (key, value) {
     // nothing yet
-}
+};
 
-let host = false
-let activeConnection = false
+let host = false;
+let activeConnection = false;
 let clientConnection = null;
 
 // File structure
@@ -257,7 +257,7 @@ function genHTMLCard(i, x, y, t) {
         linkElem.onclick = function () { link(i); };
         actions.appendChild(linkElem);
 
-        let deleteDialog = new util.Dialog("Warning", "Are you sure you want to delete this card? This will delete all of its connections.", true, "Cancel", deleteElem, i, "Delete")
+        let deleteDialog = new util.Dialog("Warning", "Are you sure you want to delete this card? This will delete all of its connections.", true, "Cancel", deleteElem, i, "Delete");
         let deleteCard = document.createElement('button');
         deleteCard.innerHTML = `
         <span class="material-symbols-outlined">
@@ -492,23 +492,23 @@ window.onload = function () {
 
     function copy(that) {
         var inp = document.createElement('input');
-        document.body.appendChild(inp)
-        inp.value = that.textContent
+        document.body.appendChild(inp);
+        inp.value = that.textContent;
         inp.select();
         document.execCommand('copy', false);
         inp.remove();
     }
 
     function newPeerDialog(id) {
-        console.log('My peer ID is: ' + id)
-        let hostDialog = new util.Dialog("Host ID", `Others can join your session using the following id: <div onclick='copy(this)'>${id}</div>`, false, "Ok")
+        console.log('My peer ID is: ' + id);
+        let hostDialog = new util.Dialog("Host ID", `Others can join your session using the following id: <div onclick='copy(this)'>${id}</div>`, false, "Ok");
         hostDialog.show();
     }
 
     function connectPeerDialog(conn) {
-        console.log("Connected: ")
-        console.log(conn)
-        let hostDialog = new util.Dialog("User Connected", `A user joined your session: ${conn.peer}`, false, "Ok")
+        console.log("Connected: ");
+        console.log(conn);
+        let hostDialog = new util.Dialog("User Connected", `A user joined your session: ${conn.peer}`, false, "Ok");
         hostDialog.show();
     }
 
@@ -528,7 +528,7 @@ window.onload = function () {
                 //     ...cardObject,
                 //     connections: Array.from(cardObject.connections),
                 // }));
-                const dataToSend = JSON.stringify(genSave())
+                const dataToSend = JSON.stringify(genSave());
                 console.log(dataToSend);
                 // Send the data
                 conn.send(dataToSend);
@@ -543,7 +543,7 @@ window.onload = function () {
                 console.log("Received data:", data);
                 if (data["type"] == 'updateNodeText') {
                     cardsData.customSet(data["key"], new util.cardObject(data["value"].x, data["value"].y, data["value"].title, new Set(data["value"].connection), data["value"].colour));
-                    let c = document.getElementById(`card-${data["key"]}`)
+                    let c = document.getElementById(`card-${data["key"]}`);
                     // let p = the paragraph element with class text inside it
                     let p = c.getElementsByClassName("text")[0];
                     p.innerHTML = data["value"].title;
@@ -588,11 +588,11 @@ window.onload = function () {
             conn.on('open', () => {
                 console.log(`Connected to host: ${hostId}`);
                 host = false;
-                activeConnection = true
+                activeConnection = true;
             });
 
             conn.on("data", (data) => {
-                console.log(data)
+                console.log(data);
                 // Loads cards and resets and sets cardsData
                 loadData(tryParseSave(data));
             });
@@ -605,7 +605,7 @@ window.onload = function () {
 
         const updateNodeText = function (key, card) {
             if (conn) {
-                console.log('conn')
+                console.log('conn');
                 let data = {
                     "x": card.x,
                     "y": card.y,
@@ -656,14 +656,14 @@ window.onload = function () {
         const peerId = document.getElementById("peer-id").innerText.trim();
         const { conn, updateNodeText } = connectToHost(peerId);
 
-        clientConnection = conn
+        clientConnection = conn;
         // sendData = function (key, value) {
         //     if (conn) {
         //         conn.send({ type: 'updateNodeText', nodeId: key, text: value });
         //         console.log('conn')
         //     }
         // }
-        sendData = updateNodeText
+        sendData = updateNodeText;
         // Attach mutation observers to existing and new nodes
         // attachObserversToExistingNodes(updateNodeText);
         // attachObserverToNewNodes(updateNodeText);
@@ -790,14 +790,11 @@ window.onload = function () {
 
         if (linkInProgress) {
             // Get element connecting to other mouse
-            // console.log(linkStart)
             let elem = document.getElementById(`card-${linkStart}`);
             let x2 = Math.floor(-elem.style.left.replace('px', '') * zoom - cameraPos.x);
             let y2 = Math.floor(-elem.style.top.replace('px', '') * zoom - cameraPos.y);
 
             // Get other element
-            // let root = document.getElementById(`card-${data[i].connection}`)
-            // console.log(Math.tan(-(-mouse.x - x2) / (-mouse.y - y2)))
             let xr = -mouse.x;
             let yr = -mouse.y - triRad * 2 * zoom;
             if (x2 < xr) {
@@ -811,7 +808,8 @@ window.onload = function () {
                 );
                 ctx.stroke();
                 new util.drawTriangle(ctx, -xr + (number * zoom) - 2 + (triRad + 0.5) * zoom, -yr - (number / 2) * zoom, triRad, zoom, '#fff', -90);
-            } else if (-xr + (number) + (curveWidth * zoom / limiter) > -x2 - (curveWidth * zoom / limiter) && (-xr + (curveWidth * zoom / limiter) < -x2 + (elem.offsetWidth * zoom) + (curveWidth * zoom / limiter))) {
+            }
+            else if (-xr + (number) + (curveWidth * zoom / limiter) > -x2 - (curveWidth * zoom / limiter) && (-xr + (curveWidth * zoom / limiter) < -x2 + (elem.offsetWidth * zoom) + (curveWidth * zoom / limiter))) {
                 if (yr > y2) {
                     curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (yr - y2) / zoom / 500, 1);
                     ctx.moveTo(-xr + (number / 2 * zoom) - 1, -yr + (number) * zoom - 1);
@@ -829,7 +827,8 @@ window.onload = function () {
                     ctx.stroke();
                     new util.drawTriangle(ctx, -xr + (number / 2 * zoom) - 1, -yr + 1 - (triRad + 0.5) * zoom, triRad, zoom, '#fff', 180);
                 }
-            } else {
+            }
+            else {
                 curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (x2 - xr) / zoom / 500, 1);
                 ctx.moveTo(-xr + 1, -yr + (number / 2) * zoom);
                 ctx.bezierCurveTo(-xr - curveWidth, -yr + (number / 2) * zoom,
@@ -839,10 +838,6 @@ window.onload = function () {
                 new util.drawTriangle(ctx, -xr + 1 - (triRad + 0.5) * zoom, -yr + (number / 2) * zoom, triRad, zoom, '#fff', 90);
             }
             ctx.closePath();
-            // console.log(-(xr - x2), (yr - y2))
-            // console.log(Math.atan2(-(xr - x2), (yr - y2)) * 180 / Math.PI)
-            // new util.drawTriangle(ctx, -xr + (number * zoom) - 2 + (triRad + 0.5) * zoom, -yr + (number / 2) * zoom, triRad, zoom, '#fff', Math.atan2(-(xr - x2), (yr - y2)) * 180 / Math.PI)
-            // new util.drawTriangle(ctx, -xr + (triRad + 0.5) * zoom, -yr + + (triRad + 0.5) * zoom, triRad, zoom, '#fff', Math.atan2(-(xr - x2), (yr - y2)) * 180 / Math.PI)
         }
 
         for (let [cardId, card] of cardsData) {
@@ -895,7 +890,8 @@ window.onload = function () {
                     new util.drawTriangle(ctx, -xr + (root.offsetWidth * zoom) - 2 + (triRad + 0.5) * zoom, -yr + (root.offsetHeight / 2) * zoom, triRad, zoom, '#fff', -90);
                     unlink.style.left = `${((Math.floor(elem.style.left.replace('px', '')) + (Math.floor(root.style.left.replace('px', '')) + root.offsetWidth)) / 2) - unlink.offsetWidth / 2}px`;
                     unlink.style.top = `${((Math.floor(elem.style.top.replace('px', '')) + (Math.floor(root.style.top.replace('px', '')) + root.offsetHeight)) / 2) - unlink.offsetHeight / 2}px`;
-                } else if (-xr + (root.offsetWidth * zoom) + (curveWidth * zoom / limiter) > -x2 - (curveWidth * zoom / limiter) && (-xr + (curveWidth * zoom / limiter) < -x2 + (elem.offsetWidth * zoom) + (curveWidth * zoom / limiter))) {
+                }
+                else if (-xr + (root.offsetWidth * zoom) + (curveWidth * zoom / limiter) > -x2 - (curveWidth * zoom / limiter) && (-xr + (curveWidth * zoom / limiter) < -x2 + (elem.offsetWidth * zoom) + (curveWidth * zoom / limiter))) {
                     if (yr > y2) {
                         curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (yr - y2) / zoom / 500, 1);
                         ctx.moveTo(-xr + (root.offsetWidth / 2 * zoom) - 1, -yr + (root.offsetHeight) * zoom - 1);
@@ -907,7 +903,8 @@ window.onload = function () {
                         unlink.style.left = `${(((Math.floor(elem.style.left.replace('px', '')) + elem.offsetWidth / 2)) + (Math.floor(root.style.left.replace('px', '')) + root.offsetWidth / 2)) / 2 - unlink.offsetWidth / 2}px`;
                         unlink.style.top = `${(((Math.floor(elem.style.top.replace('px', '')) + elem.offsetHeight) + (Math.floor(root.style.top.replace('px', '')))) / 2) - unlink.offsetHeight / 2}px`;
 
-                    } else {
+                    }
+                    else {
                         curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (y2 - yr) / zoom / 500, 1);
                         ctx.moveTo(-xr + (root.offsetWidth / 2 * zoom) - 1, -yr + 1);
                         ctx.bezierCurveTo(-xr + (root.offsetWidth / 2 * zoom), -yr - curveWidth,
@@ -919,7 +916,8 @@ window.onload = function () {
                         unlink.style.top = `${((Math.floor(elem.style.top.replace('px', '')) + (Math.floor(root.style.top.replace('px', '')) + root.offsetHeight)) / 2) - unlink.offsetHeight / 2}px`;
 
                     }
-                } else {
+                }
+                else {
                     curveWidth = Math.floor(150 * zoom) * util.clamp(0.1, (x2 - xr) / zoom / 500, 1);
                     ctx.moveTo(-xr + 1, -yr + (root.offsetHeight / 2) * zoom);
                     ctx.bezierCurveTo(-xr - curveWidth, -yr + (root.offsetHeight / 2) * zoom,
