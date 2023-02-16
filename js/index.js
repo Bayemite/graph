@@ -480,6 +480,26 @@ window.onload = function () {
         peerObject.on('connection', (conn) => {
             connectPeerDialog(conn);
 
+            conn.on('open', () => {
+                // console.log(`Connected to host: ${hostId}`);
+                // Convert the Map to an array of key-value pairs
+                // const dataToSend = Object.fromEntries(cardsData.entries());
+                // console.log(dataToSend);
+
+                // const cardsDataArray = Object.fromEntries(cardsData.entries()).map((cardObject) => ({
+                //     ...cardObject,
+                //     connections: Array.from(cardObject.connections),
+                // }));
+                const dataToSend = JSON.stringify(genSave())
+                console.log(dataToSend);
+                // Send the data
+                conn.send(dataToSend);
+
+            });
+
+            // Send cardsData to the connected peer
+            console.log(cardsData);
+
             // Listen for incoming data on the dataConnection object
             conn.on('data', (data) => {
                 console.log("Received data:", data);
@@ -517,10 +537,18 @@ window.onload = function () {
         peer.on('open', (id) => {
             console.log(`Connected with ID: ${id}`);
             conn = peer.connect(hostId);
+
             conn.on('open', () => {
                 console.log(`Connected to host: ${hostId}`);
             });
+
+            conn.on("data", (data) => {
+                console.log(data)
+                // Loads cards and resets and sets cardsData
+                loadData(tryParseSave(data));
+            });
         });
+
 
         peer.on('error', (error) => {
             console.error(error);
