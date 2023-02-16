@@ -519,16 +519,7 @@ window.onload = function () {
             connectPeerDialog(conn);
 
             conn.on('open', () => {
-                // console.log(`Connected to host: ${hostId}`);
-                // Convert the Map to an array of key-value pairs
-                // const dataToSend = Object.fromEntries(cardsData.entries());
-                // console.log(dataToSend);
-
-                // const cardsDataArray = Object.fromEntries(cardsData.entries()).map((cardObject) => ({
-                //     ...cardObject,
-                //     connections: Array.from(cardObject.connections),
-                // }));
-                const dataToSend = JSON.stringify(genSave());
+                const dataToSend = genSave();
                 console.log(dataToSend);
                 // Send the data
                 conn.send(dataToSend);
@@ -737,14 +728,14 @@ window.onload = function () {
                 "colour": card.colour,
             };
         }
-        return saveData;
+        return JSON.stringify(saveData);
     };
     document.getElementById('save').onclick = () => {
         let saveData = genSave();
-        download(JSON.stringify(saveData), saveData.title, "application/json");
+        download(saveData, saveData.title, "application/json");
     };
     window.onbeforeunload = (e) => {
-        window.localStorage.setItem('localSave', JSON.stringify(genSave())); console.log("saved");
+        window.localStorage.setItem('localSave', genSave()); console.log("saved");
     };
 
     function cameraMovement() {
