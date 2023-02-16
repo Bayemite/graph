@@ -1,9 +1,10 @@
 # Requires Sherlock Holmes
-- Many multiple connections will break after save then load
+- Saving then loading: card location & multiple connections change
 
 # TO FIX!‽
 - Save should not reload page
-- Saving then reopening: card location & multiple connections change
+- Peer JS connection sometimes resets save
+    - Specifics: you have a local save from connecting to remote host. You then become the  host. When another connects, the local save disappears with relad.
 
 # Inconvenient
 - Make it so that clicking on the card container also focuses on the input （rather than only the center input)
