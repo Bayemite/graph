@@ -11,8 +11,6 @@ let targetY; // for zoom
 let mouse;
 let cameraPos;
 
-let focusedCard = null;
-
 // Function which will later defined, 
 // but is defined here in order to be 
 // used in the set observer
