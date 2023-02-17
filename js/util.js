@@ -99,15 +99,6 @@ export class rgb {
     }
 }
 
-export class cardObject {
-    constructor (x, y, t, c, colour) {
-        this.x = x;
-        this.y = y;
-        this.title = t;
-        this.connection = c;
-        this.colour = colour;
-    }
-}
 
 export class vector2D {
     constructor (x, y) {
@@ -254,8 +245,150 @@ export class Dialog {
     }
 }
 
-export class CardsData {
+// startElement: card element
+// camera: Camera class
+// Draws a line that is currently being connected by user (follows their mouse)
+export function drawLinkLine(ctx, startElement, camera) {
+    // Get element connecting to other mouse
+    let elem = startElement;
+    let x2 = Math.floor(-elem.style.left.replace('px', '') * camera.zoom - camera.cameraPos.x);
+    let y2 = Math.floor(-elem.style.top.replace('px', '') * camera.zoom - camera.cameraPos.y);
+
+    let triRad = 4;
+    let number = 5;
+    let curveWidth = Math.floor(50 * zoom);
+    let limiter = 5; // Limiter before the line connection direction changes
+
+    // Get other element
+    let xr = -mouse.x;
+    let yr = -mouse.y - triRad * 2 * camera.zoom;
+    if (x2 < xr) {
+        curveWidth = Math.floor(150 * camera.zoom) * clamp(0.1, (xr + elem.offsetWidth - x2) / camera.zoom / 500, 1);
+        ctx.moveTo(-xr + (number * camera.zoom) - 2, -yr - (number / 2) * camera.zoom);
+        ctx.bezierCurveTo(
+            -xr + (number * camera.zoom) + curveWidth, -yr + (number / 2) * camera.zoom,
+            -x2 - curveWidth, -y2 + (elem.offsetHeight / 2) * camera.zoom,
+            -x2 + 1,
+            -y2 + (elem.offsetHeight / 2) * camera.zoom
+        );
+        ctx.stroke();
+        drawTriangle(ctx, -xr + (number * camera.zoom) - 2 + (triRad + 0.5) * camera.zoom, -yr - (number / 2) * camera.zoom, triRad, camera.zoom, '#fff', -90);
+    }
+    else if (-xr + (number) + (curveWidth * camera.zoom / limiter) > -x2 - (curveWidth * camera.zoom / limiter) && (-xr + (curveWidth * camera.zoom / limiter) < -x2 + (elem.offsetWidth * camera.zoom) + (curveWidth * camera.zoom / limiter))) {
+        if (yr > y2) {
+            curveWidth = Math.floor(150 * camera.zoom) * clamp(0.1, (yr - y2) / camera.zoom / 500, 1);
+            ctx.moveTo(-xr + (number / 2 * camera.zoom) - 1, -yr + (number) * camera.zoom - 1);
+            ctx.bezierCurveTo(-xr + (number / 2 * camera.zoom), -yr + (number) * camera.zoom + curveWidth,
+                -x2 + (elem.offsetWidth / 2 * camera.zoom), -y2 - curveWidth,
+                -x2 + (elem.offsetWidth / 2 * camera.zoom), -y2 + 1);
+            ctx.stroke();
+            drawTriangle(ctx, -xr + (number / 2 * camera.zoom) - 1, -yr + (number) * camera.zoom - 1 + (triRad + 0.5) * camera.zoom, triRad, camera.zoom, '#fff', 0);
+        } else {
+            curveWidth = Math.floor(150 * camera.zoom) * clamp(0.1, (y2 - yr) / camera.zoom / 500, 1);
+            ctx.moveTo(-xr + (number / 2 * camera.zoom) - 1, -yr + 1);
+            ctx.bezierCurveTo(-xr + (number / 2 * camera.zoom), -yr - curveWidth,
+                -x2 + (elem.offsetWidth / 2 * camera.zoom), -y2 + (elem.offsetHeight * camera.zoom) + curveWidth,
+                -x2 + (elem.offsetWidth / 2 * camera.zoom), -y2 + (elem.offsetHeight * camera.zoom) - 1);
+            ctx.stroke();
+            drawTriangle(ctx, -xr + (number / 2 * camera.zoom) - 1, -yr + 1 - (triRad + 0.5) * camera.zoom, triRad, camera.zoom, '#fff', 180);
+        }
+    }
+    else {
+        curveWidth = Math.floor(150 * camera.zoom) * clamp(0.1, (x2 - xr) / camera.zoom / 500, 1);
+        ctx.moveTo(-xr + 1, -yr + (number / 2) * camera.zoom);
+        ctx.bezierCurveTo(-xr - curveWidth, -yr + (number / 2) * camera.zoom,
+            -x2 + (elem.offsetWidth * camera.zoom) + curveWidth, -y2 + (elem.offsetHeight / 2) * camera.zoom,
+            -x2 + (elem.offsetWidth * camera.zoom) - 1, -y2 + (elem.offsetHeight / 2) * camera.zoom);
+        ctx.stroke();
+        drawTriangle(ctx, -xr + 1 - (triRad + 0.5) * camera.zoom, -yr + (number / 2) * camera.zoom, triRad, camera.zoom, '#fff', 90);
+    }
+    ctx.closePath();
+}
+
+// Draws all existing links
+export function drawLinks(ctx, card, camera) {
+    let curveWidth = Math.floor(50 * zoom); // Set default
+    let limiter = 5; // Limiter before the line connection direction changes
+    let triRad = 4;
+    let x2 = Math.floor(-elem.style.left.replace('px', '') * camera.zoom - camera.cameraPos.x);
+    let y2 = Math.floor(-elem.style.top.replace('px', '') * camera.zoom - camera.cameraPos.y);
+    let xr = Math.floor(-root.style.left.replace('px', '') * camera.zoom - camera.cameraPos.x);
+    let yr = Math.floor(-root.style.top.replace('px', '') * camera.zoom - camera.cameraPos.y);
+
+    // Get other element
+    for (let connection of card.connection.values()) {
+        let root = document.getElementById(`card-${connection}`);
+        let unlink = document.getElementById(`unlink-${cardId}-${connection}`);
+        if (root == null) {
+            console.log(`card-${connection} is null`);
+            continue;
+        }
+        if (unlink == null) {
+            console.log(`unlink-${cardId}-${connection} is null`);
+            continue;
+        }
+
+        ctx.beginPath();
+        if (-xr + (root.offsetWidth * camera.zoom) < -x2) {
+            curveWidth = Math.floor(150 * camera.zoom) * clamp(0.1, (xr - x2) / camera.zoom / 500, 1);
+            ctx.moveTo(-xr + (root.offsetWidth * camera.zoom) - 2, -yr + (root.offsetHeight / 2) * camera.zoom);
+            ctx.bezierCurveTo(-xr + (root.offsetWidth * camera.zoom) + curveWidth, -yr + (root.offsetHeight / 2) * camera.zoom,
+                -x2 - curveWidth, -y2 + (elem.offsetHeight / 2) * camera.zoom,
+                -x2 + 1, -y2 + (elem.offsetHeight / 2) * camera.zoom);
+            ctx.stroke();
+            drawTriangle(ctx, -xr + (root.offsetWidth * camera.zoom) - 2 + (triRad + 0.5) * camera.zoom, -yr + (root.offsetHeight / 2) * camera.zoom, triRad, camera.zoom, '#fff', -90);
+            unlink.style.left = `${((Math.floor(elem.style.left.replace('px', '')) + (Math.floor(root.style.left.replace('px', '')) + root.offsetWidth)) / 2) - unlink.offsetWidth / 2}px`;
+            unlink.style.top = `${((Math.floor(elem.style.top.replace('px', '')) + (Math.floor(root.style.top.replace('px', '')) + root.offsetHeight)) / 2) - unlink.offsetHeight / 2}px`;
+        }
+        else if (-xr + (root.offsetWidth * camera.zoom) + (curveWidth * camera.zoom / limiter) > -x2 - (curveWidth * camera.zoom / limiter) && (-xr + (curveWidth * camera.zoom / limiter) < -x2 + (elem.offsetWidth * camera.zoom) + (curveWidth * camera.zoom / limiter))) {
+            if (yr > y2) {
+                curveWidth = Math.floor(150 * camera.zoom) * clamp(0.1, (yr - y2) / camera.zoom / 500, 1);
+                ctx.moveTo(-xr + (root.offsetWidth / 2 * camera.zoom) - 1, -yr + (root.offsetHeight) * camera.zoom - 1);
+                ctx.bezierCurveTo(-xr + (root.offsetWidth / 2 * camera.zoom), -yr + (root.offsetHeight) * camera.zoom + curveWidth,
+                    -x2 + (elem.offsetWidth / 2 * camera.zoom), -y2 - curveWidth,
+                    -x2 + (elem.offsetWidth / 2 * camera.zoom), -y2 + 1);
+                ctx.stroke();
+                drawTriangle(ctx, -xr + (root.offsetWidth / 2 * camera.zoom) - 1, -yr + (root.offsetHeight) * camera.zoom - 1 + (triRad + 0.5) * camera.zoom, triRad, camera.zoom, '#fff', 0);
+                unlink.style.left = `${(((Math.floor(elem.style.left.replace('px', '')) + elem.offsetWidth / 2)) + (Math.floor(root.style.left.replace('px', '')) + root.offsetWidth / 2)) / 2 - unlink.offsetWidth / 2}px`;
+                unlink.style.top = `${(((Math.floor(elem.style.top.replace('px', '')) + elem.offsetHeight) + (Math.floor(root.style.top.replace('px', '')))) / 2) - unlink.offsetHeight / 2}px`;
+
+            }
+            else {
+                curveWidth = Math.floor(150 * camera.zoom) * clamp(0.1, (y2 - yr) / camera.zoom / 500, 1);
+                ctx.moveTo(-xr + (root.offsetWidth / 2 * camera.zoom) - 1, -yr + 1);
+                ctx.bezierCurveTo(-xr + (root.offsetWidth / 2 * camera.zoom), -yr - curveWidth,
+                    -x2 + (elem.offsetWidth / 2 * camera.zoom), -y2 + (elem.offsetHeight * camera.zoom) + curveWidth,
+                    -x2 + (elem.offsetWidth / 2 * camera.zoom), -y2 + (elem.offsetHeight * camera.zoom) - 1);
+                ctx.stroke();
+                drawTriangle(ctx, -xr + (root.offsetWidth / 2 * camera.zoom) - 1, -yr + 1 - (triRad + 0.5) * camera.zoom, triRad, camera.zoom, '#fff', 180);
+                unlink.style.left = `${(((Math.floor(elem.style.left.replace('px', '')) + elem.offsetWidth / 2)) + (Math.floor(root.style.left.replace('px', '')) + root.offsetWidth / 2)) / 2 - unlink.offsetWidth / 2}px`;
+                unlink.style.top = `${((Math.floor(elem.style.top.replace('px', '')) + (Math.floor(root.style.top.replace('px', '')) + root.offsetHeight)) / 2) - unlink.offsetHeight / 2}px`;
+
+            }
+        }
+        else {
+            curveWidth = Math.floor(150 * camera.zoom) * clamp(0.1, (x2 - xr) / camera.zoom / 500, 1);
+            ctx.moveTo(-xr + 1, -yr + (root.offsetHeight / 2) * camera.zoom);
+            ctx.bezierCurveTo(-xr - curveWidth, -yr + (root.offsetHeight / 2) * camera.zoom,
+                -x2 + (elem.offsetWidth * camera.zoom) + curveWidth, -y2 + (elem.offsetHeight / 2) * camera.zoom,
+                -x2 + (elem.offsetWidth * camera.zoom) - 1, -y2 + (elem.offsetHeight / 2) * camera.zoom);
+            ctx.stroke();
+            drawTriangle(ctx, -xr + 1 - (triRad + 0.5) * camera.zoom, -yr + (root.offsetHeight / 2) * camera.zoom, triRad, camera.zoom, '#fff', 90);
+            unlink.style.left = `${(((Math.floor(elem.style.left.replace('px', '')) + elem.offsetWidth) + (Math.floor(root.style.left.replace('px', '')))) / 2) - unlink.offsetWidth / 2}px`;
+            unlink.style.top = `${((Math.floor(elem.style.top.replace('px', '')) + (Math.floor(root.style.top.replace('px', '')) + root.offsetHeight)) / 2) - unlink.offsetHeight / 2}px`;
+
+        }
+        ctx.endPath();
+    }
+}
+
+export class Camera {
     constructor () {
-        this.data = new Map();
+        this.zoomTarget = 1.0;
+        this.zoom = 1;
+        this.targetX; // for zoom
+        this.targetY; // for zoom
+        this.mouse = new vector2D(0, 0);
+        this.cameraPos = new vector2D(canvas.width / 2, canvas.height / 2);
     }
 }

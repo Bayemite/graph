@@ -24,6 +24,8 @@ export class CardsData {
         this.moveFlag = false;
         this.moveCardOffset = new util.vector2D(0, 0);
 
+        this.cardColours = {};
+
         // External callback
         this.sendData = function () { };
 
@@ -110,7 +112,7 @@ export class CardsData {
 
         this.cardsData.get(this.linkStart).connection.add(linkEnd);
         this.linkInProgress = false;
-        addUnlink(this.linkStart, linkEnd);
+        this.addUnlink(this.linkStart, linkEnd);
     }
 
     deleteElem(i) {
@@ -168,10 +170,10 @@ export class CardsData {
 
         cardContainer.onmousedown = function (e) {
             this.moveFlag = true;
-            moveCardI = id;
+            this.moveCardI = id;
 
-            moveCardOffset.x = mouse.x - e.target.getBoundingClientRect().left;
-            moveCardOffset.y = mouse.y - e.target.getBoundingClientRect().top;
+            this.moveCardOffset.x = mouse.x - e.target.getBoundingClientRect().left;
+            this.moveCardOffset.y = mouse.y - e.target.getBoundingClientRect().top;
         };
         cardContainer.onmousemove = function () {
             if (this.moveFlag) {
@@ -213,11 +215,11 @@ export class CardsData {
             </span>
             `;
             linkElem.classList.add("actions-button", "link-button");
-            linkElem.onclick = function () { this.startLink(id); };
+            linkElem.onclick = function () { self.startLink(id); };
             actions.appendChild(linkElem);
 
             let deleteDialog = new util.Dialog(
-                "Warning", "Are you sure you want to delete this card? This will delete all of its connections.", 
+                "Warning", "Are you sure you want to delete this card? This will delete all of its connections.",
                 true, "Cancel", self.deleteElem, id, "Delete"
             );
             let deleteCard = document.createElement('button');
@@ -236,8 +238,8 @@ export class CardsData {
             let colorInput = document.createElement('input');
             colorInput.onchange = function () {
                 // Set colour swatch settings
-                cardColours[id] = colorEdit.style.color;
-                window.colorSettings(Object.values(cardColours));
+                this.cardColours[id] = colorEdit.style.color;
+                window.colorSettings(Object.values(this.cardColours));
             };
             colorInput.type = 'text';
             colorInput.value = 'rgb(200, 200, 200)';
