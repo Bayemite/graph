@@ -24,7 +24,6 @@
 - Loading from file breaks connections
 
 ## Bayemite: working memory
-- Testing links currently
-- Check refactor variable names + rename
+- peer JS
 - pageX vs clientX for mouseCoords?
 - Ask Techno: what is elem? (util.drawLinks)
