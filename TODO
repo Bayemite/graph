@@ -11,6 +11,7 @@
 - Hover to open UI under card sometimes disappears when trying to move cursor to buttons
 
 # Features
+- Mobile support: touch input
 - Color change: text, arrows (where to put UI though, appear on text focus?)
 - Printer friendliness (day mode: background white)
 - Bold, italics, etc. for text
