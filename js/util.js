@@ -140,9 +140,6 @@ export function getById(e) {
 }
 
 export function drawTriangle(ctx, x, y, radius, zoom, fill, angle) {
-    this.x = x;
-    this.y = y;
-
     let top = new vector2D(0, 0);
     let bottomL = new vector2D(0, 0);
     let bottomR = new vector2D(0, 0);
@@ -157,36 +154,16 @@ export function drawTriangle(ctx, x, y, radius, zoom, fill, angle) {
     bottomR.x = rad * Math.sin((240 + angle) * (Math.PI / 180)) + x;
     bottomR.y = -rad * Math.cos((240 + angle) * (Math.PI / 180)) + y;
 
-    this.draw = function () {
-        ctx.beginPath();
-        ctx.moveTo(top.x, top.y);
-        ctx.lineTo(bottomL.x, bottomL.y);
-        ctx.lineTo(bottomR.x, bottomR.y);
-        ctx.lineTo(top.x, top.y);
-        ctx.closePath();
-        ctx.strokeStyle = fill;
-        ctx.stroke();
-        ctx.fillStyle = fill;
-        ctx.fill();
-    };
-
-    // this.update = function (x, y, zoom, angle, zoomScalar) {
-    //     // ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
-    //     this.x = x
-    //     this.y = y
-    //     rad = (radius * zoomScalar) + (radius * (zoom * 0.01) * (1 - zoomScalar))
-    //     top.x = rad * Math.sin((0 + angle) * (Math.PI / 180)) + x
-    //     top.y = -rad * Math.cos((0 + angle) * (Math.PI / 180)) + y
-    //     bottomL.x = rad * Math.sin((120 + angle) * (Math.PI / 180)) + x
-    //     bottomL.y = -rad * Math.cos((120 + angle) * (Math.PI / 180)) + y
-    //     bottomR.x = rad * Math.sin((240 + angle) * (Math.PI / 180)) + x
-    //     bottomR.y = -rad * Math.cos((240 + angle) * (Math.PI / 180)) + y
-
-    //     this.draw(zoom);
-    // }
-
-
-    this.draw();
+    ctx.beginPath();
+    ctx.moveTo(top.x, top.y);
+    ctx.lineTo(bottomL.x, bottomL.y);
+    ctx.lineTo(bottomR.x, bottomR.y);
+    ctx.lineTo(top.x, top.y);
+    ctx.closePath();
+    ctx.strokeStyle = fill;
+    ctx.stroke();
+    ctx.fillStyle = fill;
+    ctx.fill();
 }
 
 function closeDialog(name) {
@@ -246,22 +223,22 @@ export class Dialog {
 }
 
 // startElement: card element
-// camera: Camera class
+// camera: Camera class, needs only to read attributes
 // Draws a line that is currently being connected by user (follows their mouse)
 export function drawLinkLine(ctx, startElement, camera) {
     // Get element connecting to other mouse
     let elem = startElement;
-    let x2 = Math.floor(-elem.style.left.replace('px', '') * camera.zoom - camera.cameraPos.x);
-    let y2 = Math.floor(-elem.style.top.replace('px', '') * camera.zoom - camera.cameraPos.y);
+    let x2 = Math.floor(-elem.style.left.replace('px', '') * camera.zoom - camera.pos.x);
+    let y2 = Math.floor(-elem.style.top.replace('px', '') * camera.zoom - camera.pos.y);
 
     let triRad = 4;
     let number = 5;
-    let curveWidth = Math.floor(50 * zoom);
+    let curveWidth = Math.floor(50 * camera.zoom);
     let limiter = 5; // Limiter before the line connection direction changes
 
     // Get other element
-    let xr = -mouse.x;
-    let yr = -mouse.y - triRad * 2 * camera.zoom;
+    let xr = -camera.mouse.x;
+    let yr = -camera.mouse.y - triRad * 2 * camera.zoom;
     if (x2 < xr) {
         curveWidth = Math.floor(150 * camera.zoom) * clamp(0.1, (xr + elem.offsetWidth - x2) / camera.zoom / 500, 1);
         ctx.moveTo(-xr + (number * camera.zoom) - 2, -yr - (number / 2) * camera.zoom);
@@ -306,14 +283,12 @@ export function drawLinkLine(ctx, startElement, camera) {
 }
 
 // Draws all existing links
-export function drawLinks(ctx, card, camera) {
-    let curveWidth = Math.floor(50 * zoom); // Set default
+export function drawLinks(ctx, cardId, card, elem, camera) {
+    let curveWidth = Math.floor(50 * camera.zoom); // Set default
     let limiter = 5; // Limiter before the line connection direction changes
     let triRad = 4;
-    let x2 = Math.floor(-elem.style.left.replace('px', '') * camera.zoom - camera.cameraPos.x);
-    let y2 = Math.floor(-elem.style.top.replace('px', '') * camera.zoom - camera.cameraPos.y);
-    let xr = Math.floor(-root.style.left.replace('px', '') * camera.zoom - camera.cameraPos.x);
-    let yr = Math.floor(-root.style.top.replace('px', '') * camera.zoom - camera.cameraPos.y);
+    let x2 = Math.floor(-elem.style.left.replace('px', '') * camera.zoom - camera.pos.x);
+    let y2 = Math.floor(-elem.style.top.replace('px', '') * camera.zoom - camera.pos.y);
 
     // Get other element
     for (let connection of card.connection.values()) {
@@ -327,6 +302,9 @@ export function drawLinks(ctx, card, camera) {
             console.log(`unlink-${cardId}-${connection} is null`);
             continue;
         }
+
+        let xr = Math.floor(-root.style.left.replace('px', '') * camera.zoom - camera.pos.x);
+        let yr = Math.floor(-root.style.top.replace('px', '') * camera.zoom - camera.pos.y);
 
         ctx.beginPath();
         if (-xr + (root.offsetWidth * camera.zoom) < -x2) {
@@ -378,7 +356,7 @@ export function drawLinks(ctx, card, camera) {
             unlink.style.top = `${((Math.floor(elem.style.top.replace('px', '')) + (Math.floor(root.style.top.replace('px', '')) + root.offsetHeight)) / 2) - unlink.offsetHeight / 2}px`;
 
         }
-        ctx.endPath();
+        ctx.closePath();
     }
 }
 
@@ -389,6 +367,30 @@ export class Camera {
         this.targetX; // for zoom
         this.targetY; // for zoom
         this.mouse = new vector2D(0, 0);
-        this.cameraPos = new vector2D(canvas.width / 2, canvas.height / 2);
+        this.pos = new vector2D(canvas.width / 2, canvas.height / 2);
     }
+
+    mousePos() {
+        let x = Math.floor((this.mouse.x - this.pos.x) / this.zoom);
+        let y = Math.floor((this.mouse.y - this.pos.y) / this.zoom);
+        return new vector2D(x, y);
+    }
+
+    update() {
+        let prevZoom = this.zoom;
+        this.zoom = lerp(this.zoom, this.zoomTarget, 0.3);
+        let deltaZoom = this.zoom - prevZoom;
+
+        let offsetZoomX = deltaZoom * (window.innerWidth / 2 - this.mouse.x);
+        let offsetZoomY = deltaZoom * (window.innerHeight / 2 - this.mouse.y);
+        this.targetX += offsetZoomX;
+        this.targetY += offsetZoomY;
+
+        const translateLerpScale = 0.9;
+        this.pos.x = lerp(this.pos.x, this.targetX, translateLerpScale);
+        this.pos.y = lerp(this.pos.y, this.targetY, translateLerpScale);
+
+        let transformNode = document.getElementById('translate');
+        transformNode.style.transform = `translate(${this.pos.x}px, ${this.pos.y}px) scale(${this.zoom})`;
+    };
 }

@@ -21,3 +21,9 @@
 ## Done
 - Deleting card leaves connection del btn 
 - Loading from file breaks connections
+
+## Bayemite: working memory
+- Testing links currently
+- Check refactor variable names + rename
+- pageX vs clientX for mouseCoords?
+- Ask Techno: what is elem? (util.drawLinks)

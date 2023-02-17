@@ -1,8 +1,8 @@
 import * as util from './util.js';
 import * as cards from './cards.js';
 
-let cardsData = new cards.CardsData();
 let camera = new util.Camera();
+let cardsData = new cards.CardsData(camera);
 
 const backgroundColor = new util.rgb(100, 150, 200);
 
@@ -38,12 +38,12 @@ window.onload = function () {
     });
     canvas.addEventListener('dblclick', function (e) {
         e.preventDefault();
-        cardsData.addDefaultCard();
+        cardsData.addDefaultCardHtml(camera.hoverPos());
     }, true);
     canvas.addEventListener('mousedown', function (e) {
         if (cardsData.linkInProgress) {
             if (e.button == 0) {
-                let id = cardsData.addDefaultCard();
+                let id = cardsData.addDefaultCardHtml(camera.hoverPos());
                 cardsData.linkTo(id);
             }
             else { cardsData.linkInProgress = false; }
@@ -60,9 +60,7 @@ window.onload = function () {
         // Handle card movement
         // Mouse events are up in card creation
         if (cardsData.moveFlag) {
-            camera.mouse.x = e.pageX;
-            camera.mouse.y = e.pageY;
-            moveElem();
+            cardsData.moveElem(camera);
         }
 
         if (mouseDown) {
@@ -111,7 +109,7 @@ window.onload = function () {
             connectPeerDialog(conn);
 
             conn.on('open', () => {
-                const dataToSend = genSave();
+                const dataToSend = cardsData.genSave();
                 console.log(dataToSend);
                 // Send the data
                 conn.send(dataToSend);
@@ -183,6 +181,7 @@ window.onload = function () {
                 console.log(data);
                 // Loads cards and resets and sets cardsData
                 cardsData.loadFromJSON(tryParseSave(data));
+                cardsData.addCardsHTML();
             });
         });
 
@@ -208,55 +207,23 @@ window.onload = function () {
         return { conn, updateNodeText };
     }
 
-    // function observeNodeTextChanges(node, updateNodeText) {
-    //     const observer = new MutationObserver((mutations) => {
-    //         const text = node.innerText.trim();
-    //         updateNodeText(node, text);
-    //         console.log(text);
-    //     });
-
-    //     observer.observe(node, { characterData: true, subtree: true });
-    // }
-
-    // function attachObserversToExistingNodes(updateNodeText) {
-    //     const nodes = document.querySelectorAll('.card-text');
-    //     nodes.forEach(node => observeNodeTextChanges(node, updateNodeText));
-    // }
-
-    // function attachObserverToNewNodes(updateNodeText) {
-    //     const observer = new MutationObserver((mutations) => {
-    //         mutations.forEach((mutation) => {
-    //             if (mutation.type === 'childList' && mutation.addedNodes) {
-    //                 mutation.addedNodes.forEach((node) => {
-    //                     if (node.nodeName === 'P' && node.classList.includes('card-text')) {
-    //                         observeNodeTextChanges(node, updateNodeText);
-    //                     }
-    //                 });
-    //             }
-    //         });
-    //     });
-
-    //     observer.observe(document.body, { childList: true, subtree: true });
-    // }
-
-
     document.getElementById("connect-button").onclick = () => {
         const peerId = document.getElementById("peer-id").innerText.trim();
         const { conn, updateNodeText } = connectToHost(peerId);
 
         clientConnection = conn;
+        // NOTE sendData is now in cards.js -> class cardsData as sendUpdateData
+
         // sendData = function (key, value) {
         //     if (conn) {
         //         conn.send({ type: 'updateNodeText', nodeId: key, text: value });
         //         console.log('conn')
         //     }
         // }
-        sendData = updateNodeText;
         // Attach mutation observers to existing and new nodes
         // attachObserversToExistingNodes(updateNodeText);
         // attachObserverToNewNodes(updateNodeText);
-    };
-
+    };  
 
     function tryParseSave(file) {
         let data;
@@ -288,7 +255,6 @@ window.onload = function () {
         cardsData.loadFromJSON(tryParseSave(localSave));
     cardsData.addCardsHTML();
 
-
     // Function to download data to a file
     // https://stackoverflow.com/questions/13405129/create-and-save-a-file-with-javascript
     function download(data, filename, type) {
@@ -310,35 +276,18 @@ window.onload = function () {
     }
 
     document.getElementById('save').onclick = () => {
-        let saveData = genSave();
-        download(saveData, saveData.title, "application/json");
+        let saveData = cardsData.genSave(false);
+        console.log("save title should be " + saveData.title);
+        download(JSON.stringify(saveData), saveData.title, "application/json");
     };
     window.onbeforeunload = (e) => {
-        window.localStorage.setItem('localSave', genSave(title));
+        window.localStorage.setItem('localSave', cardsData.genSave());
         console.log("Saved to localStorage");
-    };
-
-    function cameraMovement() {
-        let prevZoom = camera.zoom;
-        camera.zoom = util.lerp(camera.zoom, camera.zoomTarget, 0.3);
-        let deltaZoom = camera.zoom - prevZoom;
-
-        let offsetZoomX = deltaZoom * (window.innerWidth / 2 - camera.mouse.x);
-        let offsetZoomY = deltaZoom * (window.innerHeight / 2 - camera.mouse.y);
-        camera.targetX += offsetZoomX;
-        camera.targetY += offsetZoomY;
-
-        let translateLerpScale = 0.9;
-        camera.cameraPos.x = util.lerp(camera.cameraPos.x, camera.targetX, translateLerpScale);
-        camera.cameraPos.y = util.lerp(camera.cameraPos.y, camera.targetY, translateLerpScale);
-
-        let transformNode = document.getElementById('translate');
-        transformNode.style.transform = `translate(${camera.cameraPos.x}px, ${camera.cameraPos.y}px) scale(${camera.zoom})`;
     };
 
     function main(currentTime) {
         window.requestAnimationFrame(main);
-        cameraMovement();
+        camera.update();
 
         // Clear canvas
         ctx.fillStyle = "#fff";
@@ -362,7 +311,7 @@ window.onload = function () {
                 continue;
             }
 
-            drawLinks(ctx, card, camera);
+            util.drawLinks(ctx, cardId, card, elem, camera);
         }
     }
 

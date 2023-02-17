@@ -11,7 +11,26 @@ export class CardObject {
 }
 
 export class CardsData {
-    // key is card-'0', corresponds to html id
+    // HTML ID notes:
+    // - card id: `card-{cardId, from this.cardIds}`
+    // - unlink id: `unlink-{fromCardId}-{toCardId}`
+
+    sendUpdateData() {
+        const updateNodeText = function (key, card) {
+            if (conn) {
+                console.log('conn');
+                let data = {
+                    "x": card.x,
+                    "y": card.y,
+                    "title": card.title,
+                    "connection": Array.from(card.connection),
+                    "colour": card.colour,
+                };
+                conn.send({ type: 'updateNodeText', key: key, value: data });
+            }
+        };
+    };
+
     constructor () {
         // id -> CardObject
         this.cardsData = new Map();
@@ -20,14 +39,11 @@ export class CardsData {
         this.linkStart = -1;
         this.linkInProgress = false;
 
-        this.moveCardI = 0;
+        this.moveCardID = 0;
         this.moveFlag = false;
         this.moveCardOffset = new util.vector2D(0, 0);
 
         this.cardColours = {};
-
-        // External callback
-        this.sendData = function () { };
 
         this.set(
             this.cardIds.getNextId(),
@@ -69,11 +85,11 @@ export class CardsData {
         breakLink.onclick = () => this.deleteLink(start, end);
 
         breakLink.style.left = `${100}px`;
-        document.getElementById('break').appendChild(breakLink);
+        this.getBreakLinkTag().appendChild(breakLink);
     }
 
     removeBreakLink(start, end) {
-        document.getElementById('break').removeChild(document.getElementById(`unlink-${start}-${end}`));
+        this.getBreakLinkTag().removeChild(document.getElementById(`unlink-${start}-${end}`));
     }
 
     deleteLink(start, end) {
@@ -120,7 +136,7 @@ export class CardsData {
 
         let connections = this.cardsData.get(i).connection;
         if (connections.size > 0) {
-            let unlinkContainer = document.getElementById('break');
+            let unlinkContainer = this.getBreakLinkTag();
             for (let connection of connections.values())
                 unlinkContainer.removeChild(document.getElementById(`unlink-${i}-${connection}`));
         }
@@ -128,9 +144,9 @@ export class CardsData {
         for (let [cardId, card] of this.cardsData) {
             if (card.connection.has(i)) {
                 card.connection.delete(i);
-                console.log(document.getElementById('break'));
+                console.log(this.getBreakLinkTag());
                 console.log(`unlink-${cardId}-${i}`);
-                document.getElementById('break').removeChild(document.getElementById(`unlink-${cardId}-${i}`));
+                this.getBreakLinkTag().removeChild(document.getElementById(`unlink-${cardId}-${i}`));
             }
         }
 
@@ -140,11 +156,12 @@ export class CardsData {
         document.getElementById('translate').removeChild(document.getElementById(`card-${i}`));
     }
 
-    moveElem() {
-        let i = moveCardI;
+    // camera: util.Camera class
+    moveElem(camera) {
+        let i = this.moveCardID;
         let card = document.getElementById(`card-${i}`);
-        let x = Math.floor((mouse.x - cameraPos.x - moveCardOffset.x) / zoom);
-        let y = Math.floor((mouse.y - cameraPos.y - moveCardOffset.y) / zoom);
+        let x = Math.floor((camera.mouse.x - camera.pos.x - this.moveCardOffset.x) / camera.zoom);
+        let y = Math.floor((camera.mouse.y - camera.pos.y - this.moveCardOffset.y) / camera.zoom);
         let cardData = this.cardsData.get(i);
         this.set(i, new CardObject(x, y, cardData.title, cardData.connection, cardData.colour));
 
@@ -168,12 +185,14 @@ export class CardsData {
         cardContainer.classList.add('object');
         cardContainer.onclick = () => this.linkTo(id);
 
+        // Needed to force reference to class within callback, and not tag
+        let that = this;
         cardContainer.onmousedown = function (e) {
-            this.moveFlag = true;
-            this.moveCardI = id;
+            that.moveFlag = true;
+            that.moveCardID = id;
 
-            this.moveCardOffset.x = mouse.x - e.target.getBoundingClientRect().left;
-            this.moveCardOffset.y = mouse.y - e.target.getBoundingClientRect().top;
+            that.moveCardOffset.x = e.pageX - e.target.getBoundingClientRect().left;
+            that.moveCardOffset.y = e.pageY - e.target.getBoundingClientRect().top;
         };
         cardContainer.onmousemove = function () {
             if (this.moveFlag) {
@@ -279,18 +298,6 @@ export class CardsData {
 
             // Start observing the target node for configured mutations
             observer.observe(colorEdit, config);
-
-            // let move = document.createElement('button');
-            // move.innerHTML = `
-            // <span class="material-symbols-outlined">
-            //     open_with
-            // </span>
-            // `;
-            // move.classList.add("actions-button");
-            // move.id = 'color-edit-button';
-
-            // move.onmouseup = function () { moveFlag = false };
-            // actions.appendChild(move);
             return actions;
         }
 
@@ -317,11 +324,13 @@ export class CardsData {
     }
 
     // returns id of card
-    addDefaultCardHtml() {
+    // camera: util Camera class, attributes read only
+    // pos: should have .x and .y (eg. util vector2D)
+    addDefaultCardHtml(pos) {
         let id = this.cardIds.getNextId();
         this.addCardHTML(
-            Math.floor((mouse.x - cameraPos.x) / zoom),
-            Math.floor((mouse.y - cameraPos.y) / zoom),
+            pos.x,
+            pos.y,
             "",
             id,
             new Set(),
@@ -339,12 +348,20 @@ export class CardsData {
             if (card.connection.size == 0) { continue; }
 
             for (let c of card.connection.values())
-                addUnlink(cardId, c);
+                this.addUnlink(cardId, c);
         }
     }
 
+    getTitleTag() {
+        return document.getElementById("title");
+    }
+
+    getBreakLinkTag() {
+        return document.getElementById('break');
+    }
+
     loadFromJSON(parsedData) {
-        document.getElementById("title").innerText = parsedData.title;
+        this.getTitleTag().innerText = parsedData.title;
         parsedData = parsedData.data;
         this.cardsData.clear();
         let maxId = 0;
@@ -366,9 +383,9 @@ export class CardsData {
         this.cardIds.next = maxId + 1;
     }
 
-    genSave() {
+    genSave(stringify = true) {
         let saveData = {
-            title: document.getElementById("title").innerText,
+            title: this.getTitleTag().innerText,
             data: {}
         };
         for (let [cardId, card] of this.cardsData) {
@@ -377,10 +394,12 @@ export class CardsData {
                 "y": card.y,
                 "title": card.title,
                 "connection": Array.from(card.connection),
-                // "id": card.id,
                 "colour": card.colour,
             };
         }
-        return JSON.stringify(saveData);
+        if (stringify)
+            saveData = JSON.stringify(saveData);
+        return saveData;
+
     };
 }
