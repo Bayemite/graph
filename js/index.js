@@ -46,11 +46,14 @@ window.onload = function () {
                 let id = cardsData.addDefaultCardHtml(camera.hoverPos());
                 cardsData.linkTo(id);
             }
-            else { cardsData.linkInProgress = false; }
-        } else {
-            mouseDown = true;
+            else {
+                cardsData.linkInProgress = false;
+            }
+        }
+        else {
             initX = e.pageX, initY = e.pageY;
         }
+        mouseDown = true;
     });
 
     document.addEventListener('mousemove', function (e) {
@@ -223,7 +226,7 @@ window.onload = function () {
         // Attach mutation observers to existing and new nodes
         // attachObserversToExistingNodes(updateNodeText);
         // attachObserverToNewNodes(updateNodeText);
-    };  
+    };
 
     function tryParseSave(file) {
         let data;

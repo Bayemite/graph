@@ -370,7 +370,7 @@ export class Camera {
         this.pos = new vector2D(canvas.width / 2, canvas.height / 2);
     }
 
-    mousePos() {
+    hoverPos() {
         let x = Math.floor((this.mouse.x - this.pos.x) / this.zoom);
         let y = Math.floor((this.mouse.y - this.pos.y) / this.zoom);
         return new vector2D(x, y);
