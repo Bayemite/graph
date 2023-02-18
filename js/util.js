@@ -291,7 +291,7 @@ export function drawLinks(ctx, cardId, card, elem, camera) {
     let y2 = Math.floor(-elem.style.top.replace('px', '') * camera.zoom - camera.pos.y);
 
     // Get other element
-    for (let connection of card.connection.values()) {
+    for (let connection of card.connections.values()) {
         let root = document.getElementById(`card-${connection}`);
         let unlink = document.getElementById(`unlink-${cardId}-${connection}`);
         if (root == null) {

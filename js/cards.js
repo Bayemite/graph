@@ -1,11 +1,11 @@
 import * as util from './util.js';
 
 export class CardObject {
-    constructor (x, y, t, c, colour) {
+    constructor (x, y, text, connectionSet, colour) {
         this.x = x;
         this.y = y;
-        this.title = t;
-        this.connection = c;
+        this.text = text;
+        this.connections = connectionSet;
         this.colour = colour;
     }
 }
@@ -14,24 +14,6 @@ export class CardsData {
     // HTML ID notes:
     // - card id: `card-{cardId, from this.cardIds}`
     // - unlink id: `unlink-{fromCardId}-{toCardId}`
-
-    /*
-        sendUpdateData() {
-            const updateNodeText = function (key, card) {
-                if (conn) {
-                    console.log('conn');
-                    let data = {
-                        "x": card.x,
-                        "y": card.y,
-                        "title": card.title,
-                        "connection": Array.from(card.connection),
-                        "colour": card.colour,
-                    };
-                    conn.send({ type: 'updateNodeText', key: key, value: data });
-                }
-            };
-        };
-    */
 
     constructor () {
         // id -> CardObject
@@ -91,12 +73,12 @@ export class CardsData {
     }
 
     deleteLink(start, end) {
-        this.cardsData.get(start).connection.delete(end);
+        this.cardsData.get(start).connections.delete(end);
         this.removeBreakLink(start, end);
     }
 
     // i : id of card (card-'0')
-    // End the link with linkTo
+    // End the link with endLink
     startLink(i) {
         this.linkStart = i;
         this.linkInProgress = true;
@@ -110,13 +92,13 @@ export class CardsData {
             console.log(linkEnd + " linkEnd is undefined.");
         }
         // Disallow reconnection
-        if (this.cardsData.get(linkEnd).connection.has(this.linkStart)) {
+        if (this.cardsData.get(linkEnd).connections.has(this.linkStart)) {
             this.linkInProgress = false;
             return;
         }
 
         // Disallow same connection
-        if (this.cardsData.get(this.linkStart).connection.has(linkEnd)) {
+        if (this.cardsData.get(this.linkStart).connections.has(linkEnd)) {
             this.linkInProgress = false;
             return;
         }
@@ -124,7 +106,7 @@ export class CardsData {
         // If click on self just ignore
         if (this.linkStart == linkEnd) return;
 
-        this.cardsData.get(this.linkStart).connection.add(linkEnd);
+        this.cardsData.get(this.linkStart).connections.add(linkEnd);
         this.linkInProgress = false;
         this.addUnlink(this.linkStart, linkEnd);
     }
@@ -132,7 +114,7 @@ export class CardsData {
     deleteElem(i) {
         if (this.linkInProgress) return;
 
-        let connections = this.cardsData.get(i).connection;
+        let connections = this.cardsData.get(i).connections;
         if (connections.size > 0) {
             let unlinkContainer = this.getBreakLinkTag();
             for (let connection of connections.values())
@@ -140,8 +122,8 @@ export class CardsData {
         }
 
         for (let [cardId, card] of this.cardsData) {
-            if (card.connection.has(i)) {
-                card.connection.delete(i);
+            if (card.connections.has(i)) {
+                card.connections.delete(i);
                 console.log(this.getBreakLinkTag());
                 console.log(`unlink-${cardId}-${i}`);
                 this.getBreakLinkTag().removeChild(document.getElementById(`unlink-${cardId}-${i}`));
@@ -161,7 +143,7 @@ export class CardsData {
         let x = Math.floor((camera.mousePos.x - camera.pos.x - this.moveCardOffset.x) / camera.zoom);
         let y = Math.floor((camera.mousePos.y - camera.pos.y - this.moveCardOffset.y) / camera.zoom);
         let cardData = this.cardsData.get(i);
-        this.set(i, new CardObject(x, y, cardData.title, cardData.connection, cardData.colour));
+        this.set(i, new CardObject(x, y, cardData.text, cardData.connections, cardData.colour));
 
         card.style.top = `${this.cardsData.get(i).y}px`;
         card.style.left = `${this.cardsData.get(i).x}px`;
@@ -172,18 +154,18 @@ export class CardsData {
             `<div id="break"></div>`;
     }
 
-    genHTMLCard(id, x, y, title) {
-        if (title == undefined) { title = ""; };
+    genHTMLCard(id, x, y, text) {
+        if (text == undefined) { text = ""; };
 
         let cardContainer = document.createElement('div');
 
         cardContainer.id = "card-" + id;
         cardContainer.style = "left:" + Math.floor(x) + "px; top:" + Math.floor(y) + "px";
         cardContainer.classList.add('object');
-        cardContainer.onclick = () => this.linkTo(id);
-
+        
         // Needed to force reference to class within callback, and not tag
         let that = this;
+        cardContainer.onclick = () => that.startLink(id);
         cardContainer.onmousedown = function (e) {
             that.moveFlag = true;
             that.moveCardID = id;
@@ -208,10 +190,11 @@ export class CardsData {
             let p = document.createElement('p');
             p.classList.add('text', 'card-text');
             p.contentEditable = true;
-            p.innerHTML = title;
+            p.innerHTML = text;
 
             p.addEventListener('input', () => {
-                self.cardsData.get(id).title = p.innerHTML;
+                self.cardsData.get(id).text = p.innerHTML;
+                console.log(self.cardsData.get(id).text);
             });
 
             card.appendChild(p);
@@ -338,10 +321,10 @@ export class CardsData {
     addCardsHTML() {
         this.clearHtmlCards();
         for (const [cardId, card] of this.cardsData) {
-            this.addCardHTML(card.x, card.y, card.title, cardId, card.connection, card.colour);
-            if (card.connection.size == 0) { continue; }
+            this.addCardHTML(card.x, card.y, card.text, cardId, card.connections, card.colour);
+            if (card.connections.size == 0) { continue; }
 
-            for (let c of card.connection.values())
+            for (let c of card.connections.values())
                 this.addUnlink(cardId, c);
         }
     }
@@ -367,8 +350,8 @@ export class CardsData {
                 new CardObject(
                     iValues.x,
                     iValues.y,
-                    iValues.title,
-                    new Set(Array.from(iValues.connection)),
+                    iValues.text,
+                    new Set(Array.from(iValues.connections)),
                     iValues.colour
                 )
             );
@@ -386,8 +369,8 @@ export class CardsData {
             saveData.data[cardId] = {
                 "x": card.x,
                 "y": card.y,
-                "title": card.title,
-                "connection": Array.from(card.connection),
+                "text": card.text,
+                "connections": Array.from(card.connections),
                 "colour": card.colour,
             };
         }
