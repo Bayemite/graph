@@ -1,10 +1,6 @@
 import * as util from './util.js';
 import * as cards from './cards.js';
 
-let host = false;
-let activeConnection = false;
-let clientConnection = null;
-
 function initListeners(canvas, camera, cardsData) {
     util.addSaveOpenFileListeners(cardsData);
     util.loadLocalSave(cardsData);
@@ -52,9 +48,6 @@ function initListeners(canvas, camera, cardsData) {
 }
 
 window.onload = function () {
-    // Stub, unused at the moment
-    // let peerConnection = new util.PeerConnection();
-
     let canvas = document.getElementById('canvas');
     let ctx = canvas.getContext('2d');
     ctx.imageSmoothingEnabled = true;
