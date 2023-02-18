@@ -65,11 +65,11 @@ export class CardsData {
         breakLink.onclick = () => this.deleteLink(start, end);
 
         breakLink.style.left = `${100}px`;
-        this.getBreakLinkTag().appendChild(breakLink);
+        this.getBreakLinkContainerTag().appendChild(breakLink);
     }
 
     removeBreakLink(start, end) {
-        this.getBreakLinkTag().removeChild(document.getElementById(`unlink-${start}-${end}`));
+        this.getBreakLinkContainerTag().removeChild(document.getElementById(`unlink-${start}-${end}`));
     }
 
     deleteLink(start, end) {
@@ -111,29 +111,27 @@ export class CardsData {
         this.addUnlink(this.linkStart, linkEnd);
     }
 
-    deleteElem(i) {
+    deleteCard(id) {
         if (this.linkInProgress) return;
 
-        let connections = this.cardsData.get(i).connections;
+        let connections = this.cardsData.get(id).connections;
         if (connections.size > 0) {
-            let unlinkContainer = this.getBreakLinkTag();
+            let unlinkContainer = this.getBreakLinkContainerTag();
             for (let connection of connections.values())
-                unlinkContainer.removeChild(document.getElementById(`unlink-${i}-${connection}`));
+                unlinkContainer.removeChild(document.getElementById(`unlink-${id}-${connection}`));
         }
 
         for (let [cardId, card] of this.cardsData) {
-            if (card.connections.has(i)) {
-                card.connections.delete(i);
-                console.log(this.getBreakLinkTag());
-                console.log(`unlink-${cardId}-${i}`);
-                this.getBreakLinkTag().removeChild(document.getElementById(`unlink-${cardId}-${i}`));
+            if (card.connections.has(id)) {
+                card.connections.delete(id);
+                this.getBreakLinkContainerTag().removeChild(document.getElementById(`unlink-${cardId}-${id}`));
             }
         }
 
-        this.cardsData.delete(i);
-        this.cardIds.freeId(i);
+        this.cardsData.delete(id);
+        this.cardIds.freeId(id);
 
-        document.getElementById('translate').removeChild(document.getElementById(`card-${i}`));
+        document.getElementById('translate').removeChild(document.getElementById(`card-${id}`));
     }
 
     // camera: util.Camera class
@@ -162,16 +160,18 @@ export class CardsData {
         cardContainer.id = "card-" + id;
         cardContainer.style = "left:" + Math.floor(x) + "px; top:" + Math.floor(y) + "px";
         cardContainer.classList.add('object');
-        
+
         // Needed to force reference to class within callback, and not tag
         let that = this;
-        cardContainer.onclick = () => that.startLink(id);
         cardContainer.onmousedown = function (e) {
             that.moveFlag = true;
             that.moveCardID = id;
 
             that.moveCardOffset.x = e.pageX - e.target.getBoundingClientRect().left;
             that.moveCardOffset.y = e.pageY - e.target.getBoundingClientRect().top;
+            
+            if(that.linkInProgress)
+                that.endLink(id);
         };
         cardContainer.onmousemove = function () {
             if (that.moveFlag) {
@@ -224,7 +224,7 @@ export class CardsData {
             </span>
             `;
             deleteCard.classList.add("actions-button");
-            deleteCard.onclick = () => { self.deleteElem(id); };
+            deleteCard.onclick = () => { self.deleteCard(id); };
             actions.appendChild(deleteCard);
 
             let clrPicker = document.createElement('div');
@@ -233,8 +233,8 @@ export class CardsData {
             let colorInput = document.createElement('input');
             colorInput.onchange = function () {
                 // Set colour swatch settings
-                this.cardColours[id] = colorEdit.style.color;
-                window.colorSettings(Object.values(this.cardColours));
+                self.cardColours[id] = colorEdit.style.color;
+                window.colorSettings(Object.values(self.cardColours));
             };
             colorInput.type = 'text';
             colorInput.value = 'rgb(200, 200, 200)';
@@ -246,35 +246,18 @@ export class CardsData {
             `;
             colorEdit.appendChild(colorInput);
             clrPicker.appendChild(colorEdit);
-            // colorEdit.onclick = function() { colorEditElem(i) };
             actions.appendChild(colorEdit);
 
-            // https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
-
-            // Options for the observer (which mutations to observe)
-            const config = { attributes: true };
-
-            // Callback function to execute when mutations are observed
-            let that = this;
-            const callback = (mutationList, observer) => {
-                for (const mutation of mutationList) {
-                    if (mutation.attributeName == 'style') {
-                        // Set colour variables
-                        let color = colorEdit.style.color;
-                        cardContainer.style.borderColor = color;
-                        that.cardsData.get(id).colour = color;
-                        let components = util.colorValues(color);
-                        components[3] = 0.1; // set alpha
-                        cardContainer.style.backgroundColor = "rgba(" + components.join(', ') + ")";
-                    }
-                }
+            colorEdit.oninput = function () {
+                // Set colour variables
+                let color = colorEdit.style.color;
+                cardContainer.style.borderColor = color;
+                self.cardsData.get(id).colour = color;
+                let components = util.colorValues(color);
+                components[3] = 0.1; // set alpha
+                cardContainer.style.backgroundColor = "rgba(" + components.join(', ') + ")";
             };
 
-            // Create an observer instance linked to the callback function
-            const observer = new MutationObserver(callback);
-
-            // Start observing the target node for configured mutations
-            observer.observe(colorEdit, config);
             return actions;
         }
 
@@ -333,7 +316,7 @@ export class CardsData {
         return document.getElementById("title");
     }
 
-    getBreakLinkTag() {
+    getBreakLinkContainerTag() {
         return document.getElementById('break');
     }
 
