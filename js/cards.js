@@ -211,8 +211,6 @@ export class CardsData {
             that.moveCardOffset.x = e.clientX - (boundRect.left + window.scrollX);
             that.moveCardOffset.y = e.clientY - (boundRect.top + window.scrollY);
 
-            if (that.linkInProgress)
-                that.endLink(id);
         };
 
         // sectioned into separate inline functions
@@ -317,6 +315,7 @@ export class CardsData {
         let components = util.colorValues(colour);
         components[3] = 0.1;
         cardContainer.style.backgroundColor = "rgba(" + components.join(", ") + ")";
+        // TODO: undo/redo
         this.set(cardId, new CardObject(x, y, "", connection, colour));
     }
 
