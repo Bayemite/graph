@@ -33,7 +33,6 @@ window.onload = function () {
         cardsData.moveFlag = false;
     });
     canvas.addEventListener('dblclick', function (e) {
-        e.preventDefault();
         cardsData.addDefaultCardHtml(camera.hoverPos());
     }, true);
     canvas.addEventListener('mousedown', function (e) {
