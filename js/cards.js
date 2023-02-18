@@ -137,12 +137,12 @@ export class CardsData {
     // camera: util.Camera class
     moveElem(camera) {
         let id = this.moveCardID;
-        
+
         let cardData = this.cardsData.get(id);
         let pos = camera.hoverPos();
         cardData.x = pos.x - (this.moveCardOffset.x / camera.zoom);
         cardData.y = pos.y - (this.moveCardOffset.y / camera.zoom);
-        
+
         let card = document.getElementById(`card-${id}`);
         card.style.left = `${cardData.x}px`;
         card.style.top = `${cardData.y}px`;
@@ -168,17 +168,12 @@ export class CardsData {
             that.moveFlag = true;
             that.moveCardID = id;
 
-            that.moveCardOffset.x = e.pageX - e.target.getBoundingClientRect().left;
-            that.moveCardOffset.y = e.pageY - e.target.getBoundingClientRect().top;
-            
-            if(that.linkInProgress)
+            let boundRect = cardContainer.getBoundingClientRect();
+            that.moveCardOffset.x = e.clientX - (boundRect.left + window.scrollX);
+            that.moveCardOffset.y = e.clientY - (boundRect.top + window.scrollY);
+
+            if (that.linkInProgress)
                 that.endLink(id);
-        };
-        cardContainer.onmousemove = function () {
-            if (that.moveFlag) {
-                let card = cardContainer.getElementsByTagName('span')[0];
-                card.getElementsByTagName('p')[0].blur();
-            }
         };
 
         // sectioned into separate inline functions
@@ -186,26 +181,25 @@ export class CardsData {
         cardContainer.appendChild(editUI(this));
 
         function cardHTML(self) {
-            let card = document.createElement('span');
-
             let p = document.createElement('p');
-            p.classList.add('text', 'card-text');
+            p.classList.add('text');
             p.contentEditable = true;
             p.innerHTML = text;
 
-            p.addEventListener('input', () => {
+            p.oninput = () => {
                 self.cardsData.get(id).text = p.innerHTML;
-            });
+            };
 
-            card.appendChild(p);
+            // Allow move without text focus
+            p.onmousedown = (e) => { e.preventDefault(); };
+            p.onmouseup = () => { p.focus(); };
 
-            return card;
+            return p;
         }
         function editUI(self) {
             let actions = document.createElement('div');
             actions.classList.add("actions");
             // no movement
-            actions.addEventListener('mousedown', function (e) { e.stopPropagation(); }, true);
 
             let linkElem = document.createElement('button');
             linkElem.innerHTML = `
