@@ -197,7 +197,7 @@ window.onload = function () {
 
     cardsData.addCardsHTML();
 
-    function main(currentTime) {
+    function main() {
         window.requestAnimationFrame(main);
         camera.update();
 
