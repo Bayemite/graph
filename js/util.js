@@ -101,7 +101,7 @@ export class rgb {
 
 
 export class vector2D {
-    constructor (x, y) {
+    constructor (x = 0, y = 0) {
         this.x = x;
         this.y = y;
     }
@@ -369,7 +369,7 @@ export class Camera {
             (canvasWidth / 2) / this.zoom,
             (canvasHeight / 2) / this.zoom
         );
-        this.mousePos = new vector2D(0, 0);
+        this.mousePos = new vector2D();
         this.pos = new vector2D(canvasWidth / 2, canvasHeight / 2);
     }
 
