@@ -1,12 +1,14 @@
 import * as util from './util.js';
 
+const defaultColor = "rgb(200, 200, 200)";
+
 export class CardObject {
-    constructor (x, y, text, connectionSet, colour) {
-        this.x = x;
-        this.y = y;
+    constructor (pos = new util.vector2D(), text = "", connectionSet = new Set(), color = defaultColor) {
+        this.x = pos.x;
+        this.y = pos.y;
         this.text = text;
         this.connections = connectionSet;
-        this.colour = colour;
+        this.color = color;
     }
 }
 
@@ -59,22 +61,13 @@ export class CardsData {
 
         this.undoRedoStack = new UndoRedoStack();
 
-        this.set(
-            this.cardIds.getNextId(),
+        this.addNewCard(new CardObject());
+        this.addNewCard(
             new CardObject(
-                0, 0,
-                '',
-                new Set(),
-                'rgb(200, 200, 200)'
-            )
-        );
-        this.set(
-            this.cardIds.getNextId(),
-            new CardObject(
-                200, 100,
+                new util.vector2D(200, 100),
                 'Title',
                 new Set([0]),
-                'rgb(200, 200, 200)'
+                defaultColor
             )
         );
     }
@@ -192,13 +185,28 @@ export class CardsData {
             `<div id="break"></div>`;
     }
 
-    genHTMLCard(id, x, y, text) {
-        if (text == undefined) { text = ""; };
+    // Returns {background: "rgba(...)", border: "rgba(...)"}
+    borderBackgroundColors(color = defaultColor) {
+        let components = util.colorValues(color);
+        components[3] = 0.1; // Force alpha
+        let backgroundColor = "rgba(" + components.join(", ") + ")";
+        return { background: backgroundColor, border: color };
+    }
+
+    genHTMLCard(id) {
+        let cardObject = this.cardsData.get(id);
 
         let cardContainer = document.createElement('div');
 
         cardContainer.id = "card-" + id;
-        cardContainer.style = "left:" + Math.floor(x) + "px; top:" + Math.floor(y) + "px";
+
+        let style = cardContainer.style;
+        style.left = cardObject.x + "px;";
+        style.top = cardObject.y + "px";
+
+        let colors = this.borderBackgroundColors(cardObject.color);
+        style.borderColor = colors.border;
+        style.backgroundColor = colors.background;
         cardContainer.classList.add('card');
 
         // Needed to force reference to class within callback, and not tag
@@ -211,7 +219,7 @@ export class CardsData {
             that.moveCardOffset.x = e.clientX - (boundRect.left + window.scrollX);
             that.moveCardOffset.y = e.clientY - (boundRect.top + window.scrollY);
 
-            if(that.linkInProgress)
+            if (that.linkInProgress)
                 that.endLink(id);
         };
 
@@ -219,15 +227,15 @@ export class CardsData {
         cardContainer.appendChild(cardHTML(this));
         cardContainer.appendChild(editUI(this));
 
-        function cardHTML(self) {
+        function cardHTML(that) {
             let p = document.createElement('p');
             p.classList.add('text');
             p.contentEditable = true;
-            p.innerHTML = text;
+            p.innerHTML = cardObject.text;
 
             p.oninput = () => {
                 // TODO: undo/redo
-                self.cardsData.get(id).text = p.innerHTML;
+                cardObject.text = p.innerHTML;
             };
 
             // Allow move without text focus
@@ -236,10 +244,9 @@ export class CardsData {
 
             return p;
         }
-        function editUI(self) {
+        function editUI(that) {
             let actions = document.createElement('div');
             actions.classList.add("actions");
-            // no movement
 
             let linkElem = document.createElement('button');
             linkElem.innerHTML = `
@@ -248,7 +255,7 @@ export class CardsData {
             </span>
             `;
             linkElem.classList.add("actions-button", "link-button");
-            linkElem.onclick = function () { self.startLink(id); };
+            linkElem.onclick = () => { that.startLink(id); };
             actions.appendChild(linkElem);
 
             let deleteCard = document.createElement('button');
@@ -258,7 +265,7 @@ export class CardsData {
             </span>
             `;
             deleteCard.classList.add("actions-button");
-            deleteCard.onclick = () => { self.deleteCard(id); };
+            deleteCard.onclick = () => { that.deleteCard(id); };
             actions.appendChild(deleteCard);
 
             let clrPicker = document.createElement('div');
@@ -266,12 +273,12 @@ export class CardsData {
 
             let colorInput = document.createElement('input');
             colorInput.type = 'text';
-            colorInput.value = 'rgb(200, 200, 200)';
+            colorInput.value = defaultColor;
             colorInput.setAttribute('data-coloris', true);
 
             let colorEdit = document.createElement('div');
             colorEdit.classList.add('clr-field');
-            colorEdit.style.color = 'rgb(200, 200, 200)';
+            colorEdit.style.color = defaultColor;
             colorEdit.innerHTML = `
             <button type="button" aria-labelledby="clr-open-label"></button>
             `;
@@ -280,19 +287,18 @@ export class CardsData {
             actions.appendChild(colorEdit);
 
             colorInput.onchange = function () {
-                // Set colour swatch settings
-                self.cardColors.add(colorEdit.style.color);
-                window.colorSettings(Array.from(self.cardColors));
+                // Set color swatch settings
+                that.cardColors.add(colorEdit.style.color);
+                window.colorSettings(Array.from(that.cardColors));
             };
             colorEdit.oninput = function () {
-                // Set colour variables
-                let color = colorEdit.style.color;
-                cardContainer.style.borderColor = color;
                 // TODO: undo/redo
-                self.cardsData.get(id).colour = color;
-                let components = util.colorValues(color);
-                components[3] = 0.1; // set alpha
-                cardContainer.style.backgroundColor = "rgba(" + components.join(', ') + ")";
+                // Set color variables
+                let color = colorEdit.style.color;
+                cardObject.color = color;
+                let colors = that.borderBackgroundColors(color);
+                cardContainer.style.borderColor = colors.border;
+                cardContainer.style.backgroundColor = colors.background;
             };
 
             return actions;
@@ -301,38 +307,25 @@ export class CardsData {
         return cardContainer;
     }
 
-    addCardHTML(x, y, t, cardId, connection, colour) {
-        util.checkArgs(arguments, 6);
-        // Hardcoded solution for now
-        // The textbox will always be placed with the default "Enter text" meaning its width will
-        // always be the same
-        // The width is 136, height is 79
+    // Add to data, returns id.
+    addNewCard(cardObject = new CardObject()) {
+        let id = this.cardIds.getNextId();
+        this.set(id, cardObject);
+        return id;
+    }
 
+    // Add a card from data to HTML.
+    addCardHTML(cardId) {
         document.getElementById("translate").appendChild(
-            this.genHTMLCard(cardId, x - 136 / 2, y - 79 / 2, t)
+            this.genHTMLCard(cardId)
         );
-        let cardContainer = document.getElementById(`card-${cardId}`);
-        // Set colour
-        cardContainer.style.borderColor = colour;
-        let components = util.colorValues(colour);
-        components[3] = 0.1;
-        cardContainer.style.backgroundColor = "rgba(" + components.join(", ") + ")";
-        // TODO: undo/redo
-        this.set(cardId, new CardObject(x, y, "", connection, colour));
     }
 
     // returns id of card
     // pos: should have .x and .y (eg. util vector2D)
-    addDefaultCardHtml(pos) {
-        let id = this.cardIds.getNextId();
-        this.addCardHTML(
-            pos.x,
-            pos.y,
-            "",
-            id,
-            new Set(),
-            "rgb(200, 200, 200)"
-        );
+    addDefaultCardHtml(pos = util.vector2D()) {
+        let id = this.addNewCard(new CardObject(pos));
+        this.addCardHTML(id);
         return id;
     }
 
@@ -341,7 +334,7 @@ export class CardsData {
     addCardsHTML() {
         this.clearHtmlCards();
         for (const [cardId, card] of this.cardsData) {
-            this.addCardHTML(card.x, card.y, card.text, cardId, card.connections, card.colour);
+            this.addCardHTML(cardId);
             if (card.connections.size == 0) { continue; }
 
             for (let c of card.connections.values())
@@ -359,8 +352,9 @@ export class CardsData {
 
     loadFromJSON(parsedData) {
         this.getTitleTag().innerText = parsedData.title;
-        let cardData = parsedData.data;
         this.cardsData.clear();
+        let cardData = parsedData.data;
+
         let lastId = 0;
         for (const id in cardData) {
             lastId = Math.max(lastId, id);
@@ -368,11 +362,10 @@ export class CardsData {
             if (!iValues) continue;
             this.set(id,
                 new CardObject(
-                    iValues.x,
-                    iValues.y,
+                    new util.vector2D(iValues.x, iValues.y),
                     iValues.text,
                     new Set(Array.from(iValues.connections)),
-                    iValues.colour
+                    iValues.color
                 )
             );
         }
@@ -390,7 +383,7 @@ export class CardsData {
                 "y": card.y,
                 "text": card.text,
                 "connections": Array.from(card.connections),
-                "colour": card.colour,
+                "color": card.color,
             };
         }
         if (stringify)
