@@ -211,6 +211,8 @@ export class CardsData {
             that.moveCardOffset.x = e.clientX - (boundRect.left + window.scrollX);
             that.moveCardOffset.y = e.clientY - (boundRect.top + window.scrollY);
 
+            if(that.linkInProgress)
+                that.endLink(id);
         };
 
         // sectioned into separate inline functions
