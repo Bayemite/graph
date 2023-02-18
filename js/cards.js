@@ -136,15 +136,16 @@ export class CardsData {
 
     // camera: util.Camera class
     moveElem(camera) {
-        let i = this.moveCardID;
-        let card = document.getElementById(`card-${i}`);
-        let x = Math.floor((camera.mousePos.x - camera.pos.x - this.moveCardOffset.x) / camera.zoom);
-        let y = Math.floor((camera.mousePos.y - camera.pos.y - this.moveCardOffset.y) / camera.zoom);
-        let cardData = this.cardsData.get(i);
-        this.set(i, new CardObject(x, y, cardData.text, cardData.connections, cardData.colour));
-
-        card.style.top = `${this.cardsData.get(i).y}px`;
-        card.style.left = `${this.cardsData.get(i).x}px`;
+        let id = this.moveCardID;
+        
+        let cardData = this.cardsData.get(id);
+        let pos = camera.hoverPos();
+        cardData.x = pos.x - (this.moveCardOffset.x / camera.zoom);
+        cardData.y = pos.y - (this.moveCardOffset.y / camera.zoom);
+        
+        let card = document.getElementById(`card-${id}`);
+        card.style.left = `${cardData.x}px`;
+        card.style.top = `${cardData.y}px`;
     }
 
     clearHtmlCards() {
@@ -283,7 +284,6 @@ export class CardsData {
     }
 
     // returns id of card
-    // camera: util Camera class, attributes read only
     // pos: should have .x and .y (eg. util vector2D)
     addDefaultCardHtml(pos) {
         let id = this.cardIds.getNextId();
