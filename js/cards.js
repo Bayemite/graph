@@ -103,7 +103,7 @@ export class CardsData {
     }
 
     // i : id of card
-    linkTo(linkEnd) {
+    endLink(linkEnd) {
         if (!this.linkInProgress) return;
 
         if (this.cardsData.get(linkEnd) === undefined) {

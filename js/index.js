@@ -39,7 +39,7 @@ window.onload = function () {
         if (cardsData.linkInProgress) {
             if (e.button == 0) {
                 let id = cardsData.addDefaultCardHtml(camera.hoverPos());
-                cardsData.linkTo(id);
+                cardsData.endLink(id);
             }
             else {
                 cardsData.linkInProgress = false;
