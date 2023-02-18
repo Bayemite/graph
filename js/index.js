@@ -5,7 +5,6 @@ let host = false;
 let activeConnection = false;
 let clientConnection = null;
 
-// Main loop
 window.onload = function () {
     // Stub, unused at the moment
     // let peerConnection = new util.PeerConnection();
@@ -17,74 +16,48 @@ window.onload = function () {
     let camera = new util.Camera(canvas.width, canvas.height);
     let cardsData = new cards.CardsData();
 
+    util.addSaveOpenFileListeners(cardsData);
+    util.loadLocalSave(cardsData);
+    util.addLocalSaveListener();
+    
     function resize() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
     }
-    window.addEventListener('resize', resize);
     resize();
+    window.addEventListener('resize', resize);
 
-    let mouseDown = false;
-    // Mouse delta
-    let initX = 0, initY = 0;
-    let deltaX = 0, deltaY = 0;
-
-    document.addEventListener('mouseup', function () {
+    document.addEventListener('mouseup', () => {
         cardsData.moveFlag = false;
+        camera.onMouseUp();
     });
-    canvas.addEventListener('dblclick', function (e) {
+    document.addEventListener('mousemove', (event) => {
+        // Mouse events are up in card creation
+        if (cardsData.moveFlag)
+            cardsData.moveElem(camera);
+
+        camera.onMouseMove(event);
+    });
+
+    canvas.addEventListener('dblclick', () => {
         cardsData.addDefaultCardHtml(camera.hoverPos());
     });
-    canvas.addEventListener('mousedown', function (e) {
+    canvas.addEventListener('mousedown', (event) => {
         if (cardsData.linkInProgress) {
-            if (e.button == 0) {
+            if (event.button == 0) {
                 let id = cardsData.addDefaultCardHtml(camera.hoverPos());
                 cardsData.endLink(id);
             }
-            else {
-                cardsData.linkInProgress = false;
-            }
+            else cardsData.linkInProgress = false;
+
         }
-        else {
-            initX = e.pageX, initY = e.pageY;
-        }
-        mouseDown = true;
+        else camera.onMouseDown(event);
     });
 
-    document.addEventListener('mousemove', function (e) {
-        camera.mousePos.x = e.pageX;
-        camera.mousePos.y = e.pageY;
-
-        // Handle card movement
-        // Mouse events are up in card creation
-        if (cardsData.moveFlag) {
-            cardsData.moveElem(camera);
-        }
-
-        if (mouseDown) {
-            deltaX = e.pageX - initX;
-            deltaY = e.pageY - initY;
-            camera.target.x += deltaX;
-            camera.target.y += deltaY;
-            initX = e.pageX;
-            initY = e.pageY;
-        }
-    });
-
-    document.onmouseup = event => mouseDown = false;
-    window.onmouseup = event => event.preventDefault();
-
-    document.addEventListener('wheel',
-        (event) => {
-            event.preventDefault();
-            let delta = event.wheelDelta;
-            let zoomFactor = 0.0007;
-            camera.zoomTarget += delta * zoomFactor;
-
-            let zoomOut = 0.3;
-            let zoomIn = 3;
-            camera.zoomTarget = util.clamp(zoomOut, camera.zoomTarget, zoomIn);
-        }, { passive: false }
+    document.addEventListener('wheel', (event) => {
+        event.preventDefault();
+        camera.onWheel(event);
+    }, { passive: false }
     );
 
     function newPeerDialog(id) {
@@ -177,7 +150,7 @@ window.onload = function () {
             conn.on("data", (data) => {
                 console.log(data);
                 // Loads cards and resets and sets cardsData
-                cardsData.loadFromJSON(tryParseSave(data));
+                cardsData.loadFromJSON(tryParseJson(data));
                 cardsData.addCardsHTML();
             });
         });
@@ -220,67 +193,9 @@ window.onload = function () {
         // Attach mutation observers to existing and new nodes
         // attachObserversToExistingNodes(updateNodeText);
         // attachObserverToNewNodes(updateNodeText);
-    };
+    };    
 
-    function tryParseSave(file) {
-        let data;
-        try {
-            data = JSON.parse(file);
-
-        } catch (error) {
-            alert("Could not load file");
-            console.log("File incompatible");
-            return;
-        }
-        return data;
-    }
-
-    const fileInput = document.getElementById('openFile');
-    fileInput.onchange = async function () {
-        // let selectedFile = fileInput.files[0];
-        let file = new FileReader();
-        file.onload = () => {
-            let fileData = tryParseSave(file.result);
-            cardsData.loadFromJSON(fileData);
-        };
-        file.readAsText(this.files[0]);
-        fileInput.value = '';
-    };
-
-    let localSave = window.localStorage.getItem('localSave');
-    if (localSave)
-        cardsData.loadFromJSON(tryParseSave(localSave));
     cardsData.addCardsHTML();
-
-    // Function to download data to a file
-    // https://stackoverflow.com/questions/13405129/create-and-save-a-file-with-javascript
-    function download(data, filename, type) {
-        var file = new Blob([data], { type: type });
-        if (window.navigator.msSaveOrOpenBlob) // IE10+
-            window.navigator.msSaveOrOpenBlob(file, filename);
-        else { // Others
-            var a = document.createElement("a"),
-                url = URL.createObjectURL(file);
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            setTimeout(function () {
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
-            }, 0);
-        }
-    }
-
-    document.getElementById('save').onclick = () => {
-        let saveData = cardsData.genSave(false);
-        console.log("save title should be " + saveData.title);
-        download(JSON.stringify(saveData), saveData.title, "application/json");
-    };
-    window.onbeforeunload = (e) => {
-        window.localStorage.setItem('localSave', cardsData.genSave());
-        console.log("Saved to localStorage");
-    };
 
     function main(currentTime) {
         window.requestAnimationFrame(main);

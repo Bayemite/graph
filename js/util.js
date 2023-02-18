@@ -371,6 +371,9 @@ export class Camera {
         );
         this.mousePos = new vector2D();
         this.pos = new vector2D(canvasWidth / 2, canvasHeight / 2);
+
+        this.doScroll = false;
+        this.oldScrollPos = new vector2D(0, 0);
     }
 
     hoverPos() {
@@ -380,8 +383,10 @@ export class Camera {
     }
 
     update() {
+        const lerpScale = 0.9;
+
         let prevZoom = this.zoom;
-        this.zoom = lerp(this.zoom, this.zoomTarget, 0.3);
+        this.zoom = lerp(this.zoom, this.zoomTarget, lerpScale);
         let deltaZoom = this.zoom - prevZoom;
 
         let offsetZoomX = deltaZoom * (window.innerWidth / 2 - this.mousePos.x);
@@ -389,11 +394,111 @@ export class Camera {
         this.target.x += offsetZoomX;
         this.target.y += offsetZoomY;
 
-        const translateLerpScale = 0.9;
-        this.pos.x = lerp(this.pos.x, this.target.x, translateLerpScale);
-        this.pos.y = lerp(this.pos.y, this.target.y, translateLerpScale);
+        this.pos.x = lerp(this.pos.x, this.target.x, lerpScale);
+        this.pos.y = lerp(this.pos.y, this.target.y, lerpScale);
 
         let transformNode = document.getElementById('translate');
         transformNode.style.transform = `translate(${this.pos.x}px, ${this.pos.y}px) scale(${this.zoom})`;
     };
+
+    onMouseMove(event) {
+        this.mousePos.x = event.pageX;
+        this.mousePos.y = event.pageY;
+
+        if (this.doScroll) {
+            let deltaX = event.pageX - this.oldScrollPos.x;
+            let deltaY = event.pageY - this.oldScrollPos.y;
+            this.target.x += deltaX;
+            this.target.y += deltaY;
+            this.oldScrollPos.x = event.pageX;
+            this.oldScrollPos.y = event.pageY;
+        }
+
+    }
+
+    onMouseDown(event) {
+        this.doScroll = true;
+        this.oldScrollPos.x = event.pageX;
+        this.oldScrollPos.y = event.pageY;
+    }
+
+    onMouseUp() {
+        this.doScroll = false;
+    }
+
+    onWheel(event) {
+        let delta = event.wheelDelta;
+        const zoomFactor = 0.0007;
+        this.zoomTarget += delta * zoomFactor;
+
+        const zoomOut = 0.3;
+        const zoomIn = 3;
+        this.zoomTarget = clamp(zoomOut, this.zoomTarget, zoomIn);
+    }
+}
+
+function tryParseJson(file) {
+    let data;
+    try {
+        data = JSON.parse(file);
+
+    } catch (error) {
+        alert("Could not load file");
+        console.log("File incompatible");
+        return;
+    }
+    return data;
+}
+
+// Function to download data to a file
+// https://stackoverflow.com/questions/13405129/create-and-save-a-file-with-javascript
+function download(data, filename, type) {
+    var file = new Blob([data], { type: type });
+    if (window.navigator.msSaveOrOpenBlob) // IE10+
+        window.navigator.msSaveOrOpenBlob(file, filename);
+    else { // Others
+        var a = document.createElement("a"),
+            url = URL.createObjectURL(file);
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function () {
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }, 0);
+    }
+}
+
+export function addSaveOpenFileListeners(cardsData) {
+    const openFileElem = document.getElementById('openFile');
+    const saveFileElem = document.getElementById('save');
+
+    openFileElem.onclick = () => {
+        let file = new FileReader();
+        file.onload = () => {
+            let fileData = tryParseJson(file.result);
+            cardsData.loadFromJSON(fileData);
+        };
+        file.readAsText(this.files[0]);
+        openFileElem.value = '';
+    };
+
+    saveFileElem.onclick = () => {
+        let saveData = cardsData.genSave(false);
+        download(JSON.stringify(saveData), saveData.title, "application/json");
+    };
+}
+
+export function loadLocalSave(cardsData) {
+    let localSave = window.localStorage.getItem('localSave');
+    if (localSave)
+        cardsData.loadFromJSON(tryParseJson(localSave));
+}
+
+export function addLocalSaveListener(cardsData) {
+    window.addEventListener('beforeunload', () => {
+        window.localStorage.setItem('localSave', cardsData.genSave());
+        console.log("Saved file to localStorage.");
+    });
 }
