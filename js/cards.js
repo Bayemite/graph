@@ -15,21 +15,23 @@ export class CardsData {
     // - card id: `card-{cardId, from this.cardIds}`
     // - unlink id: `unlink-{fromCardId}-{toCardId}`
 
-    sendUpdateData() {
-        const updateNodeText = function (key, card) {
-            if (conn) {
-                console.log('conn');
-                let data = {
-                    "x": card.x,
-                    "y": card.y,
-                    "title": card.title,
-                    "connection": Array.from(card.connection),
-                    "colour": card.colour,
-                };
-                conn.send({ type: 'updateNodeText', key: key, value: data });
-            }
+    /*
+        sendUpdateData() {
+            const updateNodeText = function (key, card) {
+                if (conn) {
+                    console.log('conn');
+                    let data = {
+                        "x": card.x,
+                        "y": card.y,
+                        "title": card.title,
+                        "connection": Array.from(card.connection),
+                        "colour": card.colour,
+                    };
+                    conn.send({ type: 'updateNodeText', key: key, value: data });
+                }
+            };
         };
-    };
+    */
 
     constructor () {
         // id -> CardObject
@@ -65,12 +67,8 @@ export class CardsData {
         );
     }
 
-    set(key, value, shouldSendData = false) {
+    set(key, value) {
         this.cardsData.set(key, value);
-
-        if (shouldSendData) {
-            this.sendData(key, value);
-        }
     }
 
     addUnlink(start, end) {
@@ -94,7 +92,7 @@ export class CardsData {
 
     deleteLink(start, end) {
         this.cardsData.get(start).connection.delete(end);
-        removeBreakLink(start, end);
+        this.removeBreakLink(start, end);
     }
 
     // i : id of card (card-'0')
@@ -151,7 +149,7 @@ export class CardsData {
         }
 
         this.cardsData.delete(i);
-        cardIds.freeId(i);
+        this.cardIds.freeId(i);
 
         document.getElementById('translate').removeChild(document.getElementById(`card-${i}`));
     }
@@ -160,8 +158,8 @@ export class CardsData {
     moveElem(camera) {
         let i = this.moveCardID;
         let card = document.getElementById(`card-${i}`);
-        let x = Math.floor((camera.mouse.x - camera.pos.x - this.moveCardOffset.x) / camera.zoom);
-        let y = Math.floor((camera.mouse.y - camera.pos.y - this.moveCardOffset.y) / camera.zoom);
+        let x = Math.floor((camera.mousePos.x - camera.pos.x - this.moveCardOffset.x) / camera.zoom);
+        let y = Math.floor((camera.mousePos.y - camera.pos.y - this.moveCardOffset.y) / camera.zoom);
         let cardData = this.cardsData.get(i);
         this.set(i, new CardObject(x, y, cardData.title, cardData.connection, cardData.colour));
 
@@ -170,9 +168,8 @@ export class CardsData {
     }
 
     clearHtmlCards() {
-        document.getElementById("translate").innerHTML = `
-    <div id="break"></div>
-    `;
+        document.getElementById("translate").innerHTML =
+            `<div id="break"></div>`;
     }
 
     genHTMLCard(id, x, y, title) {
@@ -195,7 +192,7 @@ export class CardsData {
             that.moveCardOffset.y = e.pageY - e.target.getBoundingClientRect().top;
         };
         cardContainer.onmousemove = function () {
-            if (this.moveFlag) {
+            if (that.moveFlag) {
                 let card = cardContainer.getElementsByTagName('span')[0];
                 card.getElementsByTagName('p')[0].blur();
             }
@@ -212,10 +209,10 @@ export class CardsData {
             p.classList.add('text', 'card-text');
             p.contentEditable = true;
             p.innerHTML = title;
-            let cardData = self.cardsData.get(id);
-            p.oninput = () => self.set(
-                id, new CardObject(cardData.x, cardData.y, p.innerHTML, cardData.connection, cardData.colour)
-            );
+
+            p.addEventListener('input', () => {
+                self.cardsData.get(id).title = p.innerHTML;
+            });
 
             card.appendChild(p);
 
@@ -237,10 +234,6 @@ export class CardsData {
             linkElem.onclick = function () { self.startLink(id); };
             actions.appendChild(linkElem);
 
-            let deleteDialog = new util.Dialog(
-                "Warning", "Are you sure you want to delete this card? This will delete all of its connections.",
-                true, "Cancel", self.deleteElem, id, "Delete"
-            );
             let deleteCard = document.createElement('button');
             deleteCard.innerHTML = `
             <span class="material-symbols-outlined">
@@ -248,7 +241,7 @@ export class CardsData {
             </span>
             `;
             deleteCard.classList.add("actions-button");
-            deleteCard.onclick = function () { deleteDialog.show(); };
+            deleteCard.onclick = () => { self.deleteElem(id); };
             actions.appendChild(deleteCard);
 
             let clrPicker = document.createElement('div');
@@ -279,13 +272,14 @@ export class CardsData {
             const config = { attributes: true };
 
             // Callback function to execute when mutations are observed
+            let that = this;
             const callback = (mutationList, observer) => {
                 for (const mutation of mutationList) {
                     if (mutation.attributeName == 'style') {
                         // Set colour variables
                         let color = colorEdit.style.color;
                         cardContainer.style.borderColor = color;
-                        this.cardsData.get(id).colour = color;
+                        that.cardsData.get(id).colour = color;
                         let components = util.colorValues(color);
                         components[3] = 0.1; // set alpha
                         cardContainer.style.backgroundColor = "rgba(" + components.join(', ') + ")";

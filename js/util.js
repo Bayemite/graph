@@ -237,8 +237,8 @@ export function drawLinkLine(ctx, startElement, camera) {
     let limiter = 5; // Limiter before the line connection direction changes
 
     // Get other element
-    let xr = -camera.mouse.x;
-    let yr = -camera.mouse.y - triRad * 2 * camera.zoom;
+    let xr = -camera.mousePos.x;
+    let yr = -camera.mousePos.y - triRad * 2 * camera.zoom;
     if (x2 < xr) {
         curveWidth = Math.floor(150 * camera.zoom) * clamp(0.1, (xr + elem.offsetWidth - x2) / camera.zoom / 500, 1);
         ctx.moveTo(-xr + (number * camera.zoom) - 2, -yr - (number / 2) * camera.zoom);
@@ -361,18 +361,21 @@ export function drawLinks(ctx, cardId, card, elem, camera) {
 }
 
 export class Camera {
-    constructor () {
+    constructor (canvasWidth, canvasHeight) {
         this.zoomTarget = 1.0;
         this.zoom = 1;
-        this.targetX; // for zoom
-        this.targetY; // for zoom
-        this.mouse = new vector2D(0, 0);
-        this.pos = new vector2D(canvas.width / 2, canvas.height / 2);
+        // Target positions for zoom at cursor
+        this.target = new vector2D(
+            (canvasWidth / 2) / this.zoom,
+            (canvasHeight / 2) / this.zoom
+        );
+        this.mousePos = new vector2D(0, 0);
+        this.pos = new vector2D(canvasWidth / 2, canvasHeight / 2);
     }
 
     hoverPos() {
-        let x = Math.floor((this.mouse.x - this.pos.x) / this.zoom);
-        let y = Math.floor((this.mouse.y - this.pos.y) / this.zoom);
+        let x = (this.mousePos.x - this.pos.x) / this.zoom;
+        let y = (this.mousePos.y - this.pos.y) / this.zoom;
         return new vector2D(x, y);
     }
 
@@ -381,14 +384,14 @@ export class Camera {
         this.zoom = lerp(this.zoom, this.zoomTarget, 0.3);
         let deltaZoom = this.zoom - prevZoom;
 
-        let offsetZoomX = deltaZoom * (window.innerWidth / 2 - this.mouse.x);
-        let offsetZoomY = deltaZoom * (window.innerHeight / 2 - this.mouse.y);
-        this.targetX += offsetZoomX;
-        this.targetY += offsetZoomY;
+        let offsetZoomX = deltaZoom * (window.innerWidth / 2 - this.mousePos.x);
+        let offsetZoomY = deltaZoom * (window.innerHeight / 2 - this.mousePos.y);
+        this.target.x += offsetZoomX;
+        this.target.y += offsetZoomY;
 
         const translateLerpScale = 0.9;
-        this.pos.x = lerp(this.pos.x, this.targetX, translateLerpScale);
-        this.pos.y = lerp(this.pos.y, this.targetY, translateLerpScale);
+        this.pos.x = lerp(this.pos.x, this.target.x, translateLerpScale);
+        this.pos.y = lerp(this.pos.y, this.target.y, translateLerpScale);
 
         let transformNode = document.getElementById('translate');
         transformNode.style.transform = `translate(${this.pos.x}px, ${this.pos.y}px) scale(${this.zoom})`;

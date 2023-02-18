@@ -1,11 +1,6 @@
 import * as util from './util.js';
 import * as cards from './cards.js';
 
-let camera = new util.Camera();
-let cardsData = new cards.CardsData(camera);
-
-const backgroundColor = new util.rgb(100, 150, 200);
-
 let host = false;
 let activeConnection = false;
 let clientConnection = null;
@@ -19,6 +14,9 @@ window.onload = function () {
     let ctx = canvas.getContext('2d');
     ctx.imageSmoothingEnabled = true;
 
+    let camera = new util.Camera(canvas.width, canvas.height);
+    let cardsData = new cards.CardsData();
+
     function resize() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -30,10 +28,8 @@ window.onload = function () {
     // Mouse delta
     let initX = 0, initY = 0;
     let deltaX = 0, deltaY = 0;
-    camera.targetX = (canvas.width / 2) / camera.zoom;
-    camera.targetY = (canvas.height / 2) / camera.zoom;
 
-    document.addEventListener('mouseup', function (e) {
+    document.addEventListener('mouseup', function () {
         cardsData.moveFlag = false;
     });
     canvas.addEventListener('dblclick', function (e) {
@@ -57,8 +53,8 @@ window.onload = function () {
     });
 
     document.addEventListener('mousemove', function (e) {
-        camera.mouse.x = e.pageX;
-        camera.mouse.y = e.pageY;
+        camera.mousePos.x = e.pageX;
+        camera.mousePos.y = e.pageY;
 
         // Handle card movement
         // Mouse events are up in card creation
@@ -69,8 +65,8 @@ window.onload = function () {
         if (mouseDown) {
             deltaX = e.pageX - initX;
             deltaY = e.pageY - initY;
-            camera.targetX += deltaX;
-            camera.targetY += deltaY;
+            camera.target.x += deltaX;
+            camera.target.y += deltaY;
             initX = e.pageX;
             initY = e.pageY;
         }
@@ -129,8 +125,7 @@ window.onload = function () {
                     cardsData.set(data["key"],
                         new cards.cardObject(
                             data["value"].x, data["value"].y, data["value"].title, new Set(data["value"].connection), data["value"].colour
-                        ),
-                        false // Do not send data
+                        )
                     );
                     let c = document.getElementById(`card-${data["key"]}`);
                     // let p = the paragraph element with class text inside it
