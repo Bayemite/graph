@@ -473,14 +473,16 @@ function download(data, filename, type) {
 export function addSaveOpenFileListeners(cardsData) {
     const openFileElem = document.getElementById('openFile');
     const saveFileElem = document.getElementById('save');
+    let fileReader = new FileReader();
 
-    openFileElem.onclick = () => {
-        let file = new FileReader();
-        file.onload = () => {
-            let fileData = tryParseJson(file.result);
-            cardsData.loadFromJSON(fileData);
-        };
-        file.readAsText(this.files[0]);
+    fileReader.onload = () => {
+        let fileData = tryParseJson(fileReader.result);
+        cardsData.loadFromJSON(fileData);
+        cardsData.addCardsHTML();
+    };
+
+    openFileElem.oninput = () => {
+        fileReader.readAsText(openFileElem.files[0]);
         openFileElem.value = '';
     };
 
