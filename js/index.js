@@ -34,7 +34,7 @@ window.onload = function () {
     });
     canvas.addEventListener('dblclick', function (e) {
         cardsData.addDefaultCardHtml(camera.hoverPos());
-    }, true);
+    });
     canvas.addEventListener('mousedown', function (e) {
         if (cardsData.linkInProgress) {
             if (e.button == 0) {
