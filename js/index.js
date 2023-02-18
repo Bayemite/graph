@@ -5,21 +5,11 @@ let host = false;
 let activeConnection = false;
 let clientConnection = null;
 
-window.onload = function () {
-    // Stub, unused at the moment
-    // let peerConnection = new util.PeerConnection();
-
-    let canvas = document.getElementById('canvas');
-    let ctx = canvas.getContext('2d');
-    ctx.imageSmoothingEnabled = true;
-
-    let camera = new util.Camera(canvas.width, canvas.height);
-    let cardsData = new cards.CardsData();
-
+function initListeners(canvas, camera, cardsData) {
     util.addSaveOpenFileListeners(cardsData);
     util.loadLocalSave(cardsData);
     util.addLocalSaveListener();
-    
+
     function resize() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -59,6 +49,20 @@ window.onload = function () {
         camera.onWheel(event);
     }, { passive: false }
     );
+}
+
+window.onload = function () {
+    // Stub, unused at the moment
+    // let peerConnection = new util.PeerConnection();
+
+    let canvas = document.getElementById('canvas');
+    let ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+
+    let camera = new util.Camera(canvas.width, canvas.height);
+    let cardsData = new cards.CardsData();
+
+    initListeners(canvas, camera, cardsData);
 
     function newPeerDialog(id) {
         console.log('My peer ID is: ' + id);
@@ -193,7 +197,7 @@ window.onload = function () {
         // Attach mutation observers to existing and new nodes
         // attachObserversToExistingNodes(updateNodeText);
         // attachObserverToNewNodes(updateNodeText);
-    };    
+    };
 
     cardsData.addCardsHTML();
 
