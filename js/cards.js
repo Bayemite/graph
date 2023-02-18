@@ -315,14 +315,14 @@ export class CardsData {
 
     loadFromJSON(parsedData) {
         this.getTitleTag().innerText = parsedData.title;
-        parsedData = parsedData.data;
+        let cardData = parsedData.data;
         this.cardsData.clear();
-        let maxId = 0;
-        for (let i of Object.keys(parsedData)) {
-            maxId = Math.max(i, maxId);
-            let iValues = Object.values(parsedData)[i];
+        let lastId = 0;
+        for (const id in cardData) {
+            lastId = Math.max(lastId, id);
+            let iValues = cardData[id];
             if (!iValues) continue;
-            this.set(i,
+            this.set(id,
                 new CardObject(
                     iValues.x,
                     iValues.y,
@@ -331,9 +331,8 @@ export class CardsData {
                     iValues.colour
                 )
             );
-
         }
-        this.cardIds.next = maxId + 1;
+        this.cardIds.next = lastId + 1;
     }
 
     genSave(stringify = true) {

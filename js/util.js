@@ -478,6 +478,7 @@ export function addSaveOpenFileListeners(cardsData) {
     fileReader.onload = () => {
         let fileData = tryParseJson(fileReader.result);
         cardsData.loadFromJSON(fileData);
+        cardsData.addCardsHTML();
     };
 
     openFileElem.oninput = () => {
