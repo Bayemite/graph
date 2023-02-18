@@ -10,6 +10,34 @@ export class CardObject {
     }
 }
 
+class UndoRedoStack {
+    constructor () {
+        this.undoStack = [];
+        this.redoStack = [];
+    }
+
+    // undoCmd: Function
+    addUndoCmd(undoCmd) {
+        this.undoStack.push(undoCmd);
+    }
+
+    undo() {
+        if (this.undoStack.length > 0) {
+            let undoCmd = this.undoStack.pop();
+            undoCmd();
+            this.redoStack.push(undoCmd);
+        }
+    }
+
+    redo() {
+        if (this.redoStack.length > 0) {
+            let redoCmd = this.redoStack.pop();
+            redoCmd();
+            this.undoStack.push(redoCmd);
+        }
+    }
+}
+
 export class CardsData {
     // HTML ID notes:
     // - card id: `card-{cardId, from this.cardIds}`
@@ -28,6 +56,8 @@ export class CardsData {
         this.moveCardOffset = new util.vector2D(0, 0);
 
         this.cardColors = new Set();
+
+        this.undoRedoStack = new UndoRedoStack();
 
         this.set(
             this.cardIds.getNextId(),
@@ -49,11 +79,17 @@ export class CardsData {
         );
     }
 
+    undo() {
+        this.undoRedoStack.undo();
+    }
+
     set(key, value) {
         this.cardsData.set(key, value);
     }
 
     addUnlink(start, end) {
+        this.cardsData.get(start).connections.add(end);
+
         let breakLink = document.createElement('button');
         breakLink.classList.add('connection-button');
         breakLink.id = `unlink-${start}-${end}`;
@@ -68,13 +104,15 @@ export class CardsData {
         this.getBreakLinkContainerTag().appendChild(breakLink);
     }
 
-    removeBreakLink(start, end) {
-        this.getBreakLinkContainerTag().removeChild(document.getElementById(`unlink-${start}-${end}`));
-    }
 
-    deleteLink(start, end) {
+    deleteLink(start, end, addUndo = true) {
         this.cardsData.get(start).connections.delete(end);
-        this.removeBreakLink(start, end);
+        this.getBreakLinkContainerTag().removeChild(document.getElementById(`unlink-${start}-${end}`));
+
+        if (addUndo)
+            this.undoRedoStack.addUndoCmd(() => {
+                this.addUnlink(start, end);
+            });
     }
 
     // i : id of card (card-'0')
@@ -106,7 +144,7 @@ export class CardsData {
         // If click on self just ignore
         if (this.linkStart == linkEnd) return;
 
-        this.cardsData.get(this.linkStart).connections.add(linkEnd);
+        // TODO: undo/redo
         this.linkInProgress = false;
         this.addUnlink(this.linkStart, linkEnd);
     }
@@ -123,11 +161,11 @@ export class CardsData {
 
         for (let [cardId, card] of this.cardsData) {
             if (card.connections.has(id)) {
-                card.connections.delete(id);
-                this.getBreakLinkContainerTag().removeChild(document.getElementById(`unlink-${cardId}-${id}`));
+                this.deleteLink(cardId, id, false);
             }
         }
 
+        // TODO: undo/redo
         this.cardsData.delete(id);
         this.cardIds.freeId(id);
 
@@ -144,6 +182,7 @@ export class CardsData {
         cardData.y = pos.y - (this.moveCardOffset.y / camera.zoom);
 
         let card = document.getElementById(`card-${id}`);
+        // TODO: undo/redo
         card.style.left = `${cardData.x}px`;
         card.style.top = `${cardData.y}px`;
     }
@@ -187,6 +226,7 @@ export class CardsData {
             p.innerHTML = text;
 
             p.oninput = () => {
+                // TODO: undo/redo
                 self.cardsData.get(id).text = p.innerHTML;
             };
 
@@ -228,7 +268,7 @@ export class CardsData {
             colorInput.type = 'text';
             colorInput.value = 'rgb(200, 200, 200)';
             colorInput.setAttribute('data-coloris', true);
-            
+
             let colorEdit = document.createElement('div');
             colorEdit.classList.add('clr-field');
             colorEdit.style.color = 'rgb(200, 200, 200)';
@@ -248,6 +288,7 @@ export class CardsData {
                 // Set colour variables
                 let color = colorEdit.style.color;
                 cardContainer.style.borderColor = color;
+                // TODO: undo/redo
                 self.cardsData.get(id).colour = color;
                 let components = util.colorValues(color);
                 components[3] = 0.1; // set alpha

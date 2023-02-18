@@ -13,6 +13,11 @@ function initListeners(canvas, camera, cardsData) {
     resize();
     window.addEventListener('resize', resize);
 
+    document.onkeydown = (event) => {
+        if (event.ctrlKey && event.code == "KeyZ") {
+            cardsData.undo();
+        }
+    };
     document.addEventListener('mouseup', () => {
         cardsData.moveFlag = false;
         camera.onMouseUp();
