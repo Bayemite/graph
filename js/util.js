@@ -443,8 +443,8 @@ function tryParseJson(file) {
         data = JSON.parse(file);
 
     } catch (error) {
-        alert("Could not load file");
-        console.log("File incompatible");
+        alert("Error: Failed to load JSON file.");
+        console.log("Failed to parse file JSON.");
         return;
     }
     return data;

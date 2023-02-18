@@ -194,7 +194,6 @@ export class CardsData {
 
             p.addEventListener('input', () => {
                 self.cardsData.get(id).text = p.innerHTML;
-                console.log(self.cardsData.get(id).text);
             });
 
             card.appendChild(p);
