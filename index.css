@@ -155,7 +155,7 @@ button:hover {
     }
 }
 
-.object {
+.card {
     animation: 0.5s scaleIn;
     animation-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
 
@@ -317,19 +317,19 @@ button:hover {
     /* transform: translateX(-50%); */
 }
 
-.object:hover>.actions {
+.card:hover>.actions {
     transform: translateX(-50%) scale(1);
     opacity: 1;
     filter: blur(0px);
 }
 
-/* .object p:focus + .actions {
+/* .card p:focus + .actions {
     transform: translateX(-50%) scale(1);
     opacity: 1;
     filter: blur(0px);
 } */
 
-.object:hover>.link-button {
+.card:hover>.link-button {
     /* transform: scale(1.2); */
     transform: scale(0);
     animation: 0.5s scaleIn;

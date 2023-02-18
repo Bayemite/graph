@@ -159,7 +159,7 @@ export class CardsData {
 
         cardContainer.id = "card-" + id;
         cardContainer.style = "left:" + Math.floor(x) + "px; top:" + Math.floor(y) + "px";
-        cardContainer.classList.add('object');
+        cardContainer.classList.add('card');
 
         // Needed to force reference to class within callback, and not tag
         let that = this;
