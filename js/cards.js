@@ -27,7 +27,7 @@ export class CardsData {
         this.moveFlag = false;
         this.moveCardOffset = new util.vector2D(0, 0);
 
-        this.cardColours = {};
+        this.cardColors = new Set();
 
         this.set(
             this.cardIds.getNextId(),
@@ -223,16 +223,13 @@ export class CardsData {
 
             let clrPicker = document.createElement('div');
             clrPicker.classList.add('color-picker');
-            let colorEdit = document.createElement('div');
+
             let colorInput = document.createElement('input');
-            colorInput.onchange = function () {
-                // Set colour swatch settings
-                self.cardColours[id] = colorEdit.style.color;
-                window.colorSettings(Object.values(self.cardColours));
-            };
             colorInput.type = 'text';
             colorInput.value = 'rgb(200, 200, 200)';
             colorInput.setAttribute('data-coloris', true);
+            
+            let colorEdit = document.createElement('div');
             colorEdit.classList.add('clr-field');
             colorEdit.style.color = 'rgb(200, 200, 200)';
             colorEdit.innerHTML = `
@@ -242,6 +239,11 @@ export class CardsData {
             clrPicker.appendChild(colorEdit);
             actions.appendChild(colorEdit);
 
+            colorInput.onchange = function () {
+                // Set colour swatch settings
+                self.cardColors.add(colorEdit.style.color);
+                window.colorSettings(Array.from(self.cardColors));
+            };
             colorEdit.oninput = function () {
                 // Set colour variables
                 let color = colorEdit.style.color;

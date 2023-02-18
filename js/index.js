@@ -48,6 +48,7 @@ function initListeners(canvas, camera, cardsData) {
 }
 
 window.onload = function () {
+    Coloris({ clearButton: false });
     let canvas = document.getElementById('canvas');
     let ctx = canvas.getContext('2d');
     ctx.imageSmoothingEnabled = true;
