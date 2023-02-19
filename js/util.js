@@ -223,9 +223,9 @@ export class Dialog {
 }
 
 // startElement: card element
-// camera: Camera class, needs only to read attributes
 // Draws a line that is currently being connected by user (follows their mouse)
-export function drawLinkLine(ctx, startElement, camera) {
+export function drawLinkLine(ctx, startElement) {
+    const camera = window.camera;
     // Get element connecting to other mouse
     let elem = startElement;
     let x2 = Math.floor(-elem.style.left.replace('px', '') * camera.zoom - camera.pos.x);
@@ -283,7 +283,9 @@ export function drawLinkLine(ctx, startElement, camera) {
 }
 
 // Draws all existing links
-export function drawLinks(ctx, cardId, card, elem, camera) {
+export function drawLinks(ctx, cardId, card, elem) {
+    const camera = window.camera;
+
     let curveWidth = Math.floor(50 * camera.zoom); // Set default
     let limiter = 5; // Limiter before the line connection direction changes
     let triRad = 4;
@@ -461,7 +463,8 @@ function download(data, filename, type) {
     }
 }
 
-function save(cardsData, camera) {
+function save(cardsData) {
+    const camera = window.camera;
     let saveData = cardsData.genSave();
     saveData.camera = {
         pos: { x: camera.pos.x, y: camera.pos.y },
@@ -470,9 +473,10 @@ function save(cardsData, camera) {
     return saveData;
 }
 
-function load(cardsData, camera, saveData) {
+function load(cardsData, saveData) {
     let parsedData = tryParseJson(saveData);
     if (parsedData != null) {
+        const camera = window.camera;
         cardsData.loadFromJSON(parsedData);
         camera.pos.x = parsedData.camera.pos.x;
         camera.pos.y = parsedData.camera.pos.y;
@@ -482,13 +486,13 @@ function load(cardsData, camera, saveData) {
     else return false;
 }
 
-export function addSaveOpenFileListeners(cardsData, camera) {
+export function addSaveOpenFileListeners(cardsData) {
     const openFileElem = document.getElementById('openFile');
     const saveFileElem = document.getElementById('save');
     let fileReader = new FileReader();
 
     fileReader.onload = () => {
-        if (load(cardsData, camera, fileReader.result))
+        if (load(cardsData, fileReader.result))
             cardsData.addCardsHTML();
     };
 
@@ -498,23 +502,23 @@ export function addSaveOpenFileListeners(cardsData, camera) {
     };
 
     saveFileElem.onclick = () => {
-        let saveData = save(cardsData, camera);
+        let saveData = save(cardsData);
         download(JSON.stringify(saveData), saveData.title, "application/json");
     };
 }
 
-export function addLocalSaveListener(cardsData, camera) {
+export function addLocalSaveListener(cardsData) {
     window.addEventListener('beforeunload', () => {
-        let saveData = save(cardsData, camera);
+        let saveData = save(cardsData);
         window.localStorage.setItem('localSave', JSON.stringify(saveData));
         console.log("Saved file to localStorage.");
     });
 }
 
-export function loadLocalSave(cardsData, camera) {
+export function loadLocalSave(cardsData) {
     let localSave = window.localStorage.getItem('localSave');
     if (localSave) {
-        if (!load(cardsData, camera, localSave))
+        if (!load(cardsData, localSave))
             return false;
         return true;
     }

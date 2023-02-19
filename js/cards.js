@@ -164,9 +164,9 @@ export class CardsData {
         document.getElementById('translate').removeChild(this.getCardTag(id));
     }
 
-    // camera: util.Camera class
-    moveElem(camera) {
+    moveElem() {
         let id = this.moveCardID;
+        const camera = window.camera;
 
         let cardData = this.cardsData.get(id);
         let pos = camera.globalCoords(camera.mousePos);
