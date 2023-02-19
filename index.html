@@ -20,7 +20,7 @@
 <body>
     <div id="overlay">
         <h4 contenteditable id="title">Mindmap</h4>
-        <div style="text-align: center;">
+        <div>
             <button id="save">
                 Save
             </button>
@@ -29,49 +29,6 @@
                 <span id="upload">Open</span>
             </label>
         </div>
-        <!-- <button id="add">
-      +
-    </button> -->
-        <div class="accordion" id="accordion-base-0">
-            <div class="accordion-header" onclick="
-      let accordionContent = document.getElementById('accordion-0')
-      let accordion = document.getElementById('accordion-base-0')
-      accordionContent.style.maxHeight = accordionContent.scrollHeight + 'px';
-      accordionContent.classList.toggle('accordion-closed')
-      ">
-                <h5 class="accordion-title">Peer ID</h5>
-                <span class="material-symbols-outlined" style="margin-left: auto;">
-                    expand_more
-                </span>
-            </div>
-            <div style="text-align: center;">
-                <button id="host-button" onclick="
-                    document.getElementById('join-dialog').style.display = 'none'
-                    document.getElementById('host-dialog').style.display = 'inherit'
-                ">Host</button>
-                <button id="join-button" onclick="
-                    document.getElementById('join-dialog').style.display = 'inherit'
-                    document.getElementById('host-dialog').style.display = 'none'
-                ">Join</button>
-            </div>
-            <div class="accordion-content" id="accordion-0">
-                <div id="join-dialog">
-                    <p contenteditable role="textbox" id="peer-id"></p>
-                    <button id="connect-button">
-                        Connect
-                    </button>
-                </div>
-                <div id="host-dialog">
-                    <button id="host-peer-button">
-                        Host
-                    </button>
-                </div>
-            </div>
-        </div>
-        <script>
-            document.getElementById('join-dialog').style.display = 'inherit';
-            document.getElementById('host-dialog').style.display = 'none'
-        </script>
     </div>
     <div id="dialog-container"></div>
     <div id="container">

@@ -20,10 +20,8 @@ body {
     background-color: #1c1b1b;
 }
 
-h4 {
-    padding: 10px;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
+#title {
+    margin: 5px 5px 15px 5px;
 }
 
 .material-symbols-outlined {
@@ -41,21 +39,15 @@ h4 {
 
 #overlay {
     position: absolute;
-    width: 14rem;
+    text-align: center;
     top: 10px;
     left: 10px;
-    padding: 0px 20px 20px 20px;
+    padding: 20px;
     z-index: 10000;
-
     color: white;
     border: 2px solid rgba(200, 200, 200, 1);
     border-radius: 20px;
     background-color: rgba(150, 150, 150, 0.1);
-
-    box-shadow: 0px 0px 50px 0px rgba(0, 0, 0, 0.7);
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
-    /* pointer-events: none; */
 }
 
 button {
