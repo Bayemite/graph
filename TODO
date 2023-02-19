@@ -11,6 +11,7 @@
 - Hover to open UI under card sometimes disappears when trying to move cursor to buttons
 
 # Features
+- Z-index: move to top when focused
 - Mobile support: touch input
 - Color change: text, arrows (where to put UI though, appear on text focus?)
 - Printer friendliness (day mode: background white)
@@ -24,4 +25,5 @@
 - Loading from file breaks connections
 
 ## Bayemite: working memory
+- Undo/redo
 - peer JS
