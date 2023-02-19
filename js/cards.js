@@ -201,7 +201,7 @@ export class CardsData {
         cardContainer.id = "card-" + id;
 
         let style = cardContainer.style;
-        style.left = cardObject.x + "px;";
+        style.left = cardObject.x + "px";
         style.top = cardObject.y + "px";
 
         let colors = this.borderBackgroundColors(cardObject.color);
