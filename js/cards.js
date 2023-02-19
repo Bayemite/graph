@@ -249,8 +249,6 @@ export class CardsData {
                 cardObject.text = p.innerHTML;
             };
 
-            // Allow move without text focus
-            p.onmousedown = (e) => { e.preventDefault(); };
             p.onmouseup = () => { p.focus(); };
 
             return p;
@@ -261,8 +259,8 @@ export class CardsData {
 
             let linkElem = document.createElement('button');
             linkElem.innerHTML = `
-            <span class='material-symbols-outlined'>
-                share
+            <span class="material-symbols-outlined">
+                call_split
             </span>
             `;
             linkElem.classList.add("actions-button", "link-button");
