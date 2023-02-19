@@ -361,9 +361,8 @@ export function drawLinks(ctx, cardId, card, elem, camera) {
 }
 
 export class Camera {
-    constructor (canvasSize = new vector2D()) {
+    constructor () {
         this.zoom = 1;
-        this.zoomTarget = 1;
         this.mousePos = new vector2D();
         this.pos = new vector2D(0, 0);
 
