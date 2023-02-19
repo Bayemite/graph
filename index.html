@@ -2,105 +2,84 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-  <script type="module" src="js/index.js"></script>
-  <link rel="stylesheet" href="index.css">
-  <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
-  <link rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-  <link rel="stylesheet" href="coloris.css" />
-  <script src="js/coloris.js"></script>
-  <script src="js/color.js"></script>
-  <title>Mindmap</title>
+    <script type="module" src="js/index.js"></script>
+    <link rel="stylesheet" href="index.css">
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="coloris.css" />
+    <script src="js/coloris.js"></script>
+    <script src="js/color.js"></script>
+    <title>Mindmap</title>
 </head>
 
 <body>
-  <div class="overlay" id="overlay">
-    <h4 contenteditable id="title">Mindmap</h4>
-    <div style="text-align: center;">
-      <button id="save">
-        Save
-      </button>
-      <label class="label">
-        <input id="openFile" accept=".json" type="file">
-        <span id="upload">Open</span>
-      </label>
-    </div>
-    <!-- <button id="add">
+    <div id="overlay">
+        <h4 contenteditable id="title">Mindmap</h4>
+        <div style="text-align: center;">
+            <button id="save">
+                Save
+            </button>
+            <label class="label">
+                <input id="openFile" accept=".json" type="file">
+                <span id="upload">Open</span>
+            </label>
+        </div>
+        <!-- <button id="add">
       +
     </button> -->
-    <div class="accordion" id="accordion-base-0" data-host=null>
-      <div class="accordion-header" onclick="
+        <div class="accordion" id="accordion-base-0">
+            <div class="accordion-header" onclick="
       let accordionContent = document.getElementById('accordion-0')
       let accordion = document.getElementById('accordion-base-0')
       accordionContent.style.maxHeight = accordionContent.scrollHeight + 'px';
       accordionContent.classList.toggle('accordion-closed')
       ">
-        <h5 class="accordion-title">Peer ID</h5>
-        <span class="material-symbols-outlined" style="margin-left: auto;">
-          expand_more
-        </span>
-      </div>
-      <div style="display: flex; gap: 0.4rem;
-      align-items: center;
-      justify-content: center; margin-bottom: 1rem;">
-        <!-- <button id="back-button" style="padding: 0; width: 2.5rem; height: 2.5rem;" onclick="
-        document.getElementById('accordion-base-0').dataset.host = null
-        ">
-          <span class="material-symbols-outlined" style="margin-left: auto;">
-            arrow_back
-          </span>
-        </button> -->
-        <button id="host-button" onclick="
-        document.getElementById('join-dialog').style.display = 'none'
-        document.getElementById('host-dialog').style.display = 'inherit'
-        ">
-          Host
-        </button>
-        <button id="join-button" onclick="
-        document.getElementById('join-dialog').style.display = 'inherit'
-        document.getElementById('host-dialog').style.display = 'none'
-        ">
-          Join
-        </button>
-      </div>
-      <div class="accordion-content" id="accordion-0">
-        <div id="join-dialog">
-          <p contenteditable role="textbox" id="peer-id"></p>
-          <button style="margin-bottom: 1rem;" id="connect-button">
-            Connect
-          </button>
+                <h5 class="accordion-title">Peer ID</h5>
+                <span class="material-symbols-outlined" style="margin-left: auto;">
+                    expand_more
+                </span>
+            </div>
+            <div style="text-align: center;">
+                <button id="host-button" onclick="
+                    document.getElementById('join-dialog').style.display = 'none'
+                    document.getElementById('host-dialog').style.display = 'inherit'
+                ">Host</button>
+                <button id="join-button" onclick="
+                    document.getElementById('join-dialog').style.display = 'inherit'
+                    document.getElementById('host-dialog').style.display = 'none'
+                ">Join</button>
+            </div>
+            <div class="accordion-content" id="accordion-0">
+                <div id="join-dialog">
+                    <p contenteditable role="textbox" id="peer-id"></p>
+                    <button id="connect-button">
+                        Connect
+                    </button>
+                </div>
+                <div id="host-dialog">
+                    <button id="host-peer-button">
+                        Host
+                    </button>
+                </div>
+            </div>
         </div>
-        <div id="host-dialog">
-          <button style="margin-top: 0; margin-bottom: 1rem;" id="host-peer-button">
-            Host
-          </button>
+        <script>
+            document.getElementById('join-dialog').style.display = 'inherit';
+            document.getElementById('host-dialog').style.display = 'none'
+        </script>
+    </div>
+    <div id="dialog-container"></div>
+    <div id="container">
+        <div id="translate">
+            <div id="break-link-btns-container"></div>
         </div>
-      </div>
     </div>
-    <script>
-      document.getElementById('join-dialog').style.display = 'inherit'
-      document.getElementById('host-dialog').style.display = 'none'
-    </script>
-  </div>
-  <div id="dialog-container">
-
-  </div>
-  <!-- Dialog template -->
-  <!-- <div class="dialog">
-    <h4 class="dialog-header"></h4>
-    <p class="dialog-content">Would you like to remove this card?</p>
-    <button id="dialog-button" class="dialog-button">Close</button>
-  </div> -->
-  <div id="container">
-    <div id="translate">
-      <div id="break"></div>
-    </div>
-  </div>
-  <canvas id="canvas"></canvas>
+    <canvas id="canvas"></canvas>
 </body>
 
 </html>

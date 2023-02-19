@@ -31,12 +31,12 @@ function initListeners(canvas, camera, cardsData) {
     });
 
     canvas.addEventListener('dblclick', () => {
-        cardsData.addDefaultCardHtml(camera.hoverPos());
+        cardsData.addDefaultCardHtml(camera.globalCoords(camera.mousePos), true);
     });
     canvas.addEventListener('mousedown', (event) => {
         if (cardsData.linkInProgress) {
             if (event.button == 0) {
-                let id = cardsData.addDefaultCardHtml(camera.hoverPos());
+                let id = cardsData.addDefaultCardHtml(camera.globalCoords(camera.mousePos), true);
                 cardsData.endLink(id);
             }
             else cardsData.linkInProgress = false;

@@ -147,9 +147,8 @@ export class CardsData {
 
         let connections = this.cardsData.get(id).connections;
         if (connections.size > 0) {
-            let unlinkContainer = this.getBreakLinkContainerTag();
             for (let connection of connections.values())
-                unlinkContainer.removeChild(document.getElementById(`unlink-${id}-${connection}`));
+                this.deleteLink(id, connection, false);
         }
 
         for (let [cardId, card] of this.cardsData) {
@@ -162,7 +161,7 @@ export class CardsData {
         this.cardsData.delete(id);
         this.cardIds.freeId(id);
 
-        document.getElementById('translate').removeChild(document.getElementById(`card-${id}`));
+        document.getElementById('translate').removeChild(this.getCardTag(id));
     }
 
     // camera: util.Camera class
@@ -174,15 +173,26 @@ export class CardsData {
         cardData.x = pos.x - (this.moveCardOffset.x / camera.zoom);
         cardData.y = pos.y - (this.moveCardOffset.y / camera.zoom);
 
-        let card = document.getElementById(`card-${id}`);
+        let card = this.getCardTag(id);
         // TODO: undo/redo
         card.style.left = `${cardData.x}px`;
         card.style.top = `${cardData.y}px`;
     }
 
+    getCardTag(id) {
+        return document.getElementById(`card-${id}`);
+    }
+
+    getTitleTag() {
+        return document.getElementById("title");
+    }
+
+    getBreakLinkContainerTag() {
+        return document.getElementById('break-link-btns-container');
+    }
+
     clearHtmlCards() {
-        document.getElementById("translate").innerHTML =
-            `<div id="break"></div>`;
+        document.getElementById("translate").innerHTML = `<div id="break-link-btns-container"></div>`;
     }
 
     // Returns {background: "rgba(...)", border: "rgba(...)"}
@@ -197,17 +207,7 @@ export class CardsData {
         let cardObject = this.cardsData.get(id);
 
         let cardContainer = document.createElement('div');
-
         cardContainer.id = "card-" + id;
-
-        let style = cardContainer.style;
-        style.left = cardObject.x + "px";
-        style.top = cardObject.y + "px";
-
-        let colors = this.borderBackgroundColors(cardObject.color);
-        style.borderColor = colors.border;
-        style.backgroundColor = colors.background;
-        cardContainer.classList.add('card');
 
         // Needed to force reference to class within callback, and not tag
         let that = this;
@@ -226,6 +226,15 @@ export class CardsData {
         // sectioned into separate inline functions
         cardContainer.appendChild(cardHTML(this));
         cardContainer.appendChild(editUI(this));
+
+        let style = cardContainer.style;
+        cardContainer.classList.add('card');
+
+        let colors = this.borderBackgroundColors(cardObject.color);
+        style.borderColor = colors.border;
+        style.backgroundColor = colors.background;
+
+        return cardContainer;
 
         function cardHTML(that) {
             let p = document.createElement('p');
@@ -303,8 +312,6 @@ export class CardsData {
 
             return actions;
         }
-
-        return cardContainer;
     }
 
     // Add to data, returns id.
@@ -315,17 +322,31 @@ export class CardsData {
     }
 
     // Add a card from data to HTML.
-    addCardHTML(cardId) {
-        document.getElementById("translate").appendChild(
+    addCardHTML(cardId, adjustOriginCentre = false) {
+        let cardContainer = document.getElementById("translate").appendChild(
             this.genHTMLCard(cardId)
         );
+
+        let cardObject = this.cardsData.get(cardId);
+        let style = cardContainer.style;
+        let boundRect = cardContainer.getBoundingClientRect();
+        if (adjustOriginCentre) {
+            style.left = cardObject.x - boundRect.width / 2 + "px";
+            style.top = cardObject.y - boundRect.height / 2 + "px";
+        }
+        else {
+            style.left = cardObject.x + "px";
+            style.top = cardObject.y + "px";
+        }
+
     }
 
     // returns id of card
     // pos: should have .x and .y (eg. util vector2D)
-    addDefaultCardHtml(pos = util.vector2D()) {
+    // adjustOriginToCenter: pos = centre of card instead of top left
+    addDefaultCardHtml(pos = util.vector2D(), adjustOriginCentre = false) {
         let id = this.addNewCard(new CardObject(pos));
-        this.addCardHTML(id);
+        this.addCardHTML(id, adjustOriginCentre);
         return id;
     }
 
@@ -340,14 +361,6 @@ export class CardsData {
             for (let c of card.connections.values())
                 this.addUnlink(cardId, c);
         }
-    }
-
-    getTitleTag() {
-        return document.getElementById("title");
-    }
-
-    getBreakLinkContainerTag() {
-        return document.getElementById('break');
     }
 
     loadFromJSON(parsedData) {

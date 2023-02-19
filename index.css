@@ -33,13 +33,13 @@ h4 {
     text-anchor: middle;
     font-size: medium !important;
     font-variation-settings:
-        'FILL' 0,
-        'wght' 300,
-        'GRAD' 0,
-        'opsz' 48
+        'FILL'0,
+        'wght'300,
+        'GRAD'0,
+        'opsz'48
 }
 
-.overlay {
+#overlay {
     position: absolute;
     width: 14rem;
     top: 10px;
@@ -156,9 +156,6 @@ button:hover {
 }
 
 .card {
-    animation: 0.5s scaleIn;
-    animation-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
-
     position: absolute;
     text-align: center;
     text-anchor: middle;
@@ -225,6 +222,7 @@ button:hover {
 #host-peer-button {
     margin-top: 10px;
     width: 100%;
+    margin-bottom: 1rem;
 }
 
 .actions-button {
