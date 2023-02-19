@@ -203,6 +203,8 @@ export class CardsData {
         return { background: backgroundColor, border: color };
     }
 
+    // Generate all HTML data for card except for position
+    // which is deferred to after appendChild, to align to centre using client bounds.
     genHTMLCard(id) {
         let cardObject = this.cardsData.get(id);
 
@@ -328,17 +330,13 @@ export class CardsData {
         );
 
         let cardObject = this.cardsData.get(cardId);
-        let style = cardContainer.style;
-        let boundRect = cardContainer.getBoundingClientRect();
         if (adjustOriginCentre) {
-            style.left = cardObject.x - boundRect.width / 2 + "px";
-            style.top = cardObject.y - boundRect.height / 2 + "px";
+            let boundRect = cardContainer.getBoundingClientRect();
+            cardObject.x -= boundRect.width / 2;
+            cardObject.y -= boundRect.height / 2;
         }
-        else {
-            style.left = cardObject.x + "px";
-            style.top = cardObject.y + "px";
-        }
-
+        cardContainer.style.left = cardObject.x + "px";
+        cardContainer.style.top = cardObject.y + "px";
     }
 
     // returns id of card
