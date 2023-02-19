@@ -369,7 +369,7 @@ export class CardsData {
             lastId = Math.max(lastId, id);
             let iValues = cardData[id];
             if (!iValues) continue;
-            this.set(id,
+            this.set(Number(id),
                 new CardObject(
                     new util.vector2D(iValues.x, iValues.y),
                     iValues.text,
