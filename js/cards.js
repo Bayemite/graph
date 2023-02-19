@@ -170,7 +170,7 @@ export class CardsData {
         let id = this.moveCardID;
 
         let cardData = this.cardsData.get(id);
-        let pos = camera.hoverPos();
+        let pos = camera.globalCoords(camera.mousePos);
         cardData.x = pos.x - (this.moveCardOffset.x / camera.zoom);
         cardData.y = pos.y - (this.moveCardOffset.y / camera.zoom);
 

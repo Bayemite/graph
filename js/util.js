@@ -376,9 +376,9 @@ export class Camera {
         this.oldScrollPos = new vector2D(0, 0);
     }
 
-    hoverPos() {
-        let x = (this.mousePos.x - this.pos.x) / this.zoom;
-        let y = (this.mousePos.y - this.pos.y) / this.zoom;
+    globalCoords(coords = new vector2D()) {
+        let x = (coords.x - this.pos.x) / this.zoom;
+        let y = (coords.y - this.pos.y) / this.zoom;
         return new vector2D(x, y);
     }
 
