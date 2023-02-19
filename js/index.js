@@ -2,9 +2,8 @@ import * as util from './util.js';
 import * as cards from './cards.js';
 
 function initListeners(canvas, camera, cardsData) {
-    util.addSaveOpenFileListeners(cardsData);
-    util.loadLocalSave(cardsData);
-    util.addLocalSaveListener(cardsData);
+    util.addSaveOpenFileListeners(cardsData, camera);
+    util.addLocalSaveListener(cardsData, camera);
 
     function resize() {
         canvas.width = window.innerWidth;
@@ -59,10 +58,11 @@ window.onload = function () {
     let ctx = canvas.getContext('2d');
     ctx.imageSmoothingEnabled = true;
 
-    let camera = new util.Camera(canvas.width, canvas.height);
+    let camera = new util.Camera();
     let cardsData = new cards.CardsData();
 
     initListeners(canvas, camera, cardsData);
+    util.loadLocalSave(cardsData, camera);
 
     cardsData.addCardsHTML();
 

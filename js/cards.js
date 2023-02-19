@@ -385,7 +385,7 @@ export class CardsData {
         this.cardIds.next = lastId + 1;
     }
 
-    genSave(stringify = true) {
+    genSave() {
         let saveData = {
             title: this.getTitleTag().innerText,
             data: {}
@@ -399,9 +399,7 @@ export class CardsData {
                 "color": card.color,
             };
         }
-        if (stringify)
-            saveData = JSON.stringify(saveData);
-        return saveData;
 
+        return saveData;
     };
 }

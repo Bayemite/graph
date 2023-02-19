@@ -361,16 +361,11 @@ export function drawLinks(ctx, cardId, card, elem, camera) {
 }
 
 export class Camera {
-    constructor (canvasWidth, canvasHeight) {
-        this.zoomTarget = 1.0;
+    constructor (canvasSize = new vector2D()) {
         this.zoom = 1;
-        // Target positions for zoom at cursor
-        this.target = new vector2D(
-            (canvasWidth / 2) / this.zoom,
-            (canvasHeight / 2) / this.zoom
-        );
+        this.zoomTarget = 1;
         this.mousePos = new vector2D();
-        this.pos = new vector2D(canvasWidth / 2, canvasHeight / 2);
+        this.pos = new vector2D(0, 0);
 
         this.doScroll = false;
         this.oldScrollPos = new vector2D(0, 0);
@@ -382,22 +377,12 @@ export class Camera {
         return new vector2D(x, y);
     }
 
+    getTransformNode() {
+        return document.getElementById('translate');
+    }
+
     update() {
-        const lerpScale = 0.9;
-
-        let prevZoom = this.zoom;
-        this.zoom = lerp(this.zoom, this.zoomTarget, lerpScale);
-        let deltaZoom = this.zoom - prevZoom;
-
-        let offsetZoomX = deltaZoom * (window.innerWidth / 2 - this.mousePos.x);
-        let offsetZoomY = deltaZoom * (window.innerHeight / 2 - this.mousePos.y);
-        this.target.x += offsetZoomX;
-        this.target.y += offsetZoomY;
-
-        this.pos.x = lerp(this.pos.x, this.target.x, lerpScale);
-        this.pos.y = lerp(this.pos.y, this.target.y, lerpScale);
-
-        let transformNode = document.getElementById('translate');
+        let transformNode = this.getTransformNode();
         transformNode.style.transform = `translate(${this.pos.x}px, ${this.pos.y}px) scale(${this.zoom})`;
     };
 
@@ -408,12 +393,11 @@ export class Camera {
         if (this.doScroll) {
             let deltaX = event.pageX - this.oldScrollPos.x;
             let deltaY = event.pageY - this.oldScrollPos.y;
-            this.target.x += deltaX;
-            this.target.y += deltaY;
+            this.pos.x += deltaX;
+            this.pos.y += deltaY;
             this.oldScrollPos.x = event.pageX;
             this.oldScrollPos.y = event.pageY;
         }
-
     }
 
     onMouseDown(event) {
@@ -429,11 +413,11 @@ export class Camera {
     onWheel(event) {
         let delta = event.wheelDelta;
         const zoomFactor = 0.0007;
-        this.zoomTarget += delta * zoomFactor;
+        this.zoom += delta * zoomFactor;
 
         const zoomOut = 0.3;
         const zoomIn = 3;
-        this.zoomTarget = clamp(zoomOut, this.zoomTarget, zoomIn);
+        this.zoom = clamp(zoomOut, this.zoom, zoomIn);
     }
 }
 
@@ -445,7 +429,7 @@ function tryParseJson(file) {
     } catch (error) {
         alert("Error: Failed to load JSON file.");
         console.log("Failed to parse file JSON.");
-        return;
+        return null;
     }
     return data;
 }
@@ -470,15 +454,35 @@ function download(data, filename, type) {
     }
 }
 
-export function addSaveOpenFileListeners(cardsData) {
+function save(cardsData, camera) {
+    let saveData = cardsData.genSave();
+    saveData.camera = {
+        pos: { x: camera.pos.x, y: camera.pos.y },
+        zoom: camera.zoom
+    };
+    return saveData;
+}
+
+function load(cardsData, camera, saveData) {
+    let parsedData = tryParseJson(saveData);
+    if (parsedData != null) {
+        cardsData.loadFromJSON(parsedData);
+        camera.pos.x = parsedData.camera.pos.x;
+        camera.pos.y = parsedData.camera.pos.y;
+        camera.zoom = parsedData.camera.zoom;
+        return true;
+    }
+    else return false;
+}
+
+export function addSaveOpenFileListeners(cardsData, camera) {
     const openFileElem = document.getElementById('openFile');
     const saveFileElem = document.getElementById('save');
     let fileReader = new FileReader();
 
     fileReader.onload = () => {
-        let fileData = tryParseJson(fileReader.result);
-        cardsData.loadFromJSON(fileData);
-        cardsData.addCardsHTML();
+        if (load(cardsData, camera, fileReader.result))
+            cardsData.addCardsHTML();
     };
 
     openFileElem.oninput = () => {
@@ -487,20 +491,25 @@ export function addSaveOpenFileListeners(cardsData) {
     };
 
     saveFileElem.onclick = () => {
-        let saveData = cardsData.genSave(false);
+        let saveData = save(cardsData, camera);
         download(JSON.stringify(saveData), saveData.title, "application/json");
     };
 }
 
-export function loadLocalSave(cardsData) {
-    let localSave = window.localStorage.getItem('localSave');
-    if (localSave)
-        cardsData.loadFromJSON(tryParseJson(localSave));
-}
-
-export function addLocalSaveListener(cardsData) {
+export function addLocalSaveListener(cardsData, camera) {
     window.addEventListener('beforeunload', () => {
-        window.localStorage.setItem('localSave', cardsData.genSave());
+        let saveData = save(cardsData, camera);
+        window.localStorage.setItem('localSave', JSON.stringify(saveData));
         console.log("Saved file to localStorage.");
     });
+}
+
+export function loadLocalSave(cardsData, camera) {
+    let localSave = window.localStorage.getItem('localSave');
+    if (localSave) {
+        if (!load(cardsData, camera, localSave))
+            return false;
+        return true;
+    }
+    return false;
 }
