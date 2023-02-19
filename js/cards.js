@@ -330,8 +330,8 @@ export class CardsData {
         let cardObject = this.cardsData.get(cardId);
         if (adjustOriginCentre) {
             let boundRect = cardContainer.getBoundingClientRect();
-            cardObject.x -= boundRect.width / 2;
-            cardObject.y -= boundRect.height / 2;
+            cardObject.x -= boundRect.width / 2 / window.camera.zoom;
+            cardObject.y -= boundRect.height / 2 / window.camera.zoom;
         }
         cardContainer.style.left = cardObject.x + "px";
         cardContainer.style.top = cardObject.y + "px";
