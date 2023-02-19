@@ -363,6 +363,8 @@ export function drawLinks(ctx, cardId, card, elem, camera) {
 export class Camera {
     constructor () {
         this.zoom = 1;
+        this.oldZoom = 1;
+
         this.mousePos = new vector2D();
         this.pos = new vector2D(0, 0);
 
@@ -380,7 +382,13 @@ export class Camera {
         return document.getElementById('translate');
     }
 
+    setZoom(zoom) { this.zoom = zoom; this.oldZoom = zoom; }
+
     update() {
+        let zoomDelta = this.zoom - this.oldZoom;
+        this.oldZoom = this.zoom;
+        this.pos.x += zoomDelta * (window.innerWidth / 2 - this.mousePos.x);
+        this.pos.y += zoomDelta * (window.innerHeight / 2 - this.mousePos.y);
         let transformNode = this.getTransformNode();
         transformNode.style.transform = `translate(${this.pos.x}px, ${this.pos.y}px) scale(${this.zoom})`;
     };
@@ -411,7 +419,7 @@ export class Camera {
 
     onWheel(event) {
         let delta = event.wheelDelta;
-        const zoomFactor = 0.0007;
+        const zoomFactor = 0.005;
         this.zoom += delta * zoomFactor;
 
         const zoomOut = 0.3;
@@ -468,7 +476,7 @@ function load(cardsData, camera, saveData) {
         cardsData.loadFromJSON(parsedData);
         camera.pos.x = parsedData.camera.pos.x;
         camera.pos.y = parsedData.camera.pos.y;
-        camera.zoom = parsedData.camera.zoom;
+        camera.setZoom(parsedData.camera.zoom);
         return true;
     }
     else return false;
