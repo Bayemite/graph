@@ -93,7 +93,6 @@ export class CardsData {
                 `;
         breakLink.onclick = () => this.deleteLink(start, end);
 
-        breakLink.style.left = `${100}px`;
         this.getBreakLinkContainerTag().appendChild(breakLink);
     }
 
