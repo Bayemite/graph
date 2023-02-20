@@ -139,45 +139,6 @@ export function radiansToDegrees(radians) {
     return radians * (180 / Math.PI);
 }
 
-export function getById(e) {
-    return document.getElementById(e);
-}
-
-export function drawTriangle(ctx, x, y, radius, zoom, fill, angle) {
-    let top = vec2();
-    let bottomL = vec2();
-    let bottomR = vec2();
-
-    // let rad = (radius * 0) + (radius * (zoom * 0.01) * (1 - 0))
-    let rad = radius * zoom;
-    top.x = rad * Math.sin((0 + angle) * (Math.PI / 180)) + x;
-    top.y = -rad * Math.cos((0 + angle) * (Math.PI / 180)) + y;
-
-    bottomL.x = rad * Math.sin((120 + angle) * (Math.PI / 180)) + x;
-    bottomL.y = -rad * Math.cos((120 + angle) * (Math.PI / 180)) + y;
-    bottomR.x = rad * Math.sin((240 + angle) * (Math.PI / 180)) + x;
-    bottomR.y = -rad * Math.cos((240 + angle) * (Math.PI / 180)) + y;
-
-    ctx.beginPath();
-    ctx.moveTo(top.x, top.y);
-    ctx.lineTo(bottomL.x, bottomL.y);
-    ctx.lineTo(bottomR.x, bottomR.y);
-    ctx.lineTo(top.x, top.y);
-    ctx.closePath();
-    ctx.strokeStyle = fill;
-    ctx.stroke();
-    ctx.fillStyle = fill;
-    ctx.fill();
-}
-
-function closeDialog(name) {
-    document.getElementById(`dialog-${name}`).classList.add("dialog-remove");
-    document.getElementById(`obstructor-${name}`).classList.add("obstructor-remove");
-    setTimeout(function () {
-        document.getElementById(`dialog-${name}`).parentElement.remove();
-    }, 302);
-}
-
 export class Dialog {
     constructor (title, text, execute, message1, func, index, message2) {
         this.title = title;
@@ -226,64 +187,103 @@ export class Dialog {
     }
 }
 
-// startElement: card element
+// Angle: Up = 0, positive is clockwise
+export function drawTriangle(ctx, x, y, radius, zoom, fill, angle) {
+    let p1 = vec2();
+    let p2 = vec2();
+    let p3 = vec2();
+
+    // let rad = (radius * 0) + (radius * (zoom * 0.01) * (1 - 0))
+    let rad = radius * zoom;
+    p1.x = rad * Math.sin(degreesToRadians(0 + angle)) + x;
+    p2.x = rad * Math.sin(degreesToRadians(120 + angle)) + x;
+    p3.x = rad * Math.sin(degreesToRadians(240 + angle)) + x;
+    p1.y = -rad * Math.cos(degreesToRadians(0 + angle)) + y;
+    p2.y = -rad * Math.cos(degreesToRadians(120 + angle)) + y;
+    p3.y = -rad * Math.cos(degreesToRadians(240 + angle)) + y;
+
+    ctx.beginPath();
+    ctx.moveTo(p1.x, p1.y);
+    ctx.lineTo(p2.x, p2.y);
+    ctx.lineTo(p3.x, p3.y);
+    ctx.lineTo(p1.x, p1.y);
+    ctx.closePath();
+    ctx.strokeStyle = fill;
+    ctx.fillStyle = fill;
+    ctx.stroke();
+    ctx.fill();
+}
+
+function closeDialog(name) {
+    document.getElementById(`dialog-${name}`).classList.add("dialog-remove");
+    document.getElementById(`obstructor-${name}`).classList.add("obstructor-remove");
+    setTimeout(function () {
+        document.getElementById(`dialog-${name}`).parentElement.remove();
+    }, 302);
+}
+
+const Dir = {
+    Up: 0,
+    Right: 1,
+    Down: 2,
+    Left: 3
+};
+Object.freeze(Dir);
+
 // Draws a line that is currently being connected by user (follows their mouse)
+// ctx: canvas contex
+// startElement: card element
 export function drawLinkLine(ctx, startElement) {
-    const camera = window.camera;
-    // Get element connecting to other mouse
-    let elem = startElement;
-    let x2 = Math.floor(-elem.style.left.replace('px', '') * camera.zoom - camera.pos.x);
-    let y2 = Math.floor(-elem.style.top.replace('px', '') * camera.zoom - camera.pos.y);
+    const endPos = window.camera.mousePos;
 
-    let triRad = 4;
-    let number = 5;
-    let curveWidth = Math.floor(50 * camera.zoom);
-    let limiter = 5; // Limiter before the line connection direction changes
+    const rect = startElement.getBoundingClientRect();
+    const center = vec2(rect.left + rect.width / 2, rect.top + rect.height / 2 + window.scrollY);
+    let xDiff = endPos.x - center.x;
+    let yDiff = endPos.y - center.y;
 
-    // Get other element
-    let xr = -camera.mousePos.x;
-    let yr = -camera.mousePos.y - triRad * 2 * camera.zoom;
-    if (x2 < xr) {
-        curveWidth = Math.floor(150 * camera.zoom) * clamp(0.1, (xr + elem.offsetWidth - x2) / camera.zoom / 500, 1);
-        ctx.moveTo(-xr + (number * camera.zoom) - 2, -yr - (number / 2) * camera.zoom);
-        ctx.bezierCurveTo(
-            -xr + (number * camera.zoom) + curveWidth, -yr + (number / 2) * camera.zoom,
-            -x2 - curveWidth, -y2 + (elem.offsetHeight / 2) * camera.zoom,
-            -x2 + 1,
-            -y2 + (elem.offsetHeight / 2) * camera.zoom
-        );
-        ctx.stroke();
-        drawTriangle(ctx, -xr + (number * camera.zoom) - 2 + (triRad + 0.5) * camera.zoom, -yr - (number / 2) * camera.zoom, triRad, camera.zoom, '#fff', -90);
-    }
-    else if (-xr + (number) + (curveWidth * camera.zoom / limiter) > -x2 - (curveWidth * camera.zoom / limiter) && (-xr + (curveWidth * camera.zoom / limiter) < -x2 + (elem.offsetWidth * camera.zoom) + (curveWidth * camera.zoom / limiter))) {
-        if (yr > y2) {
-            curveWidth = Math.floor(150 * camera.zoom) * clamp(0.1, (yr - y2) / camera.zoom / 500, 1);
-            ctx.moveTo(-xr + (number / 2 * camera.zoom) - 1, -yr + (number) * camera.zoom - 1);
-            ctx.bezierCurveTo(-xr + (number / 2 * camera.zoom), -yr + (number) * camera.zoom + curveWidth,
-                -x2 + (elem.offsetWidth / 2 * camera.zoom), -y2 - curveWidth,
-                -x2 + (elem.offsetWidth / 2 * camera.zoom), -y2 + 1);
-            ctx.stroke();
-            drawTriangle(ctx, -xr + (number / 2 * camera.zoom) - 1, -yr + (number) * camera.zoom - 1 + (triRad + 0.5) * camera.zoom, triRad, camera.zoom, '#fff', 0);
-        } else {
-            curveWidth = Math.floor(150 * camera.zoom) * clamp(0.1, (y2 - yr) / camera.zoom / 500, 1);
-            ctx.moveTo(-xr + (number / 2 * camera.zoom) - 1, -yr + 1);
-            ctx.bezierCurveTo(-xr + (number / 2 * camera.zoom), -yr - curveWidth,
-                -x2 + (elem.offsetWidth / 2 * camera.zoom), -y2 + (elem.offsetHeight * camera.zoom) + curveWidth,
-                -x2 + (elem.offsetWidth / 2 * camera.zoom), -y2 + (elem.offsetHeight * camera.zoom) - 1);
-            ctx.stroke();
-            drawTriangle(ctx, -xr + (number / 2 * camera.zoom) - 1, -yr + 1 - (triRad + 0.5) * camera.zoom, triRad, camera.zoom, '#fff', 180);
+    let startPos;
+    let cp1;
+    let cp2;
+    let angle;
+
+    // If longer horizontally: Choose left/right side.
+    if (Math.abs(xDiff) > Math.abs(yDiff)) {
+        if (xDiff > 0) {
+            startPos = vec2(rect.right, center.y);
+            angle = 90;
         }
+        else {
+            startPos = vec2(rect.left, center.y);
+            angle = -90;
+        }
+
+        xDiff = endPos.x - startPos.x;
+        const cpX = startPos.x + xDiff / 2;
+        cp1 = vec2(cpX, startPos.y);
+        cp2 = vec2(cpX, endPos.y);
     }
     else {
-        curveWidth = Math.floor(150 * camera.zoom) * clamp(0.1, (x2 - xr) / camera.zoom / 500, 1);
-        ctx.moveTo(-xr + 1, -yr + (number / 2) * camera.zoom);
-        ctx.bezierCurveTo(-xr - curveWidth, -yr + (number / 2) * camera.zoom,
-            -x2 + (elem.offsetWidth * camera.zoom) + curveWidth, -y2 + (elem.offsetHeight / 2) * camera.zoom,
-            -x2 + (elem.offsetWidth * camera.zoom) - 1, -y2 + (elem.offsetHeight / 2) * camera.zoom);
-        ctx.stroke();
-        drawTriangle(ctx, -xr + 1 - (triRad + 0.5) * camera.zoom, -yr + (number / 2) * camera.zoom, triRad, camera.zoom, '#fff', 90);
+        if (yDiff > 0) {
+            startPos = vec2(center.x, rect.bottom);
+            angle = 180;
+        }
+        else {
+            startPos = vec2(center.x, rect.top);
+            angle = 0;
+        }
+
+        yDiff = endPos.y - startPos.y;
+        const cpY = startPos.y + yDiff / 2;
+        cp1 = vec2(startPos.x, cpY);
+        cp2 = vec2(endPos.x, cpY);
     }
-    ctx.closePath();
+
+    ctx.beginPath();
+    ctx.moveTo(startPos.x, startPos.y);
+    ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, endPos.x, endPos.y);
+    ctx.stroke();
+
+    drawTriangle(ctx, endPos.x, endPos.y, 2, window.camera.zoom, "#fff", angle);
 }
 
 // Draws all existing links

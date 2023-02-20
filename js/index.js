@@ -41,7 +41,6 @@ function initListeners(canvas, cardsData) {
                 cardsData.endLink(id);
             }
             else cardsData.linkInProgress = false;
-
         }
         else camera.onMouseDown(event);
     });
