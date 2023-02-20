@@ -100,11 +100,15 @@ export class rgb {
 }
 
 
-export class vector2D {
+export class Vector2D {
     constructor (x = 0, y = 0) {
         this.x = x;
         this.y = y;
     }
+}
+
+export function vec2(x = 0, y = 0) {
+    return new Vector2D(x, y);
 }
 
 /**
@@ -140,9 +144,9 @@ export function getById(e) {
 }
 
 export function drawTriangle(ctx, x, y, radius, zoom, fill, angle) {
-    let top = new vector2D(0, 0);
-    let bottomL = new vector2D(0, 0);
-    let bottomR = new vector2D(0, 0);
+    let top = vec2();
+    let bottomL = vec2();
+    let bottomR = vec2();
 
     // let rad = (radius * 0) + (radius * (zoom * 0.01) * (1 - 0))
     let rad = radius * zoom;
@@ -367,17 +371,17 @@ export class Camera {
         this.zoom = 1;
         this.oldZoom = 1;
 
-        this.mousePos = new vector2D();
-        this.pos = new vector2D(0, 0);
+        this.mousePos = vec2();
+        this.pos = vec2();
 
         this.doScroll = false;
-        this.oldScrollPos = new vector2D(0, 0);
+        this.oldScrollPos = vec2();
     }
 
-    globalCoords(coords = new vector2D()) {
+    globalCoords(coords = vec2()) {
         let x = (coords.x - this.pos.x) / this.zoom;
         let y = (coords.y - this.pos.y) / this.zoom;
-        return new vector2D(x, y);
+        return vec2(x, y);
     }
 
     getTransformNode() {

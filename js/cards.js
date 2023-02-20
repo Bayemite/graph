@@ -3,7 +3,7 @@ import * as util from './util.js';
 const defaultColor = "rgb(200, 200, 200)";
 
 export class CardObject {
-    constructor (pos = new util.vector2D(), text = "", connectionSet = new Set(), color = defaultColor) {
+    constructor (pos = util.vec2(), text = "", connectionSet = new Set(), color = defaultColor) {
         this.x = pos.x;
         this.y = pos.y;
         this.text = text;
@@ -55,7 +55,7 @@ export class CardsData {
 
         this.moveCardID = 0;
         this.moveFlag = false;
-        this.moveCardOffset = new util.vector2D(0, 0);
+        this.moveCardOffset = util.vec2();
 
         this.cardColors = new Set();
 
@@ -64,7 +64,7 @@ export class CardsData {
         this.addNewCard(new CardObject());
         this.addNewCard(
             new CardObject(
-                new util.vector2D(200, 100),
+                util.vec2(200, 100),
                 'Title',
                 new Set([0]),
                 defaultColor
@@ -337,9 +337,9 @@ export class CardsData {
     }
 
     // returns id of card
-    // pos: should have .x and .y (eg. util vector2D)
+    // pos: should have .x and .y (eg. util Vector2D)
     // adjustOriginToCenter: pos = centre of card instead of top left
-    addDefaultCardHtml(pos = util.vector2D(), adjustOriginCentre = false) {
+    addDefaultCardHtml(pos = util.vec2(), adjustOriginCentre = false) {
         let id = this.addNewCard(new CardObject(pos));
         this.addCardHTML(id, adjustOriginCentre);
         return id;
@@ -370,7 +370,7 @@ export class CardsData {
             if (!iValues) continue;
             this.set(Number(id),
                 new CardObject(
-                    new util.vector2D(iValues.x, iValues.y),
+                    util.vec2(iValues.x, iValues.y),
                     iValues.text,
                     new Set(Array.from(iValues.connections)),
                     iValues.color
