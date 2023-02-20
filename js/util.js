@@ -222,14 +222,6 @@ function closeDialog(name) {
     }, 302);
 }
 
-const Dir = {
-    Up: 0,
-    Right: 1,
-    Down: 2,
-    Left: 3
-};
-Object.freeze(Dir);
-
 // Draws a line that is currently being connected by user (follows their mouse)
 // ctx: canvas contex
 // startElement: card element
