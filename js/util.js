@@ -229,7 +229,7 @@ export function drawLinkLine(ctx, startElement) {
     const endPos = window.camera.mousePos;
 
     const rect = startElement.getBoundingClientRect();
-    const center = vec2(rect.left + rect.width / 2, rect.top + rect.height / 2 + window.scrollY);
+    const center = vec2(rect.left + rect.width / 2, rect.top + rect.height / 2);
     let xDiff = endPos.x - center.x;
     let yDiff = endPos.y - center.y;
 
