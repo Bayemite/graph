@@ -105,6 +105,24 @@ export class Vector2D {
         this.x = x;
         this.y = y;
     }
+
+    add(vecAdd) {
+        this.x += vecAdd.x;
+        this.y += vecAdd.y;
+        return this;
+    }
+
+    minus(vecMinus) {
+        this.x -= vecMinus.x;
+        this.y -= vecMinus.y;
+        return this;
+    }
+
+    div(scalarDiv) {
+        this.x /= scalarDiv;
+        this.y /= scalarDiv;
+        return this;
+    }
 }
 
 export function vec2(x = 0, y = 0) {
@@ -230,8 +248,7 @@ function squares(p0, p1) { return (p1.x - p0.x) ** 2 + (p1.y - p0.y) ** 2; };
 
 // Returns {pos: vec2, angle: number},
 // pos: centre of side, angle: the side in positive degrees (0 is top, clockwise is positive)
-function closestSideCenter(pos, element) {
-    const rect = element.getBoundingClientRect();
+function closestSideCenter(pos, rect) {
     const center = rectCenter(rect);
 
     // Both algorithms seem the same.
@@ -304,7 +321,8 @@ function controlPoints(angle, startPos, endPos) {
 // startElement: card element
 export function drawLinkLine(ctx, startElement) {
     const endPos = window.camera.mousePos;
-    const start = closestSideCenter(endPos, startElement);
+    const startBounds = startElement.getBoundingClientRect();
+    const start = closestSideCenter(endPos, startBounds);
     const cp = controlPoints(start.angle, start.pos, endPos);
 
     ctx.beginPath();
@@ -327,7 +345,6 @@ export function drawLinks(ctx, cardsData) {
             continue;
         }
 
-        // Get other element
         for (let endId of root.connections.values()) {
             let endTag = document.getElementById(`card-${endId}`);
             if (endTag == null) {
@@ -335,33 +352,52 @@ export function drawLinks(ctx, cardsData) {
                 continue;
             }
 
+            const rootBounds = rootTag.getBoundingClientRect();
             const endBounds = endTag.getBoundingClientRect();
-            let end = rectCenter(endBounds);
-            const start = closestSideCenter(end, rootTag);
-            end = closestSideCenter(start.pos, endTag);
+            const endCenter = rectCenter(endBounds);
+            const root = closestSideCenter(endCenter, rootBounds);
+            let endPos = endCenter;
 
-            let trianglePos = end.pos;
-            const triOffset = 5 + linkTriangleRadius * window.camera.zoom;
-            if (end.angle == 0)
-                trianglePos.y -= triOffset;
-            else if (end.angle == 180)
+            let trianglePos = endPos;
+            // So that pointy end of triangle is not clipped into endBounds.
+            // TODO: maybe make drawLinkTriangle so that origin is a pointy point.
+            const triOffset = (2 + linkTriangleRadius) * window.camera.zoom;
+            // Make endPos be on centre of opposite side to startPos.
+            if (root.angle == 0) {
+                endPos.y = endBounds.bottom;
                 trianglePos.y += triOffset;
-            else if (end.angle == 270)
-                trianglePos.x -= triOffset;
-            else if (end.angle == 90)
+            }
+            else if (root.angle == 180) {
+                endPos.y = endBounds.top;
+                trianglePos.y -= triOffset;
+
+            }
+            else if (root.angle == 270) {
+                endPos.x = endBounds.right;
                 trianglePos.x += triOffset;
 
-            const cp = controlPoints(start.angle, start.pos, end.pos);
+            }
+            else if (root.angle == 90) {
+                endPos.x = endBounds.left;
+                trianglePos.x -= triOffset;
+            }
 
-            drawLinkTriangle(ctx, trianglePos, end.angle-180);
+            const cp = controlPoints(root.angle, root.pos, endPos);
 
+            drawLinkTriangle(ctx, trianglePos, root.angle);
             ctx.beginPath();
-            ctx.moveTo(start.pos.x, start.pos.y);
-            ctx.bezierCurveTo(cp[0].x, cp[0].y, cp[1].x, cp[1].y, end.pos.x, end.pos.y);
+            ctx.moveTo(root.pos.x, root.pos.y);
+            ctx.bezierCurveTo(cp[0].x, cp[0].y, cp[1].x, cp[1].y, endPos.x, endPos.y);
             ctx.stroke();
 
-
             let unlinkTag = document.getElementById(`unlink-${rootId}-${endId}`);
+            const unlinkBounds = unlinkTag.getBoundingClientRect();
+            const unlinkSize = vec2(unlinkBounds.width, unlinkBounds.height);
+
+            let unlinkTagPos = cp[0].add(cp[1]).div(2).add(unlinkSize.div(2));
+            unlinkTagPos = window.camera.globalCoords(unlinkTagPos);
+            unlinkTag.style.left = unlinkTagPos.x + "px";
+            unlinkTag.style.top = unlinkTagPos.y + "px";
         }
     }
 }
