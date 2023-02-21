@@ -84,7 +84,7 @@ export class CardsData {
         this.cardsData.get(start).connections.add(end);
 
         let breakLink = document.createElement('button');
-        breakLink.classList.add('connection-button');
+        breakLink.classList.add('break-link-button');
         breakLink.id = `unlink-${start}-${end}`;
         breakLink.innerHTML = `
                 <span class="material-symbols-outlined">

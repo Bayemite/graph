@@ -259,7 +259,8 @@ button:hover, .label:hover {
     }
 }
 
-.connection-button {
+.break-link-button {
+    box-sizing: border-box;
     position: absolute;
     text-anchor: middle;
     vertical-align: middle;
@@ -285,7 +286,7 @@ button:hover, .label:hover {
     transition: 0.5s all, 0.2s opacity, 0.2s transform, 0s left, top;
 }
 
-.connection-button:hover {
+.break-link-button:hover {
     opacity: 1;
     border-radius: 50%;
     transform: scale(1);
