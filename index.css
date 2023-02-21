@@ -307,19 +307,6 @@ button:hover, .label:hover {
     filter: blur(0px);
 }
 
-/* .card p:focus + .actions {
-    transform: translateX(-50%) scale(1);
-    opacity: 1;
-    filter: blur(0px);
-} */
-
-.card:hover>.link-button {
-    /* transform: scale(1.2); */
-    transform: scale(0);
-    animation: 0.5s scaleIn;
-    animation-delay: 0.5s;
-}
-
 @keyframes dialog {
     0% {
         transform: translate(-50%, -50%) scale(0.4, 0.5);
