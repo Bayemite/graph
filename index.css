@@ -260,40 +260,27 @@ button:hover, .label:hover {
 }
 
 .break-link-button {
-    box-sizing: border-box;
     position: absolute;
     text-anchor: middle;
     vertical-align: middle;
 
-    /* width: 2rem; */
-    /* height: 2rem; */
-
     text-align: center;
-    padding: 8px;
+    padding: 4px;
 
     color: white;
     border: 1.5px solid rgba(200, 200, 200, 1);
-    border-radius: 40%;
-    opacity: 0.5;
-
-    /* -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px); */
-    transform: scale(0.75);
-    filter: blur(1px);
-    box-shadow: 0 0 0 0px rgba(0, 0, 0, 0.2);
-    animation: connection 1s cubic-bezier(0.165, 0.84, 0.44, 1);
-
+    
+    transform-origin: 0 0;
     transition: 0.5s all, 0.2s opacity, 0.2s transform, 0s left, top;
+    box-shadow: 0 0 0 0px rgba(0, 0, 0, 0.2);
+    transform: scale(0.75);
+    opacity: 0.1;
 }
 
 .break-link-button:hover {
-    opacity: 1;
-    border-radius: 50%;
+    box-shadow: 0 0 0px 2px rgba(255, 255, 255, 0.5);
     transform: scale(1);
-    filter: blur(0px);
-    -webkit-backdrop-filter: blur(4px);
-    backdrop-filter: blur(4px);
-    box-shadow: 0 0 0px 2px rgba(255, 255, 255, 0.5)
+    opacity: 1;
 }
 
 .actions {
