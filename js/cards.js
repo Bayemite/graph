@@ -197,7 +197,8 @@ export class CardsData {
     // Returns {background: "rgba(...)", border: "rgba(...)"}
     borderBackgroundColors(color = defaultColor) {
         let components = util.colorValues(color);
-        components[3] = 0.1; // Force alpha
+        components = components.map(c => c / 4);
+        components[3] = 1; // Force alpha
         let backgroundColor = "rgba(" + components.join(", ") + ")";
         return { background: backgroundColor, border: color };
     }

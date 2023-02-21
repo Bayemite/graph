@@ -27,6 +27,8 @@ function initListeners(canvas, cardsData) {
             cardsData.moveElem();
 
         window.camera.onMouseMove(event);
+
+        // cardsData.addDefaultCardHtml(camera.globalCoords(camera.mousePos), true);
     });
 
     canvas.addEventListener('dblclick', () => {
