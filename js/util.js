@@ -394,7 +394,7 @@ export function drawLinks(ctx, cardsData) {
             const unlinkBounds = unlinkTag.getBoundingClientRect();
             const unlinkSize = vec2(unlinkBounds.width, unlinkBounds.height);
 
-            let unlinkTagPos = cp[0].add(cp[1]).div(2).add(unlinkSize.div(2));
+            let unlinkTagPos = cp[0].add(cp[1]).div(2).minus(unlinkSize.div(2));
             unlinkTagPos = window.camera.globalCoords(unlinkTagPos);
             unlinkTag.style.left = unlinkTagPos.x + "px";
             unlinkTag.style.top = unlinkTagPos.y + "px";
