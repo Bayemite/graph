@@ -188,13 +188,12 @@ export class Dialog {
 }
 
 // Angle: Up = 0, positive is clockwise
-export function drawTriangle(ctx, x, y, radius, zoom, fill, angle) {
+export function drawTriangle(ctx, x, y, angle, radius, fill) {
     let p1 = vec2();
     let p2 = vec2();
     let p3 = vec2();
 
-    // let rad = (radius * 0) + (radius * (zoom * 0.01) * (1 - 0))
-    let rad = radius * zoom;
+    let rad = radius * window.camera.zoom;
     p1.x = rad * Math.sin(degreesToRadians(0 + angle)) + x;
     p2.x = rad * Math.sin(degreesToRadians(120 + angle)) + x;
     p3.x = rad * Math.sin(degreesToRadians(240 + angle)) + x;
@@ -222,139 +221,148 @@ function closeDialog(name) {
     }, 302);
 }
 
+function rectCenter(rect) {
+    return vec2(rect.left + rect.width / 2, rect.top + rect.height / 2);
+}
+
+// For relative distance comparison.
+function squares(p0, p1) { return (p1.x - p0.x) ** 2 + (p1.y - p0.y) ** 2; };
+
+// Returns {pos: vec2, angle: number},
+// pos: centre of side, angle: the side in positive degrees (0 is top, clockwise is positive)
+function closestSideCenter(pos, element) {
+    const rect = element.getBoundingClientRect();
+    const center = rectCenter(rect);
+
+    // Both algorithms seem the same.
+    let xDiff = pos.x - center.x;
+    let yDiff = pos.y - center.y;
+    // If longer horizontally: Choose left/right side.
+    if (Math.abs(xDiff) > Math.abs(yDiff)) {
+        if (xDiff > 0)
+            return { pos: vec2(rect.right, center.y), angle: 90 };
+        else
+            return { pos: vec2(rect.left, center.y), angle: 270 };
+    }
+    else {
+        if (yDiff > 0)
+            return { pos: vec2(center.x, rect.bottom), angle: 180 };
+        else
+            return { pos: vec2(center.x, rect.top), angle: 0 };
+    }
+
+    let sides = [ // top, right, bottom, left
+        vec2(center.x, rect.top),
+        vec2(rect.right, center.y),
+        vec2(center.x, rect.bottom),
+        vec2(rect.left, center.y)
+    ];
+
+    let minDist = squares(pos, sides[0]);
+    const rDist = squares(pos, sides[1]);
+    const bDist = squares(pos, sides[2]);
+    const lDist = squares(pos, sides[3]);
+    let i = 0;
+    if (rDist < minDist) { minDist = rDist; i = 1; }
+    if (bDist < minDist) { minDist = bDist; i = 2; }
+    if (lDist < minDist) { i = 3; }
+
+    return { pos: sides[i], angle: i * 90 };
+}
+
+// Arrow at end of link line
+const linkTriangleRadius = 2;
+function drawLinkTriangle(ctx, pos, angle) {
+    drawTriangle(ctx, pos.x, pos.y, angle, linkTriangleRadius, "#fff");
+}
+
+// Example: angle of 90
+// startPos---cp0
+//             |
+//            cp1---endPos
+function controlPoints(angle, startPos, endPos) {
+    let cp0;
+    let cp1;
+    // If left/right side:
+    if (angle === 90 || angle === 270) {
+        const xDiff = endPos.x - startPos.x;
+        const halfWayX = startPos.x + xDiff / 2;
+        cp0 = vec2(halfWayX, startPos.y);
+        cp1 = vec2(halfWayX, endPos.y);
+    }
+    else {
+        const yDiff = endPos.y - startPos.y;
+        const halfWayY = startPos.y + (yDiff) / 2;
+        cp0 = vec2(startPos.x, halfWayY);
+        cp1 = vec2(endPos.x, halfWayY);
+    }
+    return [cp0, cp1];
+}
+
 // Draws a line that is currently being connected by user (follows their mouse)
 // ctx: canvas contex
 // startElement: card element
 export function drawLinkLine(ctx, startElement) {
     const endPos = window.camera.mousePos;
-
-    const rect = startElement.getBoundingClientRect();
-    const center = vec2(rect.left + rect.width / 2, rect.top + rect.height / 2);
-    let xDiff = endPos.x - center.x;
-    let yDiff = endPos.y - center.y;
-
-    let startPos;
-    let cp1;
-    let cp2;
-    let angle;
-
-    // If longer horizontally: Choose left/right side.
-    if (Math.abs(xDiff) > Math.abs(yDiff)) {
-        if (xDiff > 0) {
-            startPos = vec2(rect.right, center.y);
-            angle = 90;
-        }
-        else {
-            startPos = vec2(rect.left, center.y);
-            angle = -90;
-        }
-
-        xDiff = endPos.x - startPos.x;
-        const cpX = startPos.x + xDiff / 2;
-        cp1 = vec2(cpX, startPos.y);
-        cp2 = vec2(cpX, endPos.y);
-    }
-    else {
-        if (yDiff > 0) {
-            startPos = vec2(center.x, rect.bottom);
-            angle = 180;
-        }
-        else {
-            startPos = vec2(center.x, rect.top);
-            angle = 0;
-        }
-
-        yDiff = endPos.y - startPos.y;
-        const cpY = startPos.y + yDiff / 2;
-        cp1 = vec2(startPos.x, cpY);
-        cp2 = vec2(endPos.x, cpY);
-    }
+    const start = closestSideCenter(endPos, startElement);
+    const cp = controlPoints(start.angle, start.pos, endPos);
 
     ctx.beginPath();
-    ctx.moveTo(startPos.x, startPos.y);
-    ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, endPos.x, endPos.y);
+    ctx.moveTo(start.pos.x, start.pos.y);
+    ctx.bezierCurveTo(cp[0].x, cp[0].y, cp[1].x, cp[1].y, endPos.x, endPos.y);
     ctx.stroke();
 
-    drawTriangle(ctx, endPos.x, endPos.y, 2, window.camera.zoom, "#fff", angle);
+    drawLinkTriangle(ctx, endPos, start.angle);
 }
 
 // Draws all existing links
-export function drawLinks(ctx, cardId, card, elem) {
-    const camera = window.camera;
-
-    let curveWidth = Math.floor(50 * camera.zoom); // Set default
-    let limiter = 5; // Limiter before the line connection direction changes
-    let triRad = 4;
-    let x2 = Math.floor(-elem.style.left.replace('px', '') * camera.zoom - camera.pos.x);
-    let y2 = Math.floor(-elem.style.top.replace('px', '') * camera.zoom - camera.pos.y);
-
-    // Get other element
-    for (let connection of card.connections.values()) {
-        let root = document.getElementById(`card-${connection}`);
-        let unlink = document.getElementById(`unlink-${cardId}-${connection}`);
-        if (root == null) {
-            console.log(`card-${connection} is null`);
+export function drawLinks(ctx, cardsData) {
+    for (let [rootId, root] of cardsData.cardsData) {
+        if (root.connections.size == 0)
             continue;
-        }
-        if (unlink == null) {
-            console.log(`unlink-${cardId}-${connection} is null`);
+
+        let rootTag = document.getElementById(`card-${rootId}`);
+        if (rootTag == null) {
+            console.log(`Root tag 'card-${rootId}' is null.`);
             continue;
         }
 
-        let xr = Math.floor(-root.style.left.replace('px', '') * camera.zoom - camera.pos.x);
-        let yr = Math.floor(-root.style.top.replace('px', '') * camera.zoom - camera.pos.y);
-
-        ctx.beginPath();
-        if (-xr + (root.offsetWidth * camera.zoom) < -x2) {
-            curveWidth = Math.floor(150 * camera.zoom) * clamp(0.1, (xr - x2) / camera.zoom / 500, 1);
-            ctx.moveTo(-xr + (root.offsetWidth * camera.zoom) - 2, -yr + (root.offsetHeight / 2) * camera.zoom);
-            ctx.bezierCurveTo(-xr + (root.offsetWidth * camera.zoom) + curveWidth, -yr + (root.offsetHeight / 2) * camera.zoom,
-                -x2 - curveWidth, -y2 + (elem.offsetHeight / 2) * camera.zoom,
-                -x2 + 1, -y2 + (elem.offsetHeight / 2) * camera.zoom);
-            ctx.stroke();
-            drawTriangle(ctx, -xr + (root.offsetWidth * camera.zoom) - 2 + (triRad + 0.5) * camera.zoom, -yr + (root.offsetHeight / 2) * camera.zoom, triRad, camera.zoom, '#fff', -90);
-            unlink.style.left = `${((Math.floor(elem.style.left.replace('px', '')) + (Math.floor(root.style.left.replace('px', '')) + root.offsetWidth)) / 2) - unlink.offsetWidth / 2}px`;
-            unlink.style.top = `${((Math.floor(elem.style.top.replace('px', '')) + (Math.floor(root.style.top.replace('px', '')) + root.offsetHeight)) / 2) - unlink.offsetHeight / 2}px`;
-        }
-        else if (-xr + (root.offsetWidth * camera.zoom) + (curveWidth * camera.zoom / limiter) > -x2 - (curveWidth * camera.zoom / limiter) && (-xr + (curveWidth * camera.zoom / limiter) < -x2 + (elem.offsetWidth * camera.zoom) + (curveWidth * camera.zoom / limiter))) {
-            if (yr > y2) {
-                curveWidth = Math.floor(150 * camera.zoom) * clamp(0.1, (yr - y2) / camera.zoom / 500, 1);
-                ctx.moveTo(-xr + (root.offsetWidth / 2 * camera.zoom) - 1, -yr + (root.offsetHeight) * camera.zoom - 1);
-                ctx.bezierCurveTo(-xr + (root.offsetWidth / 2 * camera.zoom), -yr + (root.offsetHeight) * camera.zoom + curveWidth,
-                    -x2 + (elem.offsetWidth / 2 * camera.zoom), -y2 - curveWidth,
-                    -x2 + (elem.offsetWidth / 2 * camera.zoom), -y2 + 1);
-                ctx.stroke();
-                drawTriangle(ctx, -xr + (root.offsetWidth / 2 * camera.zoom) - 1, -yr + (root.offsetHeight) * camera.zoom - 1 + (triRad + 0.5) * camera.zoom, triRad, camera.zoom, '#fff', 0);
-                unlink.style.left = `${(((Math.floor(elem.style.left.replace('px', '')) + elem.offsetWidth / 2)) + (Math.floor(root.style.left.replace('px', '')) + root.offsetWidth / 2)) / 2 - unlink.offsetWidth / 2}px`;
-                unlink.style.top = `${(((Math.floor(elem.style.top.replace('px', '')) + elem.offsetHeight) + (Math.floor(root.style.top.replace('px', '')))) / 2) - unlink.offsetHeight / 2}px`;
-
+        // Get other element
+        for (let endId of root.connections.values()) {
+            let endTag = document.getElementById(`card-${endId}`);
+            if (endTag == null) {
+                console.log(`End tag 'card-${endId}' is null.`);
+                continue;
             }
-            else {
-                curveWidth = Math.floor(150 * camera.zoom) * clamp(0.1, (y2 - yr) / camera.zoom / 500, 1);
-                ctx.moveTo(-xr + (root.offsetWidth / 2 * camera.zoom) - 1, -yr + 1);
-                ctx.bezierCurveTo(-xr + (root.offsetWidth / 2 * camera.zoom), -yr - curveWidth,
-                    -x2 + (elem.offsetWidth / 2 * camera.zoom), -y2 + (elem.offsetHeight * camera.zoom) + curveWidth,
-                    -x2 + (elem.offsetWidth / 2 * camera.zoom), -y2 + (elem.offsetHeight * camera.zoom) - 1);
-                ctx.stroke();
-                drawTriangle(ctx, -xr + (root.offsetWidth / 2 * camera.zoom) - 1, -yr + 1 - (triRad + 0.5) * camera.zoom, triRad, camera.zoom, '#fff', 180);
-                unlink.style.left = `${(((Math.floor(elem.style.left.replace('px', '')) + elem.offsetWidth / 2)) + (Math.floor(root.style.left.replace('px', '')) + root.offsetWidth / 2)) / 2 - unlink.offsetWidth / 2}px`;
-                unlink.style.top = `${((Math.floor(elem.style.top.replace('px', '')) + (Math.floor(root.style.top.replace('px', '')) + root.offsetHeight)) / 2) - unlink.offsetHeight / 2}px`;
 
-            }
-        }
-        else {
-            curveWidth = Math.floor(150 * camera.zoom) * clamp(0.1, (x2 - xr) / camera.zoom / 500, 1);
-            ctx.moveTo(-xr + 1, -yr + (root.offsetHeight / 2) * camera.zoom);
-            ctx.bezierCurveTo(-xr - curveWidth, -yr + (root.offsetHeight / 2) * camera.zoom,
-                -x2 + (elem.offsetWidth * camera.zoom) + curveWidth, -y2 + (elem.offsetHeight / 2) * camera.zoom,
-                -x2 + (elem.offsetWidth * camera.zoom) - 1, -y2 + (elem.offsetHeight / 2) * camera.zoom);
+            const endBounds = endTag.getBoundingClientRect();
+            let end = rectCenter(endBounds);
+            const start = closestSideCenter(end, rootTag);
+            end = closestSideCenter(start.pos, endTag);
+
+            let trianglePos = end.pos;
+            const triOffset = 5 + linkTriangleRadius * window.camera.zoom;
+            if (end.angle == 0)
+                trianglePos.y -= triOffset;
+            else if (end.angle == 180)
+                trianglePos.y += triOffset;
+            else if (end.angle == 270)
+                trianglePos.x -= triOffset;
+            else if (end.angle == 90)
+                trianglePos.x += triOffset;
+
+            const cp = controlPoints(start.angle, start.pos, end.pos);
+
+            drawLinkTriangle(ctx, trianglePos, end.angle-180);
+
+            ctx.beginPath();
+            ctx.moveTo(start.pos.x, start.pos.y);
+            ctx.bezierCurveTo(cp[0].x, cp[0].y, cp[1].x, cp[1].y, end.pos.x, end.pos.y);
             ctx.stroke();
-            drawTriangle(ctx, -xr + 1 - (triRad + 0.5) * camera.zoom, -yr + (root.offsetHeight / 2) * camera.zoom, triRad, camera.zoom, '#fff', 90);
-            unlink.style.left = `${(((Math.floor(elem.style.left.replace('px', '')) + elem.offsetWidth) + (Math.floor(root.style.left.replace('px', '')))) / 2) - unlink.offsetWidth / 2}px`;
-            unlink.style.top = `${((Math.floor(elem.style.top.replace('px', '')) + (Math.floor(root.style.top.replace('px', '')) + root.offsetHeight)) / 2) - unlink.offsetHeight / 2}px`;
 
+
+            let unlinkTag = document.getElementById(`unlink-${rootId}-${endId}`);
         }
-        ctx.closePath();
     }
 }
 

@@ -82,19 +82,7 @@ window.onload = function () {
             util.drawLinkLine(ctx, linkOriginElem);
         }
 
-        for (let [cardId, card] of cardsData.cardsData) {
-            if (card.connections.size == 0)
-                continue;
-
-            // Get element connecting to other element
-            let elem = document.getElementById(`card-${cardId}`);
-            if (elem == null) {
-                console.log(`card-${cardId} is null`);
-                continue;
-            }
-
-            util.drawLinks(ctx, cardId, card, elem);
-        }
+        util.drawLinks(ctx, cardsData);
     }
 
     main(); // Start the cycle
