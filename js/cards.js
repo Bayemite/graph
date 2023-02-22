@@ -298,6 +298,8 @@ export class CardsData {
 
             if (that.linkInProgress)
                 that.endLink(id);
+            
+            cardContainer.getElementsByClassName('text')[0].focus();
         };
 
         // sectioned into separate inline functions
