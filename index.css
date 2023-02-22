@@ -21,6 +21,10 @@ body {
     background-color: #1c1b1b;
 }
 
+.translate{
+    transform-origin: 0 0;
+}
+
 #title {
     margin: 5px 5px 15px 5px;
 }
@@ -169,10 +173,6 @@ button:hover, .label:hover {
     /* backdrop-filter: blur(8px); */
 }
 
-.card:hover{
-    z-index: 1;
-}
-
 .text {
     color: white;
     text-align: center;
@@ -292,13 +292,8 @@ button:hover, .label:hover {
     position: absolute;
     display: inline-flex;
     text-align: center;
-    opacity: 0;
     left: 50%;
     transform: translateX(-50%) scale(0);
-    transition: 0.3s cubic-bezier(0.23, 1, 0.320, 1);
-    z-index: -100;
-    filter: blur(8px);
-    /* transform: translateX(-50%); */
 }
 
 .card:hover>.actions {

@@ -4,8 +4,7 @@ const defaultColor = "rgb(200, 200, 200)";
 
 export class CardObject {
     constructor (pos = util.vec2(), text = "", connectionSet = new Set(), color = defaultColor) {
-        this.x = pos.x;
-        this.y = pos.y;
+        this.pos = pos;
         this.text = text;
         this.connections = connectionSet;
         this.color = color;
@@ -38,6 +37,26 @@ class UndoRedoStack {
             this.undoStack.push(redoCmd);
         }
     }
+}
+
+function getCardTag(id) {
+    return document.getElementById(`card-${id}`);
+}
+
+function getTitleTag() {
+    return document.getElementById("title");
+}
+
+function getBreakLinkContainerTag() {
+    return document.getElementById('break-link-btns-container');
+}
+
+function getCardContainerTag() {
+    return document.getElementById("translate");
+}
+
+function clearHtmlCards() {
+    getCardContainerTag().innerHTML = `<div id="break-link-btns-container"></div>`;
 }
 
 export class CardsData {
@@ -93,13 +112,13 @@ export class CardsData {
                 `;
         breakLink.onclick = () => this.deleteLink(start, end);
 
-        this.getBreakLinkContainerTag().appendChild(breakLink);
+        getBreakLinkContainerTag().appendChild(breakLink);
     }
 
 
     deleteLink(start, end, addUndo = true) {
         this.cardsData.get(start).connections.delete(end);
-        this.getBreakLinkContainerTag().removeChild(document.getElementById(`unlink-${start}-${end}`));
+        getBreakLinkContainerTag().removeChild(document.getElementById(`unlink-${start}-${end}`));
 
         if (addUndo)
             this.undoRedoStack.addUndoCmd(() => {
@@ -160,7 +179,7 @@ export class CardsData {
         this.cardsData.delete(id);
         this.cardIds.freeId(id);
 
-        document.getElementById('translate').removeChild(this.getCardTag(id));
+        document.getElementById('translate').removeChild(getCardTag(id));
     }
 
     moveElem() {
@@ -169,29 +188,13 @@ export class CardsData {
 
         let cardData = this.cardsData.get(id);
         let pos = camera.globalCoords(camera.mousePos);
-        cardData.x = pos.x - (this.moveCardOffset.x / camera.zoom);
-        cardData.y = pos.y - (this.moveCardOffset.y / camera.zoom);
+        cardData.pos.x = pos.x - (this.moveCardOffset.x / camera.zoom);
+        cardData.pos.y = pos.y - (this.moveCardOffset.y / camera.zoom);
 
-        let card = this.getCardTag(id);
+        let card = getCardTag(id);
         // TODO: undo/redo
-        card.style.left = `${cardData.x}px`;
-        card.style.top = `${cardData.y}px`;
-    }
-
-    getCardTag(id) {
-        return document.getElementById(`card-${id}`);
-    }
-
-    getTitleTag() {
-        return document.getElementById("title");
-    }
-
-    getBreakLinkContainerTag() {
-        return document.getElementById('break-link-btns-container');
-    }
-
-    clearHtmlCards() {
-        document.getElementById("translate").innerHTML = `<div id="break-link-btns-container"></div>`;
+        card.style.left = `${cardData.pos.x}px`;
+        card.style.top = `${cardData.pos.y}px`;
     }
 
     // Returns {background: "rgba(...)", border: "rgba(...)"}
@@ -203,6 +206,67 @@ export class CardsData {
         return { background: backgroundColor, border: color };
     }
 
+    htmlEditUI() {
+        let actions = document.createElement('div');
+        actions.classList.add("actions");
+
+        let linkElem = document.createElement('button');
+        linkElem.innerHTML = `
+        <span class="material-symbols-outlined">
+            call_split
+        </span>
+        `;
+        linkElem.classList.add("actions-button", "link-button");
+        linkElem.onclick = () => { this.startLink(id); };
+        actions.appendChild(linkElem);
+
+        let deleteCard = document.createElement('button');
+        deleteCard.innerHTML = `
+        <span class="material-symbols-outlined">
+            delete
+        </span>
+        `;
+        deleteCard.classList.add("actions-button");
+        deleteCard.addEventListener('click', () => { this.deleteCard(id); });
+        actions.appendChild(deleteCard);
+
+        let clrPicker = document.createElement('div');
+        clrPicker.classList.add('color-picker');
+
+        let colorInput = document.createElement('input');
+        colorInput.type = 'text';
+        colorInput.value = defaultColor;
+        colorInput.setAttribute('data-coloris', true);
+
+        let colorEdit = document.createElement('div');
+        colorEdit.classList.add('clr-field');
+        colorEdit.style.color = defaultColor;
+        colorEdit.innerHTML = `
+        <button type="button" aria-labelledby="clr-open-label"></button>
+        `;
+        colorEdit.appendChild(colorInput);
+        clrPicker.appendChild(colorEdit);
+        actions.appendChild(colorEdit);
+
+        colorInput.onchange = function () {
+            // Set color swatch settings
+            this.cardColors.add(colorEdit.style.color);
+            window.colorSettings(Array.from(this.cardColors));
+        };
+        colorEdit.oninput = function () {
+            // TODO: undo/redo
+            // Set color variables
+            let color = colorEdit.style.color;
+            cardObject.color = color;
+            let colors = this.borderBackgroundColors(color);
+            cardContainer.style.borderColor = colors.border;
+            cardContainer.style.backgroundColor = colors.background;
+        };
+
+        return actions;
+    }
+
+
     // Generate all HTML data for card except for position
     // which is deferred to after appendChild, to align to centre using client bounds.
     genHTMLCard(id) {
@@ -211,11 +275,19 @@ export class CardsData {
         let cardContainer = document.createElement('div');
         cardContainer.id = "card-" + id;
 
-        // Needed to force reference to class within callback, and not tag
+        // Needed to reference 'this' class within callback, instead of 'this' tag
         let that = this;
         cardContainer.onmousedown = function (e) {
+            // TODO: undo/redo
             that.moveFlag = true;
             that.moveCardID = id;
+
+            // Change z-index to top by physically moving DOM location
+            // and cardsData map insertion order
+            getCardContainerTag().appendChild(cardContainer);
+            let cardData = that.cardsData.get(id);
+            that.cardsData.delete(id);
+            that.set(id, cardData);
 
             let boundRect = cardContainer.getBoundingClientRect();
             that.moveCardOffset.x = e.clientX - (boundRect.left + window.scrollX);
@@ -264,7 +336,7 @@ export class CardsData {
             </span>
             `;
             linkElem.classList.add("actions-button", "link-button");
-            linkElem.onclick = () => { that.startLink(id); };
+            linkElem.onmousedown = () => { that.startLink(id); };
             actions.appendChild(linkElem);
 
             let deleteCard = document.createElement('button');
@@ -274,7 +346,7 @@ export class CardsData {
             </span>
             `;
             deleteCard.classList.add("actions-button");
-            deleteCard.onclick = () => { that.deleteCard(id); };
+            deleteCard.onmousedown = (e) => { that.deleteCard(id); e.stopPropagation(); };
             actions.appendChild(deleteCard);
 
             let clrPicker = document.createElement('div');
@@ -323,18 +395,18 @@ export class CardsData {
 
     // Add a card from data to HTML.
     addCardHTML(cardId, adjustOriginCentre = false) {
-        let cardContainer = document.getElementById("translate").appendChild(
+        let cardContainer = getCardContainerTag().appendChild(
             this.genHTMLCard(cardId)
         );
 
         let cardObject = this.cardsData.get(cardId);
         if (adjustOriginCentre) {
             let boundRect = cardContainer.getBoundingClientRect();
-            cardObject.x -= boundRect.width / 2 / window.camera.zoom;
-            cardObject.y -= boundRect.height / 2 / window.camera.zoom;
+            cardObject.pos.x -= boundRect.width / 2 / window.camera.zoom;
+            cardObject.pos.y -= boundRect.height / 2 / window.camera.zoom;
         }
-        cardContainer.style.left = cardObject.x + "px";
-        cardContainer.style.top = cardObject.y + "px";
+        cardContainer.style.left = cardObject.pos.x + "px";
+        cardContainer.style.top = cardObject.pos.y + "px";
     }
 
     // returns id of card
@@ -349,7 +421,7 @@ export class CardsData {
     // Bulk load all cards from this.cardsData to HTML.
     // Removes all existing cards in the HTML.
     addCardsHTML() {
-        this.clearHtmlCards();
+        clearHtmlCards();
         for (const [cardId, card] of this.cardsData) {
             this.addCardHTML(cardId);
             if (card.connections.size == 0) { continue; }
@@ -360,21 +432,18 @@ export class CardsData {
     }
 
     loadFromJSON(parsedData) {
-        this.getTitleTag().innerText = parsedData.title;
+        getTitleTag().innerText = parsedData.title;
         this.cardsData.clear();
-        let cardData = parsedData.data;
 
         let lastId = 0;
-        for (const id in cardData) {
-            lastId = Math.max(lastId, id);
-            let iValues = cardData[id];
-            if (!iValues) continue;
-            this.set(Number(id),
+        for (const card of parsedData.cards) {
+            lastId = Math.max(lastId, card.id);
+            this.set(Number(card.id),
                 new CardObject(
-                    util.vec2(iValues.x, iValues.y),
-                    iValues.text,
-                    new Set(Array.from(iValues.connections)),
-                    iValues.color
+                    util.vec2(card.x, card.y),
+                    card.text,
+                    new Set(Array.from(card.connections)),
+                    card.color
                 )
             );
         }
@@ -383,19 +452,19 @@ export class CardsData {
 
     genSave() {
         let saveData = {
-            title: this.getTitleTag().innerText,
-            data: {}
+            title: getTitleTag().innerText,
+            cards: []
         };
         for (let [cardId, card] of this.cardsData) {
-            saveData.data[cardId] = {
-                "x": card.x,
-                "y": card.y,
+            saveData.cards.push({
+                "id": cardId,
+                "x": card.pos.x,
+                "y": card.pos.y,
                 "text": card.text,
                 "connections": Array.from(card.connections),
                 "color": card.color,
-            };
+            });
         }
-
         return saveData;
     };
 }

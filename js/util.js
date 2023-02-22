@@ -1,3 +1,4 @@
+import { Matrix } from './matrix.js';
 // Basically a file dump for extraneous definitions used in index.js
 
 // return array of [r,g,b,a] from any valid color. if failed returns undefined
@@ -404,70 +405,81 @@ export function drawLinks(ctx, cardsData) {
 }
 
 export class Camera {
-    constructor () {
-        this.zoom = 1;
-        this.oldZoom = 1;
+    #zoom = 1;
+    #doScroll = false;
+    #oldScrollPos = vec2();
 
+    constructor () {
         this.mousePos = vec2();
         this.pos = vec2();
 
-        this.doScroll = false;
-        this.oldScrollPos = vec2();
+        this.matrix = new Matrix();
+    }
+
+    get zoom() {
+        return this.matrix.a;
+    }
+
+    set zoom(scale) {
+        this.#zoom = scale;
     }
 
     globalCoords(coords = vec2()) {
-        let x = (coords.x - this.pos.x) / this.zoom;
-        let y = (coords.y - this.pos.y) / this.zoom;
-        return vec2(x, y);
+        let p = this.matrix.getInverse().applyToPoint(coords.x, coords.y);
+        return vec2(p.x, p.y);
     }
 
     getTransformNode() {
         return document.getElementById('translate');
     }
 
-    setZoom(zoom) { this.zoom = zoom; this.oldZoom = zoom; }
-
     update() {
-        let zoomDelta = this.zoom - this.oldZoom;
-        this.oldZoom = this.zoom;
-        this.pos.x += zoomDelta * (window.innerWidth / 2 - this.mousePos.x);
-        this.pos.y += zoomDelta * (window.innerHeight / 2 - this.mousePos.y);
+        // Zoom to center
+        this.matrix.reset();
+        this.matrix.translate(
+            window.innerWidth / 2  ,//- deltaZoom * this.mousePos.x,
+            window.innerHeight / 2  //- deltaZoom * this.mousePos.y
+        );
+        this.matrix.scale(this.#zoom, this.#zoom);
+        this.matrix.translate(this.pos.x, this.pos.y);
+
         let transformNode = this.getTransformNode();
-        transformNode.style.transform = `translate(${this.pos.x}px, ${this.pos.y}px) scale(${this.zoom})`;
+        let m = this.matrix;
+        transformNode.style.transform = `matrix(${m.a},${m.b},${m.c},${m.d},${m.e},${m.f})`;
     };
 
     onMouseMove(event) {
         this.mousePos.x = event.pageX;
         this.mousePos.y = event.pageY;
 
-        if (this.doScroll) {
-            let deltaX = event.pageX - this.oldScrollPos.x;
-            let deltaY = event.pageY - this.oldScrollPos.y;
+        if (this.#doScroll) {
+            let deltaX = event.pageX - this.#oldScrollPos.x;
+            let deltaY = event.pageY - this.#oldScrollPos.y;
             this.pos.x += deltaX;
             this.pos.y += deltaY;
-            this.oldScrollPos.x = event.pageX;
-            this.oldScrollPos.y = event.pageY;
+            this.#oldScrollPos.x = event.pageX;
+            this.#oldScrollPos.y = event.pageY;
         }
     }
 
     onMouseDown(event) {
-        this.doScroll = true;
-        this.oldScrollPos.x = event.pageX;
-        this.oldScrollPos.y = event.pageY;
+        this.#doScroll = true;
+        this.#oldScrollPos.x = event.pageX;
+        this.#oldScrollPos.y = event.pageY;
     }
 
     onMouseUp() {
-        this.doScroll = false;
+        this.#doScroll = false;
     }
 
     onWheel(event) {
         let delta = event.wheelDelta;
         const zoomFactor = 0.005;
-        this.zoom += delta * zoomFactor;
+        this.#zoom += delta * zoomFactor;
 
         const zoomOut = 0.3;
         const zoomIn = 3;
-        this.zoom = clamp(zoomOut, this.zoom, zoomIn);
+        this.#zoom = clamp(zoomOut, this.#zoom, zoomIn);
     }
 }
 
@@ -521,7 +533,7 @@ function load(cardsData, saveData) {
         cardsData.loadFromJSON(parsedData);
         camera.pos.x = parsedData.camera.pos.x;
         camera.pos.y = parsedData.camera.pos.y;
-        camera.setZoom(parsedData.camera.zoom);
+        camera.zoom = parsedData.camera.zoom;
         return true;
     }
     else return false;
