@@ -13,8 +13,11 @@ function initListeners(canvas, cardsData) {
     window.addEventListener('resize', resize);
 
     document.onkeydown = (event) => {
-        if (event.ctrlKey && event.code == "KeyZ") {
-            cardsData.undo();
+        if (event.ctrlKey) {
+            if (event.code == "KeyZ")
+                cardsData.undo();
+            else if (event.code == "KeyY")
+                cardsData.undoRedoStack.redo();
         }
     };
     document.addEventListener('mouseup', () => {

@@ -17,24 +17,24 @@ class UndoRedoStack {
         this.redoStack = [];
     }
 
-    // undoCmd: Function
-    addUndoCmd(undoCmd) {
-        this.undoStack.push(undoCmd);
+    // cmd is {undo: Function, redo: Function}
+    addUndoCmd(cmd) {
+        this.undoStack.push(cmd);
     }
 
     undo() {
         if (this.undoStack.length > 0) {
-            let undoCmd = this.undoStack.pop();
-            undoCmd();
-            this.redoStack.push(undoCmd);
+            let cmd = this.undoStack.pop();
+            cmd.undo();
+            this.redoStack.push(cmd);
         }
     }
 
     redo() {
         if (this.redoStack.length > 0) {
-            let redoCmd = this.redoStack.pop();
-            redoCmd();
-            this.undoStack.push(redoCmd);
+            let cmd= this.redoStack.pop();
+            cmd.redo();
+            this.undoStack.push(cmd);
         }
     }
 }
@@ -121,9 +121,12 @@ export class CardsData {
         getBreakLinkContainerTag().removeChild(document.getElementById(`unlink-${start}-${end}`));
 
         if (addUndo)
-            this.undoRedoStack.addUndoCmd(() => {
-                this.addUnlink(start, end);
-            });
+            this.undoRedoStack.addUndoCmd(
+                {
+                    undo: () => this.addUnlink(start, end),
+                    redo: () => this.deleteLink(start, end, false)
+                }
+            );
     }
 
     // i : id of card (card-'0')
