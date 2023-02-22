@@ -52,7 +52,7 @@ body {
     color: white;
     border: 2px solid rgba(200, 200, 200, 1);
     border-radius: 20px;
-    background-color: rgba(150, 150, 150, 0.1);
+    background-color: rgba(50, 50, 50, 1);
 }
 
 button, .label {
