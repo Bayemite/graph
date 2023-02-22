@@ -32,7 +32,7 @@ class UndoRedoStack {
 
     redo() {
         if (this.redoStack.length > 0) {
-            let cmd= this.redoStack.pop();
+            let cmd = this.redoStack.pop();
             cmd.redo();
             this.undoStack.push(cmd);
         }
@@ -99,7 +99,7 @@ export class CardsData {
         this.cardsData.set(key, value);
     }
 
-    addUnlink(start, end) {
+    addLink(start, end) {
         this.cardsData.get(start).connections.add(end);
 
         let breakLink = document.createElement('button');
@@ -123,7 +123,7 @@ export class CardsData {
         if (addUndo)
             this.undoRedoStack.addUndoCmd(
                 {
-                    undo: () => this.addUnlink(start, end),
+                    undo: () => this.addLink(start, end),
                     redo: () => this.deleteLink(start, end, false)
                 }
             );
@@ -137,7 +137,7 @@ export class CardsData {
     }
 
     // i : id of card
-    endLink(linkEnd) {
+    endLink(linkEnd, addUndo = true) {
         if (!this.linkInProgress) return;
 
         if (this.cardsData.get(linkEnd) === undefined) {
@@ -158,31 +158,51 @@ export class CardsData {
         // If click on self just ignore
         if (this.linkStart == linkEnd) return;
 
-        // TODO: undo/redo
         this.linkInProgress = false;
-        this.addUnlink(this.linkStart, linkEnd);
+        this.addLink(this.linkStart, linkEnd);
+
+        if (addUndo) {
+            let linkStart = this.linkStart;
+            this.undoRedoStack.addUndoCmd(
+                {
+                    undo: () => this.deleteLink(linkStart, linkEnd, false),
+                    redo: () => this.addLink(linkStart, linkEnd)
+                }
+            );
+        }
     }
 
-    deleteCard(id) {
+    deleteCard(id, addUndo = true) {
         if (this.linkInProgress) return;
 
-        let connections = this.cardsData.get(id).connections;
-        if (connections.size > 0) {
-            for (let connection of connections.values())
-                this.deleteLink(id, connection, false);
-        }
+        // Retain data for undo
+        let deletedCard = structuredClone(this.cardsData.get(id));
 
+        let connections = this.cardsData.get(id).connections;
+        connections.forEach(endId => { this.deleteLink(id, endId, false); });
+
+        let linksToDeletedCard = [];
         for (let [cardId, card] of this.cardsData) {
             if (card.connections.has(id)) {
                 this.deleteLink(cardId, id, false);
+                linksToDeletedCard.push(cardId);
             }
         }
 
-        // TODO: undo/redo
         this.cardsData.delete(id);
-        this.cardIds.freeId(id);
-
         document.getElementById('translate').removeChild(getCardTag(id));
+
+        if (addUndo) {
+            this.undoRedoStack.addUndoCmd({
+                undo: () => {
+                    this.set(id, deletedCard);
+                    this.addCardHTML(id);
+                    deletedCard.connections.forEach(endId => { this.addLink(id, endId); });
+                    linksToDeletedCard.forEach(startLinkId => { this.addLink(startLinkId, id); });
+                },
+                redo: () => this.deleteCard(id, false)
+            });
+        }
     }
 
     moveElem() {
@@ -432,7 +452,7 @@ export class CardsData {
             if (card.connections.size == 0) { continue; }
 
             for (let c of card.connections.values())
-                this.addUnlink(cardId, c);
+                this.addLink(cardId, c);
         }
     }
 

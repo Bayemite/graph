@@ -77,18 +77,13 @@ export class PeerConnection {
     }
 }
 
+// Should guarantee unique
 export class IDAssign {
     constructor () {
-        this.spare = [];
         this.next = 0;
     }
     getNextId() {
-        if (this.spare.length > 0)
-            return this.spare.shift();
-        return this.next++;;
-    }
-    freeId(id) {
-        this.spare.push(id);
+        return this.next++;
     }
 }
 
