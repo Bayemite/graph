@@ -12,14 +12,17 @@ function initListeners(canvas, cardsData) {
     resize();
     window.addEventListener('resize', resize);
 
-    document.onkeydown = (event) => {
+    document.addEventListener('keydown', (event) => {
         if (event.ctrlKey) {
             if (event.code == "KeyZ")
                 cardsData.undo();
             else if (event.code == "KeyY")
                 cardsData.undoRedoStack.redo();
         }
-    };
+    });
+    document.addEventListener('mousedown', () => {
+        cardsData.focusCard(-1);
+    });
     document.addEventListener('mouseup', () => {
         cardsData.moveFlag = false;
         window.camera.onMouseUp();
@@ -43,7 +46,8 @@ function initListeners(canvas, cardsData) {
         if (cardsData.linkInProgress) {
             if (event.button == 0) {
                 let id = cardsData.addDefaultCardHtml(camera.globalCoords(camera.mousePos), true);
-                cardsData.endLink(id);
+                // The undo is packaged with the new card creation.
+                cardsData.endLink(id, false);
             }
             else cardsData.linkInProgress = false;
         }

@@ -76,6 +76,8 @@ export class CardsData {
         this.moveFlag = false;
         this.moveCardOffset = util.vec2();
 
+        this.focusCardID = -1;
+
         this.cardColors = new Set();
 
         this.undoRedoStack = new UndoRedoStack();
@@ -114,7 +116,6 @@ export class CardsData {
 
         getBreakLinkContainerTag().appendChild(breakLink);
     }
-
 
     deleteLink(start, end, addUndo = true) {
         this.cardsData.get(start).connections.delete(end);
@@ -199,7 +200,9 @@ export class CardsData {
                     this.addCardHTML(id);
                     deletedCard.connections.forEach(endId => { this.addLink(id, endId); });
                     // TODO: why is this resetting the other card's text? (type something in root, then delete end card, then undo)
-                    linksToDeletedCard.forEach(startLinkId => { this.addLink(startLinkId, id); console.log(startLinkId);});
+                    linksToDeletedCard.forEach(startLinkId => { this.addLink(startLinkId, id); });
+
+                    this.focusCard(-1);
                 },
                 redo: () => this.deleteCard(id, false)
             });
@@ -230,9 +233,9 @@ export class CardsData {
         return { background: backgroundColor, border: color };
     }
 
-    htmlEditUI() {
-        let actions = document.createElement('div');
-        actions.classList.add("actions");
+    htmlEditUI(id) {
+        let editRootNode = document.createElement('div');
+        editRootNode.classList.add("actions");
 
         let linkElem = document.createElement('button');
         linkElem.innerHTML = `
@@ -242,7 +245,7 @@ export class CardsData {
         `;
         linkElem.classList.add("actions-button", "link-button");
         linkElem.onclick = () => { this.startLink(id); };
-        actions.appendChild(linkElem);
+        editRootNode.appendChild(linkElem);
 
         let deleteCard = document.createElement('button');
         deleteCard.innerHTML = `
@@ -252,7 +255,7 @@ export class CardsData {
         `;
         deleteCard.classList.add("actions-button");
         deleteCard.addEventListener('click', () => { this.deleteCard(id); });
-        actions.appendChild(deleteCard);
+        editRootNode.appendChild(deleteCard);
 
         let clrPicker = document.createElement('div');
         clrPicker.classList.add('color-picker');
@@ -270,7 +273,7 @@ export class CardsData {
         `;
         colorEdit.appendChild(colorInput);
         clrPicker.appendChild(colorEdit);
-        actions.appendChild(colorEdit);
+        editRootNode.appendChild(colorEdit);
 
         colorInput.onchange = function () {
             // Set color swatch settings
@@ -287,9 +290,32 @@ export class CardsData {
             cardContainer.style.backgroundColor = colors.background;
         };
 
-        return actions;
+        return editRootNode;
     }
 
+    // let id = -1 to unfocus without focusing on another.
+    focusCard(id) {
+        if (id === this.focusCardID) return;
+        if (this.focusCardID != -1) {
+            let unfocused = getCardTag(this.focusCardID);
+            if (!unfocused) { this.focusCardID = -1; return; }
+            let editUI = unfocused.getElementsByClassName("actions")[0];
+            if (editUI)
+                unfocused.removeChild(editUI);
+        }
+        this.focusCardID = id;
+        if (this.focusCardID != -1) {
+            let focused = getCardTag(this.focusCardID);
+            focused.appendChild(this.htmlEditUI(id));
+
+            // Change z-index to top by physically moving DOM location
+            // and cardsData map insertion order *hack?*
+            getCardContainerTag().appendChild(focused);
+            let data = this.cardsData.get(id);
+            this.cardsData.delete(id);
+            this.set(id, data);
+        }
+    }
 
     // Generate all HTML data for card except for position
     // which is deferred to after appendChild, to align to centre using client bounds.
@@ -299,19 +325,22 @@ export class CardsData {
         let cardContainer = document.createElement('div');
         cardContainer.id = "card-" + id;
 
+        let style = cardContainer.style;
+        cardContainer.classList.add('card');
+
+        let colors = this.borderBackgroundColors(cardObject.color);
+        style.borderColor = colors.border;
+        style.backgroundColor = colors.background;
+
         // Needed to reference 'this' class within callback, instead of 'this' tag
         let that = this;
         cardContainer.onmousedown = function (e) {
+            e.stopPropagation();
             // TODO: undo/redo
             that.moveFlag = true;
             that.moveCardID = id;
 
-            // Change z-index to top by physically moving DOM location
-            // and cardsData map insertion order
-            // getCardContainerTag().appendChild(cardContainer);
-            // let cardData = that.cardsData.get(id);
-            // that.cardsData.delete(id);
-            // that.set(id, cardData);
+            that.focusCard(id);
 
             let boundRect = cardContainer.getBoundingClientRect();
             that.moveCardOffset.x = e.clientX - (boundRect.left + window.scrollX);
@@ -319,20 +348,12 @@ export class CardsData {
 
             if (that.linkInProgress)
                 that.endLink(id);
-            
+
             cardContainer.getElementsByClassName('text')[0].focus();
         };
 
-        // sectioned into separate inline functions
+        // sectioned into separate inline function
         cardContainer.appendChild(cardHTML(this));
-        cardContainer.appendChild(editUI(this));
-
-        let style = cardContainer.style;
-        cardContainer.classList.add('card');
-
-        let colors = this.borderBackgroundColors(cardObject.color);
-        style.borderColor = colors.border;
-        style.backgroundColor = colors.background;
 
         return cardContainer;
 
@@ -350,65 +371,6 @@ export class CardsData {
             p.onmouseup = () => { p.focus(); };
 
             return p;
-        }
-        function editUI(that) {
-            let actions = document.createElement('div');
-            actions.classList.add("actions");
-
-            let linkElem = document.createElement('button');
-            linkElem.innerHTML = `
-            <span class="material-symbols-outlined">
-                call_split
-            </span>
-            `;
-            linkElem.classList.add("actions-button", "link-button");
-            linkElem.onmousedown = () => { that.startLink(id); };
-            actions.appendChild(linkElem);
-
-            let deleteCard = document.createElement('button');
-            deleteCard.innerHTML = `
-            <span class="material-symbols-outlined">
-                delete
-            </span>
-            `;
-            deleteCard.classList.add("actions-button");
-            deleteCard.onmousedown = (e) => { that.deleteCard(id); e.stopPropagation(); };
-            actions.appendChild(deleteCard);
-
-            let clrPicker = document.createElement('div');
-            clrPicker.classList.add('color-picker');
-
-            let colorInput = document.createElement('input');
-            colorInput.type = 'text';
-            colorInput.value = defaultColor;
-            colorInput.setAttribute('data-coloris', true);
-
-            let colorEdit = document.createElement('div');
-            colorEdit.classList.add('clr-field');
-            colorEdit.style.color = defaultColor;
-            colorEdit.innerHTML = `
-            <button type="button" aria-labelledby="clr-open-label"></button>
-            `;
-            colorEdit.appendChild(colorInput);
-            clrPicker.appendChild(colorEdit);
-            actions.appendChild(colorEdit);
-
-            colorInput.onchange = function () {
-                // Set color swatch settings
-                that.cardColors.add(colorEdit.style.color);
-                window.colorSettings(Array.from(that.cardColors));
-            };
-            colorEdit.oninput = function () {
-                // TODO: undo/redo
-                // Set color variables
-                let color = colorEdit.style.color;
-                cardObject.color = color;
-                let colors = that.borderBackgroundColors(color);
-                cardContainer.style.borderColor = colors.border;
-                cardContainer.style.backgroundColor = colors.background;
-            };
-
-            return actions;
         }
     }
 

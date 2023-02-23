@@ -293,13 +293,7 @@ button:hover, .label:hover {
     display: inline-flex;
     text-align: center;
     left: 50%;
-    transform: translateX(-50%) scale(0);
-}
-
-.card:hover>.actions {
-    transform: translateX(-50%) scale(1);
-    opacity: 1;
-    filter: blur(0px);
+    transform: translateX(-50%);
 }
 
 @keyframes dialog {
