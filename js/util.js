@@ -432,7 +432,7 @@ export class Camera {
         // Zoom to center
         this.matrix.reset();
         this.matrix.translate(
-            window.innerWidth / 2  ,//- deltaZoom * this.mousePos.x,
+            window.innerWidth / 2,//- deltaZoom * this.mousePos.x,
             window.innerHeight / 2  //- deltaZoom * this.mousePos.y
         );
         this.matrix.scale(this.#zoom, this.#zoom);
@@ -451,8 +451,8 @@ export class Camera {
         if (this.#doScroll) {
             let deltaX = event.pageX - this.#oldScrollPos.x;
             let deltaY = event.pageY - this.#oldScrollPos.y;
-            this.pos.x += deltaX;
-            this.pos.y += deltaY;
+            this.pos.x += deltaX / this.#zoom;
+            this.pos.y += deltaY / this.#zoom;
             this.#oldScrollPos.x = event.pageX;
             this.#oldScrollPos.y = event.pageY;
         }
