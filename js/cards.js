@@ -198,7 +198,8 @@ export class CardsData {
                     this.set(id, deletedCard);
                     this.addCardHTML(id);
                     deletedCard.connections.forEach(endId => { this.addLink(id, endId); });
-                    linksToDeletedCard.forEach(startLinkId => { this.addLink(startLinkId, id); });
+                    // TODO: why is this resetting the other card's text? (type something in root, then delete end card, then undo)
+                    linksToDeletedCard.forEach(startLinkId => { this.addLink(startLinkId, id); console.log(startLinkId);});
                 },
                 redo: () => this.deleteCard(id, false)
             });
@@ -307,10 +308,10 @@ export class CardsData {
 
             // Change z-index to top by physically moving DOM location
             // and cardsData map insertion order
-            getCardContainerTag().appendChild(cardContainer);
-            let cardData = that.cardsData.get(id);
-            that.cardsData.delete(id);
-            that.set(id, cardData);
+            // getCardContainerTag().appendChild(cardContainer);
+            // let cardData = that.cardsData.get(id);
+            // that.cardsData.delete(id);
+            // that.set(id, cardData);
 
             let boundRect = cardContainer.getBoundingClientRect();
             that.moveCardOffset.x = e.clientX - (boundRect.left + window.scrollX);
