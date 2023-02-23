@@ -436,6 +436,7 @@ export class Camera {
             window.innerHeight / 2  //- deltaZoom * this.mousePos.y
         );
         this.matrix.scale(this.#zoom, this.#zoom);
+        // TODO: Pan at same ratio to zoom
         this.matrix.translate(this.pos.x, this.pos.y);
 
         let transformNode = this.getTransformNode();
