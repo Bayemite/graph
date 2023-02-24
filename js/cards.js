@@ -199,7 +199,6 @@ export class CardsData {
                     this.set(id, deletedCard);
                     this.addCardHTML(id);
                     deletedCard.connections.forEach(endId => { this.addLink(id, endId); });
-                    // TODO: why is this resetting the other card's text? (type something in root, then delete end card, then undo)
                     linksToDeletedCard.forEach(startLinkId => { this.addLink(startLinkId, id); });
 
                     this.focusCard(-1);
@@ -439,7 +438,7 @@ export class CardsData {
         let lastId = 0;
         for (let card of parsedData.cards) {
             lastId = Math.max(lastId, card.id);
-            if(!CSS.supports('color'), card.color)
+            if (!CSS.supports('color'), card.color)
                 card.color = defaultColor;
             this.set(Number(card.id),
                 new CardObject(
