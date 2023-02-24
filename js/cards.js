@@ -257,7 +257,7 @@ export class CardsData {
         deleteCard.addEventListener('click', () => { this.deleteCard(id); });
         editRootNode.appendChild(deleteCard);
 
-        let clrPicker = document.createElement('div');
+        let clrPicker = document.createElement('span');
         clrPicker.classList.add('color-picker');
 
         let colorInput = document.createElement('input');
@@ -272,7 +272,7 @@ export class CardsData {
         <button type="button" aria-labelledby="clr-open-label" style="margin:0px;"></button>
         `;
         colorEdit.appendChild(colorInput);
-        clrPicker.appendChild(colorEdit);
+        colorEdit.appendChild(clrPicker);
         editRootNode.appendChild(colorEdit);
 
         let that = this;
