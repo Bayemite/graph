@@ -269,7 +269,7 @@ export class CardsData {
         colorEdit.classList.add('clr-field');
         colorEdit.style.color = defaultColor;
         colorEdit.innerHTML = `
-        <button type="button" aria-labelledby="clr-open-label"></button>
+        <button type="button" aria-labelledby="clr-open-label" style="margin:0px;"></button>
         `;
         colorEdit.appendChild(colorInput);
         clrPicker.appendChild(colorEdit);
