@@ -437,8 +437,10 @@ export class CardsData {
         this.cardsData.clear();
 
         let lastId = 0;
-        for (const card of parsedData.cards) {
+        for (let card of parsedData.cards) {
             lastId = Math.max(lastId, card.id);
+            if(!CSS.supports('color'), card.color)
+                card.color = defaultColor;
             this.set(Number(card.id),
                 new CardObject(
                     util.vec2(card.x, card.y),
