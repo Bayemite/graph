@@ -275,19 +275,21 @@ export class CardsData {
         clrPicker.appendChild(colorEdit);
         editRootNode.appendChild(colorEdit);
 
+        let that = this;
         colorInput.onchange = function () {
             // Set color swatch settings
-            this.cardColors.add(colorEdit.style.color);
-            window.colorSettings(Array.from(this.cardColors));
+            that.cardColors.add(colorEdit.style.color);
+            window.colorSettings(Array.from(that.cardColors));
         };
         colorEdit.oninput = function () {
             // TODO: undo/redo
             // Set color variables
             let color = colorEdit.style.color;
-            cardObject.color = color;
-            let colors = this.borderBackgroundColors(color);
-            cardContainer.style.borderColor = colors.border;
-            cardContainer.style.backgroundColor = colors.background;
+            that.cardsData.get(id).color = color;
+            let colors = that.borderBackgroundColors(color);
+            let card = getCardTag(id);
+            card.style.borderColor = colors.border;
+            card.style.backgroundColor = colors.background;
         };
 
         return editRootNode;
