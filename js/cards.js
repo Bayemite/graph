@@ -281,16 +281,18 @@ export class CardsData {
             that.cardColors.add(colorEdit.style.color);
             window.colorSettings(Array.from(that.cardColors));
         };
+        let cardData = that.cardsData.get(id);
         colorEdit.oninput = function () {
             // TODO: undo/redo
             // Set color variables
             let color = colorEdit.style.color;
-            that.cardsData.get(id).color = color;
+            cardData.color = color;
             let colors = that.borderBackgroundColors(color);
-            let card = getCardTag(id);
-            card.style.borderColor = colors.border;
-            card.style.backgroundColor = colors.background;
+            let cardTag = getCardTag(id);
+            cardTag.style.borderColor = colors.border;
+            cardTag.style.backgroundColor = colors.background;
         };
+        colorEdit.style.color = cardData.color;
 
         return editRootNode;
     }
