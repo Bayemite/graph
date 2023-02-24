@@ -27,7 +27,9 @@ class UndoRedoStack {
             let cmd = this.undoStack.pop();
             cmd.undo();
             this.redoStack.push(cmd);
+            return true;
         }
+        return false;
     }
 
     redo() {
@@ -35,7 +37,9 @@ class UndoRedoStack {
             let cmd = this.redoStack.pop();
             cmd.redo();
             this.undoStack.push(cmd);
+            return true;
         }
+        return false;
     }
 }
 
@@ -94,7 +98,7 @@ export class CardsData {
     }
 
     undo() {
-        this.undoRedoStack.undo();
+        return this.undoRedoStack.undo();
     }
 
     set(key, value) {

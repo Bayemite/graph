@@ -15,10 +15,10 @@ function initListeners(canvas, cardsData) {
     document.addEventListener('keydown', (event) => {
         if (event.ctrlKey) {
             if (event.code == "KeyZ") {
-                cardsData.undo(); event.preventDefault();
+                if (cardsData.undo()) event.preventDefault();
             }
             else if (event.code == "KeyY") {
-                cardsData.undoRedoStack.redo(); event.preventDefault();
+                if (cardsData.undoRedoStack.redo()) event.preventDefault();
             }
         }
     });
