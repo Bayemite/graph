@@ -219,6 +219,7 @@ export class CardsData {
         cardData.pos.y = pos.y - (this.moveCardOffset.y / camera.zoom);
 
         let card = getCardTag(id);
+        card.getElementsByClassName("text")[0].blur();
         // TODO: undo/redo
         card.style.left = `${cardData.pos.x}px`;
         card.style.top = `${cardData.pos.y}px`;
@@ -339,10 +340,12 @@ export class CardsData {
         // Needed to reference 'this' class within callback, instead of 'this' tag
         let that = this;
         cardContainer.onmousedown = function (e) {
-            e.stopPropagation();
             // TODO: undo/redo
-            that.moveFlag = true;
-            that.moveCardID = id;
+            e.stopPropagation();
+            if (that.focusCardID === id) {
+                that.moveFlag = true;
+                that.moveCardID = id;
+            }
 
             that.focusCard(id);
 
