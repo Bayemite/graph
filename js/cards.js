@@ -339,9 +339,10 @@ export class CardsData {
 
         // Needed to reference 'this' class within callback, instead of 'this' tag
         let that = this;
-        cardContainer.onmousedown = function (e) {
+        function mouseDown(e) {
             // TODO: undo/redo
             e.stopPropagation();
+
             if (that.focusCardID === id) {
                 that.moveFlag = true;
                 that.moveCardID = id;
@@ -350,14 +351,19 @@ export class CardsData {
             that.focusCard(id);
 
             let boundRect = cardContainer.getBoundingClientRect();
-            that.moveCardOffset.x = e.clientX - (boundRect.left + window.scrollX);
-            that.moveCardOffset.y = e.clientY - (boundRect.top + window.scrollY);
+            let mousePos;
+            if (e.touches) mousePos = util.vec2(e.touches[0].pageX, e.touches[0].pageY);
+            else mousePos = util.vec2(e.pageX, e.pageY);
+            that.moveCardOffset.x = mousePos.x - boundRect.left;
+            that.moveCardOffset.y = mousePos.y - boundRect.top;
 
             if (that.linkInProgress)
                 that.endLink(id);
 
             cardContainer.getElementsByClassName('text')[0].focus();
-        };
+        }
+        cardContainer.onmousedown = mouseDown;
+        cardContainer.ontouchstart = mouseDown;
 
         // sectioned into separate inline function
         cardContainer.appendChild(cardHTML(this));

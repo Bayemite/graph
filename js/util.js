@@ -444,24 +444,25 @@ export class Camera {
         transformNode.style.transform = `matrix(${m.a},${m.b},${m.c},${m.d},${m.e},${m.f})`;
     };
 
-    onMouseMove(event) {
-        this.mousePos.x = event.pageX;
-        this.mousePos.y = event.pageY;
+    onMouseMove(mousePos) {
+        this.mousePos.x = mousePos.x;
+        this.mousePos.y = mousePos.y;
 
         if (this.#doScroll) {
-            let deltaX = event.pageX - this.#oldScrollPos.x;
-            let deltaY = event.pageY - this.#oldScrollPos.y;
+            let deltaX = this.mousePos.x - this.#oldScrollPos.x;
+            let deltaY = this.mousePos.y - this.#oldScrollPos.y;
             this.pos.x += deltaX / this.#zoom;
             this.pos.y += deltaY / this.#zoom;
-            this.#oldScrollPos.x = event.pageX;
-            this.#oldScrollPos.y = event.pageY;
+            this.#oldScrollPos.x = this.mousePos.x;
+            this.#oldScrollPos.y = this.mousePos.y;
         }
     }
 
-    onMouseDown(event) {
+    onMouseDown(mousePos) {
         this.#doScroll = true;
-        this.#oldScrollPos.x = event.pageX;
-        this.#oldScrollPos.y = event.pageY;
+        this.#oldScrollPos.x = mousePos.x;
+        this.#oldScrollPos.y = mousePos.y;
+        this.mousePos = mousePos;
     }
 
     onMouseUp() {

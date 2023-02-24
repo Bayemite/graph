@@ -20,39 +20,56 @@ function initListeners(canvas, cardsData) {
                 cardsData.undoRedoStack.redo();
         }
     });
-    document.addEventListener('mousedown', () => {
-        cardsData.focusCard(-1);
-    });
-    document.addEventListener('mouseup', () => {
+    document.addEventListener('mousedown', () => cardsData.focusCard(-1));
+    document.addEventListener('touchstart', () => cardsData.focusCard(-1));
+    function mouseUp() {
         cardsData.moveFlag = false;
         window.camera.onMouseUp();
-    });
-    document.addEventListener('mousemove', (event) => {
+    }
+    document.addEventListener('mouseup', mouseUp);
+    document.addEventListener('touchend', mouseUp);
+
+    function mouseMove(event) {
         // Mouse events are up in card creation
         if (cardsData.moveFlag)
             cardsData.moveElem();
 
-        window.camera.onMouseMove(event);
+        if (event.touches != undefined)
+            window.camera.onMouseMove(util.vec2(event.touches[0].pageX, event.touches[0].pageY));
+        else window.camera.onMouseMove(util.vec2(event.pageX, event.pageY));
 
         // cardsData.addDefaultCardHtml(camera.globalCoords(camera.mousePos), true);
-    });
+    }
+    document.addEventListener('mousemove', mouseMove);
+    document.addEventListener('touchmove', mouseMove);
 
     canvas.addEventListener('dblclick', () => {
         const camera = window.camera;
         cardsData.addDefaultCardHtml(camera.globalCoords(camera.mousePos), true);
     });
-    canvas.addEventListener('mousedown', (event) => {
+
+    function mouseDown(event) {
         const camera = window.camera;
+        if (event.touches != undefined) {
+            let t = event.touches[0];
+            camera.onMouseDown(util.vec2(t.pageX, t.pageY));
+        }
+        else camera.onMouseDown(util.vec2(event.pageX, event.pageY));
+
         if (cardsData.linkInProgress) {
-            if (event.button == 0) {
-                let id = cardsData.addDefaultCardHtml(camera.globalCoords(camera.mousePos), true);
+            if (event.touches != undefined || event.button == 0) {
+                let pos = camera.globalCoords(camera.mousePos);
+                let centerOrigin = true;
+                let id = cardsData.addDefaultCardHtml(pos, centerOrigin);
                 // The undo is packaged with the new card creation.
-                cardsData.endLink(id, false);
+                let addUndo = false;
+                cardsData.endLink(id, addUndo);
             }
             else cardsData.linkInProgress = false;
         }
-        else camera.onMouseDown(event);
-    });
+    }
+    canvas.addEventListener('touchstart', mouseDown);
+    canvas.addEventListener('mousedown', mouseDown);
 
     document.addEventListener('wheel', (event) => {
         event.preventDefault();
