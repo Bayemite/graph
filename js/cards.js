@@ -275,18 +275,23 @@ export class CardsData {
         colorEdit.appendChild(clrPicker);
         editRootNode.appendChild(colorEdit);
 
+        function getInputColor() {
+            let color = util.hexToRgb(colorInput.value);
+            return `rgb(${color.r}, ${color.g}, ${color.b})`;
+        }
+
         let that = this;
         colorInput.onchange = function () {
             // Set color swatch settings
-            that.cardColors.add(colorEdit.style.color);
+            that.cardColors.add(getInputColor());
             window.colorSettings(Array.from(that.cardColors));
         };
         let cardData = that.cardsData.get(id);
         colorEdit.oninput = function () {
             // TODO: undo/redo
-            // Set color variables
-            let color = colorEdit.style.color;
+            let color = getInputColor();
             cardData.color = color;
+
             let colors = that.borderBackgroundColors(color);
             let cardTag = getCardTag(id);
             cardTag.style.borderColor = colors.border;
@@ -438,7 +443,7 @@ export class CardsData {
         let lastId = 0;
         for (let card of parsedData.cards) {
             lastId = Math.max(lastId, card.id);
-            if (!CSS.supports('color'), card.color)
+            if (!CSS.supports('color', card.color))
                 card.color = defaultColor;
             this.set(Number(card.id),
                 new CardObject(
