@@ -32,12 +32,13 @@ function initListeners(canvas, cardsData) {
     document.addEventListener('touchend', mouseUp);
 
     function mouseMove(event) {
-        // Mouse events are up in card creation
+        let touch = event?.touches?.[0];
+        let touchPos = touch ? util.vec2(touch.pageX, touch.pageY) : undefined;
         if (cardsData.moveFlag)
             cardsData.moveElem();
 
-        if (event.touches != undefined)
-            window.camera.onMouseMove(util.vec2(event.touches[0].pageX, event.touches[0].pageY));
+        if (touch)
+            window.camera.onMouseMove(touchPos);
         else window.camera.onMouseMove(util.vec2(event.pageX, event.pageY));
 
         // cardsData.addDefaultCardHtml(camera.globalCoords(camera.mousePos), true);

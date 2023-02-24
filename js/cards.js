@@ -212,14 +212,23 @@ export class CardsData {
         }
     }
 
+    setMoveCardOffset(pos, id) {
+        let cam = window.camera;
+        let bounds = getCardTag(id).getBoundingClientRect();
+        this.moveCardOffset.x = (pos.x - bounds.left) / cam.zoom;
+        this.moveCardOffset.y = (pos.y - bounds.top) / cam.zoom;
+    }
+
     moveElem() {
+        if (!this.moveFlag) return;
+
         let id = this.moveCardID;
         const camera = window.camera;
 
         let cardData = this.cardsData.get(id);
         let pos = camera.globalCoords(camera.mousePos);
-        cardData.pos.x = pos.x - (this.moveCardOffset.x / camera.zoom);
-        cardData.pos.y = pos.y - (this.moveCardOffset.y / camera.zoom);
+        cardData.pos.x = pos.x - this.moveCardOffset.x;
+        cardData.pos.y = pos.y - this.moveCardOffset.y;
 
         let card = getCardTag(id);
         card.getElementsByClassName("text")[0].blur();
@@ -358,17 +367,16 @@ export class CardsData {
 
             that.focusCard(id);
 
-            let boundRect = cardContainer.getBoundingClientRect();
             let mousePos;
-            if (e.touches) mousePos = util.vec2(e.touches[0].pageX, e.touches[0].pageY);
-            else mousePos = util.vec2(e.pageX, e.pageY);
-            that.moveCardOffset.x = mousePos.x - boundRect.left;
-            that.moveCardOffset.y = mousePos.y - boundRect.top;
+            if (e.touches)
+                mousePos = util.vec2(e.touches[0].pageX, e.touches[0].pageY);
+            else
+                mousePos = util.vec2(e.pageX, e.pageY);
+            that.setMoveCardOffset(mousePos, id);
+
 
             if (that.linkInProgress)
                 that.endLink(id);
-
-            cardContainer.getElementsByClassName('text')[0].focus();
         }
         cardContainer.onmousedown = mouseDown;
         cardContainer.ontouchstart = mouseDown;
