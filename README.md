@@ -1,2 +1,2 @@
-# graph
-popplet clone
+# Graph
+Mind-mapping webapp
