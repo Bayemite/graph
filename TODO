@@ -2,7 +2,6 @@
 - Saving then loading: card location & multiple connections change
 
 # TO FIX!‽
-- Save should not reload page
 - Save then load -> deleting card causes undefined break link belonging to card linking to deleted card.
 
 # Inconvenient
@@ -24,5 +23,6 @@
 - Loading from file breaks connections
 
 ## Bayemite: working memory
+- force card dimensions
 - Undo/redo
 - peer JS
