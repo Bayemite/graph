@@ -27,9 +27,7 @@ class UndoRedoStack {
             let cmd = this.undoStack.pop();
             cmd.undo();
             this.redoStack.push(cmd);
-            return true;
         }
-        return false;
     }
 
     redo() {
@@ -37,9 +35,7 @@ class UndoRedoStack {
             let cmd = this.redoStack.pop();
             cmd.redo();
             this.undoStack.push(cmd);
-            return true;
         }
-        return false;
     }
 }
 
@@ -98,7 +94,7 @@ export class CardsData {
     }
 
     undo() {
-        return this.undoRedoStack.undo();
+        this.undoRedoStack.undo();
     }
 
     set(key, value) {
@@ -212,23 +208,14 @@ export class CardsData {
         }
     }
 
-    setMoveCardOffset(pos, id) {
-        let cam = window.camera;
-        let bounds = getCardTag(id).getBoundingClientRect();
-        this.moveCardOffset.x = (pos.x - bounds.left) / cam.zoom;
-        this.moveCardOffset.y = (pos.y - bounds.top) / cam.zoom;
-    }
-
     moveElem() {
-        if (!this.moveFlag) return;
-
         let id = this.moveCardID;
         const camera = window.camera;
 
         let cardData = this.cardsData.get(id);
         let pos = camera.globalCoords(camera.mousePos);
-        cardData.pos.x = pos.x - this.moveCardOffset.x;
-        cardData.pos.y = pos.y - this.moveCardOffset.y;
+        cardData.pos.x = pos.x - (this.moveCardOffset.x / camera.zoom);
+        cardData.pos.y = pos.y - (this.moveCardOffset.y / camera.zoom);
 
         let card = getCardTag(id);
         card.getElementsByClassName("text")[0].blur();
@@ -288,23 +275,18 @@ export class CardsData {
         colorEdit.appendChild(clrPicker);
         editRootNode.appendChild(colorEdit);
 
-        function getInputColor() {
-            let color = util.hexToRgb(colorInput.value);
-            return `rgb(${color.r}, ${color.g}, ${color.b})`;
-        }
-
         let that = this;
         colorInput.onchange = function () {
             // Set color swatch settings
-            that.cardColors.add(getInputColor());
+            that.cardColors.add(colorEdit.style.color);
             window.colorSettings(Array.from(that.cardColors));
         };
         let cardData = that.cardsData.get(id);
         colorEdit.oninput = function () {
             // TODO: undo/redo
-            let color = getInputColor();
+            // Set color variables
+            let color = colorEdit.style.color;
             cardData.color = color;
-
             let colors = that.borderBackgroundColors(color);
             let cardTag = getCardTag(id);
             cardTag.style.borderColor = colors.border;
@@ -367,16 +349,17 @@ export class CardsData {
 
             that.focusCard(id);
 
+            let boundRect = cardContainer.getBoundingClientRect();
             let mousePos;
-            if (e.touches)
-                mousePos = util.vec2(e.touches[0].pageX, e.touches[0].pageY);
-            else
-                mousePos = util.vec2(e.pageX, e.pageY);
-            that.setMoveCardOffset(mousePos, id);
-
+            if (e.touches) mousePos = util.vec2(e.touches[0].pageX, e.touches[0].pageY);
+            else mousePos = util.vec2(e.pageX, e.pageY);
+            that.moveCardOffset.x = mousePos.x - boundRect.left;
+            that.moveCardOffset.y = mousePos.y - boundRect.top;
 
             if (that.linkInProgress)
                 that.endLink(id);
+
+            cardContainer.getElementsByClassName('text')[0].focus();
         }
         cardContainer.onmousedown = mouseDown;
         cardContainer.ontouchstart = mouseDown;
@@ -455,7 +438,7 @@ export class CardsData {
         let lastId = 0;
         for (let card of parsedData.cards) {
             lastId = Math.max(lastId, card.id);
-            if (!CSS.supports('color', card.color))
+            if (!CSS.supports('color'), card.color)
                 card.color = defaultColor;
             this.set(Number(card.id),
                 new CardObject(

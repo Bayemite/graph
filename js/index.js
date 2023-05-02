@@ -15,10 +15,10 @@ function initListeners(canvas, cardsData) {
     document.addEventListener('keydown', (event) => {
         if (event.ctrlKey) {
             if (event.code == "KeyZ") {
-                if (cardsData.undo()) event.preventDefault();
+                cardsData.undo(); event.preventDefault();
             }
             else if (event.code == "KeyY") {
-                if (cardsData.undoRedoStack.redo()) event.preventDefault();
+                cardsData.undoRedoStack.redo(); event.preventDefault();
             }
         }
     });
@@ -32,13 +32,12 @@ function initListeners(canvas, cardsData) {
     document.addEventListener('touchend', mouseUp);
 
     function mouseMove(event) {
-        let touch = event?.touches?.[0];
-        let touchPos = touch ? util.vec2(touch.pageX, touch.pageY) : undefined;
+        // Mouse events are up in card creation
         if (cardsData.moveFlag)
             cardsData.moveElem();
 
-        if (touch)
-            window.camera.onMouseMove(touchPos);
+        if (event.touches != undefined)
+            window.camera.onMouseMove(util.vec2(event.touches[0].pageX, event.touches[0].pageY));
         else window.camera.onMouseMove(util.vec2(event.pageX, event.pageY));
 
         // cardsData.addDefaultCardHtml(camera.globalCoords(camera.mousePos), true);
