@@ -89,6 +89,10 @@ window.onload = function () {
 
     window.camera = new util.Camera();
     let cardsData = new cards.CardsData();
+    document.getElementById('reset-button').onclick = () => {
+        cardsData.cardsData = new Map();
+        cardsData.addCardsHTML();
+    };
 
     initListeners(canvas, cardsData);
     util.loadLocalSave(cardsData);
