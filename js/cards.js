@@ -269,15 +269,34 @@ export class CardsData {
         colorEdit.classList.add('clr-field');
         colorEdit.style.color = defaultColor;
         colorEdit.innerHTML = `
-        <button type="button" aria-labelledby="clr-open-label" style="margin:0px;"></button>
+        <span 
+            class="material-symbols-outlined" 
+            style="position:absolute; 
+            top: 50%; left: 50%; margin-right: -50%; transform: translate(-50%, -50%);
+            z-index: 1; color:  var(--color-edit-icon-color);
+            transition: color 1s;
+            pointer-events: none;" 
+        >
+            palette
+        </span>
+        <button type="button" style="margin:0px;"></button>
         `;
+        let updateColorIconColor = (color /* 'rgb(...)' */) => {
+            let colorVals = util.colorValues(color);
+            let blackDist = (0 - colorVals[0]) ** 2 + (0 - colorVals[1]) ** 2 + (0 - colorVals[2]) ** 2;
+            let whiteDist = (255 - colorVals[0]) ** 2 + (255 - colorVals[1]) ** 2 + (255 - colorVals[2]) ** 2;
+            let iconColor = whiteDist >= blackDist ? 'white' : 'var(--lighter-black-transparent-color)';
+            document.documentElement.style.setProperty('--color-edit-icon-color', iconColor);
+        };
+        updateColorIconColor(colorEdit.style.color);
+
         colorEdit.appendChild(colorInput);
         colorEdit.appendChild(clrPicker);
         editRootNode.appendChild(colorEdit);
 
         let that = this;
         colorInput.onchange = function () {
-            // Set color swatch settings
+            // Set color swatch settings once color menu has been exited
             that.cardColors.add(colorEdit.style.color);
             window.colorSettings(Array.from(that.cardColors));
         };
@@ -291,6 +310,8 @@ export class CardsData {
             let cardTag = getCardTag(id);
             cardTag.style.borderColor = colors.border;
             cardTag.style.backgroundColor = colors.background;
+
+            updateColorIconColor(colorEdit.style.color);
         };
         colorEdit.style.color = cardData.color;
 
