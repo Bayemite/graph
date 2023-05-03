@@ -1,0 +1,28 @@
+{
+    "title": "Mindmap",
+    "cards": [
+        {
+            "id": 3,
+            "x": -1332.7472581852942,
+            "y": -1014.6649045297133,
+            "text": "<button onclick=\"alert('This could have been a virus bro...')\">Click me</button>",
+            "connections": [],
+            "color": "rgb(200, 200, 200)"
+        },
+        {
+            "id": 4,
+            "x": -1381.2396898259192,
+            "y": -917.5338220663212,
+            "text": "",
+            "connections": [],
+            "color": "rgb(200, 200, 200)"
+        }
+    ],
+    "camera": {
+        "pos": {
+            "x": 1239.3208587503425,
+            "y": 887.4078399551707
+        },
+        "zoom": 1.8700000000000003
+    }
+}
