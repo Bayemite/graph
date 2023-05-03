@@ -1,0 +1,6 @@
+{
+  "devDependencies": {
+    "browserify": "^17.0.0",
+    "sanitize-html": "^2.10.0"
+  }
+}

@@ -426,8 +426,10 @@ export class CardsData {
             let p = document.createElement('p');
             p.classList.add('text');
             p.contentEditable = true;
-            // TODO: sanitize HTML
-            p.innerHTML = cardObject.text;
+            p.innerHTML = globalThis.sanitizeHtml(cardObject.text);
+            // Re-add sanitised styles
+            for (let tag of p.getElementsByTagName('img'))
+                tag.classList.add('card-image');
 
             p.oninput = () => {
                 that.updateCardContent(id);

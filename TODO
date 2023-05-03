@@ -3,7 +3,6 @@
 
 # TO FIX!‽
 - Save then load -> deleting card causes undefined break link belonging to card linking to deleted card.
-- HTML sanitisation: innerHTML from card.text
 
 # Inconvenient
 - Request animation frames is not exactly required
