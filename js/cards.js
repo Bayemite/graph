@@ -270,6 +270,8 @@ export class CardsData {
 
                     const cardContainer = getCardTag(id).querySelector(".text");
                     cardContainer.appendChild(imageNode);
+
+                    this.updateCardContent(id);
                 };
                 reader.readAsDataURL(file);
             };
@@ -428,14 +430,18 @@ export class CardsData {
             p.innerHTML = cardObject.text;
 
             p.oninput = () => {
-                // TODO: undo/redo
-                cardObject.text = p.innerHTML;
+                that.updateCardContent(id);
             };
 
             p.onmouseup = () => { p.focus(); };
 
             return p;
         }
+    }
+
+    updateCardContent(id) {
+        // TODO: undo/redo
+        this.cardsData.get(id).text = getCardTag(id).querySelector('p').innerHTML;
     }
 
     // Add to data, returns id.
