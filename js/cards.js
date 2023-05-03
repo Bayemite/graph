@@ -363,7 +363,7 @@ export class CardsData {
             // TODO: undo/redo
             e.stopPropagation();
 
-            if (that.focusCardID === id) {
+            if (globalThis.immediateMoveCardFlag || that.focusCardID === id) {
                 that.moveFlag = true;
                 that.moveCardID = id;
             }

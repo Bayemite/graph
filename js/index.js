@@ -81,6 +81,7 @@ function initListeners(canvas, cardsData) {
 }
 
 window.onload = function () {
+    globalThis.immediateMoveCardFlag = true;
     Coloris({ clearButton: false });
 
     let canvas = document.getElementById('canvas');
