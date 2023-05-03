@@ -270,7 +270,7 @@ export class CardsData {
         colorEdit.style.color = defaultColor;
         colorEdit.innerHTML = `
         <span 
-            class="material-symbols-outlined" 
+            class="material-symbols-outlined"
             style="position:absolute; 
             top: 50%; left: 50%; margin-right: -50%; transform: translate(-50%, -50%);
             z-index: 1; color:  var(--color-edit-icon-color);
@@ -320,6 +320,9 @@ export class CardsData {
 
     // let id = -1 to unfocus without focusing on another.
     focusCard(id) {
+        this.moveCardID = id;
+        this.moveFlag = true;
+
         if (id === this.focusCardID) return;
         if (this.focusCardID != -1) {
             let unfocused = getCardTag(this.focusCardID);
@@ -362,11 +365,6 @@ export class CardsData {
         function mouseDown(e) {
             // TODO: undo/redo
             e.stopPropagation();
-
-            if (globalThis.immediateMoveCardFlag || that.focusCardID === id) {
-                that.moveFlag = true;
-                that.moveCardID = id;
-            }
 
             that.focusCard(id);
 
