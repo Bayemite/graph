@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
 
-:root{
+:root {
     --background-dark-color: #1c1b1b;
     --lighter-black-transparent-color: #1a1a1adc;
 }
@@ -22,7 +22,7 @@ body {
     background-color: var(--background-dark-color);
 }
 
-.translate{
+.translate {
     transform-origin: 0 0;
 }
 
@@ -37,10 +37,10 @@ body {
     text-anchor: middle;
     font-size: medium !important;
     font-variation-settings:
-        'FILL'0,
-        'wght'300,
-        'GRAD'0,
-        'opsz'48
+        'FILL' 0,
+        'wght' 300,
+        'GRAD' 0,
+        'opsz' 48
 }
 
 #overlay {
@@ -56,7 +56,8 @@ body {
     background-color: rgba(50, 50, 50, 1);
 }
 
-button, .label {
+button,
+.label {
     margin: 0 2px;
     padding: 10px 20px;
 
@@ -75,7 +76,8 @@ button, .label {
 
 }
 
-button:hover, .label:hover {
+button:hover,
+.label:hover {
     background-position: 100% 50%;
 
     background-color: rgb(205, 205, 205);
@@ -408,4 +410,49 @@ button:hover, .label:hover {
 input[type="file"] {
     /* opacity: 0; */
     display: none;
+}
+
+
+/* Print settings */
+
+@media print {
+
+    /* adjust text color and background color */
+    body {
+        color: black !important;
+        background-color: white;
+    }
+
+    * {
+        color: black !important;
+        border-color: black !important;
+    }
+
+    /* adjust font size and family */
+    /* h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    p {
+        font-size: 1.2em;
+        color: black !important;
+        font-family: sans-serif;
+    } */
+
+    .text[contenteditable]:empty::before {
+        content: "No text";
+        color: rgba(0, 0, 0, 0.6);
+    }
+
+    /* control page breaks */
+    .page-break {
+        page-break-before: always;
+    }
+
+    /* adjust margins */
+    .content {
+        margin: 1em;
+    }
 }
