@@ -174,6 +174,16 @@ button:hover, .label:hover {
     /* backdrop-filter: blur(8px); */
 }
 
+.card-image {
+    width: 100%;
+    height: 100%;
+    border-radius: 5px;
+    object-fit: cover;
+    object-position: center;
+    /* margin: auto; */
+    margin: 1rem auto;
+}
+
 .text {
     color: white;
     text-align: center;

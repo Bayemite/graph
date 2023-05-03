@@ -3,6 +3,7 @@
 
 # TO FIX!‽
 - Save then load -> deleting card causes undefined break link belonging to card linking to deleted card.
+- HTML sanitisation: innerHTML from card.text
 
 # Inconvenient
 - Request animation frames is not exactly required
@@ -10,16 +11,16 @@
 - Hover to open UI under card sometimes disappears when trying to move cursor to buttons
 
 # Features
-- Z-index: move to top when focused
 - Mobile support: touch input
-- Color change: text, arrows (where to put UI though, appear on text focus?)
 - Printer friendliness (day mode: background white)
 - Bold, italics, etc. for text
 - Peer connections for collaboration (hard, started)
 - Resizing card manually (nice to have)
-- Images in cards
 
 ## Done
+- Color change: text, arrows (where to put UI though, appear on text focus?)
+- Z-index: move to top when focused
+- Images in cards
 - Deleting card leaves connection del btn 
 - Loading from file breaks connections
 

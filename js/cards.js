@@ -246,6 +246,38 @@ export class CardsData {
         linkElem.onclick = () => { this.startLink(id); };
         editRootNode.appendChild(linkElem);
 
+        let imgElem = document.createElement('button');
+        imgElem.innerHTML = `
+        <span class="material-symbols-outlined">
+            add_photo_alternate
+        </span>
+        `;
+        imgElem.classList.add("actions-button");
+        imgElem.onclick = () => {
+            const input = document.createElement("input");
+            input.type = "file";
+            input.accept = "image/*";
+
+            input.onchange = () => {
+                const file = input.files[0];
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    // TODO: createObjectURL() using an image blob may be superior to data URIs
+                    const imageNode = document.createElement("img");
+                    imageNode.src = event.target.result;
+                    imageNode.alt = "Image";
+                    imageNode.classList.add("card-image");
+
+                    const cardContainer = getCardTag(id).querySelector(".text");
+                    cardContainer.appendChild(imageNode);
+                };
+                reader.readAsDataURL(file);
+            };
+            input.click();
+        };
+
+        editRootNode.appendChild(imgElem);
+
         let deleteCard = document.createElement('button');
         deleteCard.innerHTML = `
         <span class="material-symbols-outlined">
@@ -392,6 +424,7 @@ export class CardsData {
             let p = document.createElement('p');
             p.classList.add('text');
             p.contentEditable = true;
+            // TODO: sanitize HTML
             p.innerHTML = cardObject.text;
 
             p.oninput = () => {
