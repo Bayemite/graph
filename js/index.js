@@ -25,7 +25,7 @@ function initListeners(canvas, cardsData) {
     document.addEventListener('mousedown', () => cardsData.focusCard(-1));
     document.addEventListener('touchstart', () => cardsData.focusCard(-1));
     function mouseUp() {
-        cardsData.moveFlag = false;
+        cardsData.moveCardID = -1;
         window.camera.onMouseUp();
     }
     document.addEventListener('mouseup', mouseUp);
@@ -33,7 +33,7 @@ function initListeners(canvas, cardsData) {
 
     function mouseMove(event) {
         // Mouse events are up in card creation
-        if (cardsData.moveFlag)
+        if (cardsData.moveCardID != -1)
             cardsData.moveElem();
 
         if (event.touches != undefined)

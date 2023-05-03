@@ -72,8 +72,7 @@ export class CardsData {
         this.linkStart = -1;
         this.linkInProgress = false;
 
-        this.moveCardID = 0;
-        this.moveFlag = false;
+        this.moveCardID = -1;
         this.moveCardOffset = util.vec2();
 
         this.focusCardID = -1;
@@ -321,9 +320,9 @@ export class CardsData {
     // let id = -1 to unfocus without focusing on another.
     focusCard(id) {
         this.moveCardID = id;
-        this.moveFlag = true;
 
         if (id === this.focusCardID) return;
+
         if (this.focusCardID != -1) {
             let unfocused = getCardTag(this.focusCardID);
             if (!unfocused) { this.focusCardID = -1; return; }
@@ -331,6 +330,7 @@ export class CardsData {
             if (editUI)
                 unfocused.removeChild(editUI);
         }
+
         this.focusCardID = id;
         if (this.focusCardID != -1) {
             let focused = getCardTag(this.focusCardID);
@@ -483,7 +483,6 @@ export class CardsData {
                 "connections": Array.from(card.connections),
                 "color": card.color,
             });
-            console.log(card.color);
         }
         return saveData;
     };
