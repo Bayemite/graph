@@ -581,15 +581,15 @@ export function getTheme() { return window.localStorage.getItem('theme'); }
 export function setTheme(theme) { window.localStorage.setItem('theme', theme); }
 
 export function updateTheme(theme) {
-    // Edit css :root css variables
-    let computedStyles = window.getComputedStyle(document.documentElement);
-    document.documentElement.style.setProperty('--background-color',
-        computedStyles.getPropertyValue(`-${theme}-background-color`)
-    );
-    document.documentElement.style.setProperty('--text-color',
-        computedStyles.getPropertyValue(`--${theme}-text-color`)
-    );
-    document.documentElement.style.setProperty('--transparent-color',
-        computedStyles.getPropertyValue(`--${theme}-transparent-color`)
-    );
+    // Edits css :root css variables
+    let set = (key, val) => {
+        let e = document.documentElement;
+        val = window.getComputedStyle(e).getPropertyValue(val);
+        e.style.setProperty(key, val);
+    };
+
+    set('--background-color', `--${theme}-background-color`);
+    set('--text-color', `--${theme}-text-color`);
+    set('--transparent-color', `--${theme}-transparent-color`);
+    set('--border-color', `--${theme}-border-color`);
 }

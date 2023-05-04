@@ -90,7 +90,6 @@ function initListeners(canvas, cardsData) {
     };
 
     document.getElementById('theme-button').onclick = () => {
-        // Save theme to localStorage
         let theme = util.getTheme();
         if (theme == null)
             util.setTheme('dark');
@@ -99,6 +98,8 @@ function initListeners(canvas, cardsData) {
             util.setTheme(theme);
         }
         util.updateTheme(theme);
+        // Re-render all cards with new color theme
+        cardsData.addCardsHTML();
     };
 }
 
@@ -122,11 +123,9 @@ window.onload = function () {
         window.requestAnimationFrame(main);
         window.camera.update();
 
-        // Clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
         let theme = util.getTheme();
-        ctx.fillStyle = theme == 'dark' ? '#1c1b1b' : 'white';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
         if (theme == 'dark') {
             ctx.fillStyle = 'white';
             ctx.strokeStyle = 'white';

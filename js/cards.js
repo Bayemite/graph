@@ -229,15 +229,15 @@ export class CardsData {
         let backgroundColor;
         let borderColor;
 
+        // darken background if dark theme, else darken border
         if (util.getTheme() == 'dark') {
-            // darken bakground
             backgroundColor = components.map(c => c / 4);
             backgroundColor[3] = 1;
             borderColor = components;
         }
         else {
             backgroundColor = components;
-            borderColor = components.map(c => Math.min(c * 1.25, 255));
+            borderColor = components.map(c => c / 4);
         }
 
         backgroundColor = "rgba(" + backgroundColor.join(", ") + ")";
@@ -461,7 +461,6 @@ export class CardsData {
             p.oninput = () => {
                 that.updateCardContent(id);
             };
-            p.onmousedown = (e) => e.stopPropagation();
 
             return p;
         }
