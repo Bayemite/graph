@@ -1,8 +1,23 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
 
-:root{
-    --background-dark-color: #1c1b1b;
-    --lighter-black-transparent-color: #1a1a1adc;
+:root {
+    /* Dark theme */
+    --dark-background-color: #1c1b1b;
+    --dark-text-color: white;
+    --dark-transparent-color: #1a1a1adc;
+    --dark-border-color: rgba(200, 200, 200, 1);
+
+    /* Light theme */
+    --light-background-color: white;
+    --light-text-color: #1c1b1b;
+    --light-transparent-color: rgba(239, 239, 239, 0.863);
+    --light-border-color: black;
+
+    /* Current theme */
+    --background-color: var(--dark-background-color);
+    --text-color: var(--dark-text-color);
+    --transparent-color: var(--dark-transparent-color);
+    --border-color: var(--dark-border-color);
 }
 
 canvas {
@@ -14,15 +29,16 @@ canvas {
     padding: 0;
     margin: 0;
     position: fixed;
+    background-color: var(--background-color);
 }
 
 body {
     overflow: hidden;
     font-family: "DM Sans" !important;
-    background-color: var(--background-dark-color);
+    background-color: var(--background-color);
 }
 
-.translate{
+.translate {
     transform-origin: 0 0;
 }
 
@@ -50,10 +66,10 @@ body {
     left: 10px;
     padding: 20px;
     z-index: 10000;
-    color: white;
-    border: 2px solid rgba(200, 200, 200, 1);
+    color: var(--text-color);
+    border: 2px solid var(--border-color);
     border-radius: 20px;
-    background-color: rgba(50, 50, 50, 1);
+    background-color: var(--transparent-color);
 }
 
 button, .label {
@@ -63,8 +79,8 @@ button, .label {
     font-family: "DM Sans" !important;
     font-weight: 400;
     font-size: small;
-    color: white;
-    border: 2px solid rgba(200, 200, 200, 1);
+    color: var(--text-color);
+    border: 2px solid var(--border-color);
     border-radius: 20px;
 
     transition: 0.5s background cubic-bezier(0, 0.96, 0, 0.99), 0.5s;
@@ -73,14 +89,6 @@ button, .label {
 
     background-position: 0 0;
 
-}
-
-button:hover, .label:hover {
-    background-position: 100% 50%;
-
-    background-color: rgb(205, 205, 205);
-    color: rgb(48, 48, 48);
-    /* border-radius: 20px; */
 }
 
 .pointer-none {
@@ -107,7 +115,7 @@ button:hover, .label:hover {
     margin-top: 1rem;
     padding: 0 15px;
     border-radius: 10px;
-    border: 2px solid rgba(200, 200, 200, 1);
+    border: 2px solid var(--border-color);
     /* display: none; */
 }
 
@@ -125,7 +133,6 @@ button:hover, .label:hover {
 .accordion-header:hover {
     background-color: #2b2b2b;
     border-radius: 15px;
-    box-shadow: inset -2px 0 0 rgb(255, 255, 255), inset 0 -2px 0 rgb(255, 255, 255), inset 2px 0 0 rgb(255, 255, 255), inset 0 2px 0 rgb(255, 255, 255);
 }
 
 .accordion-title {
@@ -165,7 +172,7 @@ button:hover, .label:hover {
     width: max-content;
     max-width: 20vw;
 
-    border: 2px solid rgba(200, 200, 200, 1);
+    border: 2px solid var(--border-color);
     border-radius: 20px;
 
     /* box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.4); */
@@ -185,7 +192,7 @@ button:hover, .label:hover {
 }
 
 .text {
-    color: white;
+    color: var(--text-color);
     text-align: center;
     text-anchor: middle;
     padding: 10px 10px;
@@ -199,7 +206,7 @@ button:hover, .label:hover {
 
 .text[contenteditable]:empty::before {
     content: "Enter text";
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-color);
 }
 
 #peer-id {
@@ -212,7 +219,7 @@ button:hover, .label:hover {
     padding: 10px 10px;
     margin-top: 10px;
     margin-bottom: 0px;
-    border: 2px solid rgba(200, 200, 200, 1);
+    border: 2px solid var(--border-color);
     border-radius: 3rem;
 
     /* max-width: calc(100% - 20px) !important; */
@@ -242,9 +249,9 @@ button:hover, .label:hover {
     width: 2.2rem;
     height: 2.2rem;
 
-    background-color: var(--lighter-black-transparent-color);
-    color: white;
-    border: 2px solid rgba(200, 200, 200, 1);
+    background-color: var(--transparent-color);
+    color: var(--text-color);
+    border: 2px solid var(--border-color);
     border-radius: 100%;
 }
 
@@ -283,7 +290,7 @@ button:hover, .label:hover {
     padding: 4px;
 
     color: white;
-    border: 1.5px solid rgba(200, 200, 200, 1);
+    border: 1.5px solid var(--border-color);
 
     transform-origin: 0 0;
     transition: 0.5s all, 0.2s opacity, 0.2s transform, 0s left, top;
@@ -326,10 +333,10 @@ button:hover, .label:hover {
     animation-fill-mode: forwards;
 
     padding: 20px 40px;
-    background-color: #2b2b2b;
+    background-color: var(--background-color);
     color: #ffffff;
     position: absolute;
-    border: 2px solid rgba(200, 200, 200, 1);
+    border: 2px solid var(--border-color);
     border-radius: 50px;
     left: 50vw;
     top: 50vh;

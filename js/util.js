@@ -119,6 +119,10 @@ export class Vector2D {
         this.y /= scalarDiv;
         return this;
     }
+
+    dist(x, y) {
+        return Math.sqrt((x - this.x) ** 2 + (y - this.y) ** 2);
+    }
 }
 
 export function vec2(x = 0, y = 0) {
@@ -202,7 +206,7 @@ export class Dialog {
 }
 
 // Angle: Up = 0, positive is clockwise
-export function drawTriangle(ctx, x, y, angle, radius, fill) {
+export function drawTriangle(ctx, x, y, angle, radius) {
     let p1 = vec2();
     let p2 = vec2();
     let p3 = vec2();
@@ -221,8 +225,6 @@ export function drawTriangle(ctx, x, y, angle, radius, fill) {
     ctx.lineTo(p3.x, p3.y);
     ctx.lineTo(p1.x, p1.y);
     ctx.closePath();
-    ctx.strokeStyle = fill;
-    ctx.fillStyle = fill;
     ctx.stroke();
     ctx.fill();
 }
@@ -286,7 +288,7 @@ function closestSideCenter(pos, rect) {
 // Arrow at end of link line
 const linkTriangleRadius = 2;
 function drawLinkTriangle(ctx, pos, angle) {
-    drawTriangle(ctx, pos.x, pos.y, angle, linkTriangleRadius, "#fff");
+    drawTriangle(ctx, pos.x, pos.y, angle, linkTriangleRadius);
 }
 
 // Example: angle of 90
@@ -573,4 +575,21 @@ export function loadLocalSave(cardsData) {
         return true;
     }
     return false;
+}
+
+export function getTheme() { return window.localStorage.getItem('theme'); }
+export function setTheme(theme) { window.localStorage.setItem('theme', theme); }
+
+export function updateTheme(theme) {
+    // Edit css :root css variables
+    let computedStyles = window.getComputedStyle(document.documentElement);
+    document.documentElement.style.setProperty('--background-color',
+        computedStyles.getPropertyValue(`-${theme}-background-color`)
+    );
+    document.documentElement.style.setProperty('--text-color',
+        computedStyles.getPropertyValue(`--${theme}-text-color`)
+    );
+    document.documentElement.style.setProperty('--transparent-color',
+        computedStyles.getPropertyValue(`--${theme}-transparent-color`)
+    );
 }

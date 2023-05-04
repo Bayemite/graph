@@ -1,6 +1,11 @@
 import * as util from './util.js';
 import * as cards from './cards.js';
 
+let theme = 'dark';
+if (window.localStorage.getItem('theme') != null)
+    theme = window.localStorage.getItem('theme');
+util.updateTheme(theme);
+
 function initListeners(canvas, cardsData) {
     util.addSaveOpenFileListeners(cardsData);
     util.addLocalSaveListener(cardsData);
@@ -78,6 +83,23 @@ function initListeners(canvas, cardsData) {
         window.camera.onWheel(event);
     }, { passive: false }
     );
+
+    document.getElementById('reset-button').onclick = () => {
+        cardsData.cardsData = new Map();
+        cardsData.addCardsHTML();
+    };
+
+    document.getElementById('theme-button').onclick = () => {
+        // Save theme to localStorage
+        let theme = util.getTheme();
+        if (theme == null)
+            util.setTheme('dark');
+        else {
+            theme = theme == 'dark' ? 'light' : 'dark';
+            util.setTheme(theme);
+        }
+        util.updateTheme(theme);
+    };
 }
 
 window.onload = function () {
@@ -85,14 +107,11 @@ window.onload = function () {
 
     let canvas = document.getElementById('canvas');
     let ctx = canvas.getContext('2d');
+    globalThis.ctx = ctx;
     ctx.imageSmoothingEnabled = true;
 
     window.camera = new util.Camera();
     let cardsData = new cards.CardsData();
-    document.getElementById('reset-button').onclick = () => {
-        cardsData.cardsData = new Map();
-        cardsData.addCardsHTML();
-    };
 
     initListeners(canvas, cardsData);
     util.loadLocalSave(cardsData);
@@ -104,9 +123,19 @@ window.onload = function () {
         window.camera.update();
 
         // Clear canvas
-        ctx.fillStyle = "#fff";
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.strokeStyle = "rgba(200, 200, 200, 1)";
+        let theme = util.getTheme();
+        ctx.fillStyle = theme == 'dark' ? '#1c1b1b' : 'white';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        if (theme == 'dark') {
+            ctx.fillStyle = 'white';
+            ctx.strokeStyle = 'white';
+        }
+        else {
+            ctx.fillStyle = 'black';
+            ctx.strokeStyle = 'black';
+        }
+
         ctx.lineWidth = 2 * window.camera.zoom;
 
         if (cardsData.linkInProgress) {

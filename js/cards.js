@@ -226,10 +226,24 @@ export class CardsData {
     // Returns {background: "rgba(...)", border: "rgba(...)"}
     borderBackgroundColors(color = defaultColor) {
         let components = util.colorValues(color);
-        components = components.map(c => c / 4);
-        components[3] = 1; // Force alpha
-        let backgroundColor = "rgba(" + components.join(", ") + ")";
-        return { background: backgroundColor, border: color };
+        let backgroundColor;
+        let borderColor;
+
+        if (util.getTheme() == 'dark') {
+            // darken bakground
+            backgroundColor = components.map(c => c / 4);
+            backgroundColor[3] = 1;
+            borderColor = components;
+        }
+        else {
+            backgroundColor = components;
+            borderColor = components.map(c => Math.min(c * 1.25, 255));
+        }
+
+        backgroundColor = "rgba(" + backgroundColor.join(", ") + ")";
+        borderColor = "rgba(" + borderColor.join(", ") + ")";
+
+        return { background: backgroundColor, border: borderColor };
     }
 
     htmlEditUI(id) {
@@ -318,7 +332,7 @@ export class CardsData {
             let colorVals = util.colorValues(color);
             let blackDist = (0 - colorVals[0]) ** 2 + (0 - colorVals[1]) ** 2 + (0 - colorVals[2]) ** 2;
             let whiteDist = (255 - colorVals[0]) ** 2 + (255 - colorVals[1]) ** 2 + (255 - colorVals[2]) ** 2;
-            let iconColor = whiteDist >= blackDist ? 'white' : 'var(--lighter-black-transparent-color)';
+            let iconColor = whiteDist >= blackDist ? 'white' : 'black';
             document.documentElement.style.setProperty('--color-edit-icon-color', iconColor);
         };
         updateColorIconColor(colorEdit.style.color);
@@ -416,6 +430,19 @@ export class CardsData {
         }
         cardContainer.onmousedown = mouseDown;
         cardContainer.ontouchstart = mouseDown;
+        cardContainer.onmousemove = (e) => {
+            const pos = new util.Vector2D(e.pageX, e.pageY);
+            const rect = cardContainer.getBoundingClientRect();
+
+            const distThreshold = 10;
+            // Distance from resize points, in compass directions
+            const nw = pos.dist(rect.x, rect.y);
+            if (nw < distThreshold) {
+                document.body.style.cursor = "nwse-resize";
+            }
+            else document.body.style.cursor = "default";
+        };
+        cardContainer.onmouseleave = () => document.body.style.cursor = "default";
 
         // sectioned into separate inline function
         cardContainer.appendChild(cardHTML(this));
@@ -434,8 +461,7 @@ export class CardsData {
             p.oninput = () => {
                 that.updateCardContent(id);
             };
-
-            p.onmouseup = () => { p.focus(); };
+            p.onmousedown = (e) => e.stopPropagation();
 
             return p;
         }
