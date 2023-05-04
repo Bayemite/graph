@@ -13,6 +13,7 @@
 # Features
 - Mobile support: touch input
 - Printer friendliness (day mode: background white)
+  - (styling partial)
 - Bold, italics, etc. for text
 - Peer connections for collaboration (hard, started)
 - Resizing card manually (nice to have)

@@ -53,10 +53,10 @@ body {
     text-anchor: middle;
     font-size: medium !important;
     font-variation-settings:
-        'FILL'0,
-        'wght'300,
-        'GRAD'0,
-        'opsz'48
+        'FILL' 0,
+        'wght' 300,
+        'GRAD' 0,
+        'opsz' 48
 }
 
 #overlay {
@@ -72,7 +72,8 @@ body {
     background-color: var(--transparent-color);
 }
 
-button, .label {
+button,
+.label {
     margin: 0 2px;
     padding: 10px 20px;
 
@@ -354,12 +355,6 @@ button, .label {
     margin: 1rem 0;
 }
 
-.dialog-button {
-    /* transition: margin-left 0s, transform 0s, all 0.5s;
-    margin-left: 50%;
-    transform: translateX(-50%); */
-}
-
 .dialog-button-container {
     transition: margin-left 0s, transform 0s, all 0.5s;
 
@@ -415,4 +410,49 @@ button, .label {
 input[type="file"] {
     /* opacity: 0; */
     display: none;
+}
+
+
+/* Print settings */
+
+@media print {
+
+    /* adjust text color and background color */
+    body {
+        color: black !important;
+        background-color: white;
+    }
+
+    * {
+        color: black !important;
+        border-color: black !important;
+    }
+
+    /* adjust font size and family */
+    /* h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    p {
+        font-size: 1.2em;
+        color: black !important;
+        font-family: sans-serif;
+    } */
+
+    .text[contenteditable]:empty::before {
+        content: "No text";
+        color: rgba(0, 0, 0, 0.6);
+    }
+
+    /* control page breaks */
+    .page-break {
+        page-break-before: always;
+    }
+
+    /* adjust margins */
+    .content {
+        margin: 1em;
+    }
 }
