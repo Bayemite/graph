@@ -13,11 +13,11 @@
 - Mobile support: touch input
 - Printer friendliness (day mode: background white)
   - (styling partial)
-- Bold, italics, etc. for text
 - Peer connections for collaboration (hard, started)
 - Resizing card manually (nice to have)
 
 ## Done
+- Bold, italics, etc. for text
 - Color change: text, arrows (where to put UI though, appear on text focus?)
 - Z-index: move to top when focused
 - Images in cards
