@@ -53,10 +53,10 @@ body {
     text-anchor: middle;
     font-size: medium !important;
     font-variation-settings:
-        'FILL' 0,
-        'wght' 300,
-        'GRAD' 0,
-        'opsz' 48
+        'FILL'0,
+        'wght'300,
+        'GRAD'0,
+        'opsz'48
 }
 
 #overlay {
@@ -312,7 +312,8 @@ button,
     display: inline-flex;
     text-align: center;
     left: 50%;
-    transform: translateX(-50%);
+    bottom: 0;
+    transform: translateX(-50%) translateY(100%);
 }
 
 @keyframes dialog {
