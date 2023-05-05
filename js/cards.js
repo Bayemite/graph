@@ -136,6 +136,11 @@ export class CardsData {
         this.linkInProgress = true;
     }
 
+    changeFont(i, fontSize) {
+        this.cardsData.set(i).fontSize = fontSize;
+        
+    }
+
     // i : id of card
     endLink(linkEnd, addUndo = true) {
         if (!this.linkInProgress) return;
@@ -260,6 +265,27 @@ export class CardsData {
         linkElem.onclick = () => { this.startLink(id); };
         editRootNode.appendChild(linkElem);
 
+        let fontElem = document.createElement('button');
+        fontElem.innerHTML = `
+        <span class="material-symbols-outlined">
+            format_size
+        </span>
+        `;
+        fontElem.classList.add("actions-button", "link-button");
+        fontElem.onclick = () => {
+            fSize = "initial";
+            if (!this.cardsData.get(id).fontSize) {
+                fSize = "30px";
+            }
+            if (this.cardsData.get(id).fontSize == "initial") {
+                fSize = "30px";
+            } else if (this.cardsData.get(id).fontSize == "30px") {
+                fSize = "initial";
+            }
+            this.changeFont(id, fSize);
+        };
+        editRootNode.appendChild(fontElem);
+
         let imgElem = document.createElement('button');
         imgElem.innerHTML = `
         <span class="material-symbols-outlined">
@@ -310,6 +336,8 @@ export class CardsData {
         let colorInput = document.createElement('input');
         colorInput.type = 'text';
         colorInput.value = defaultColor;
+        colorInput.autocomplete = false;
+        colorInput.spellcheck = false;
         colorInput.setAttribute('data-coloris', true);
 
         let colorEdit = document.createElement('div');
@@ -382,12 +410,29 @@ export class CardsData {
         this.focusCardID = id;
         if (this.focusCardID != -1) {
             let focused = getCardTag(this.focusCardID);
+            let card = this.cardsData.get(id);
+
             focused.appendChild(this.htmlEditUI(id));
+            let resizeAnchorNW = document.createElement('span');
+            resizeAnchorNW.innerText = '◤';
+            resizeAnchorNW.classList.add('unselectable');
+            resizeAnchorNW.style = `
+            color: ${card.color};
+            position: absolute;
+            top: -6px;
+            left: -6px;
+            font-family: Monospaced;
+            font-size: 14px;
+            cursor: nwse-resize;`;
+            // resizeAnchorNW.on
+            // also need to remove on unfocus
+            focused.appendChild(resizeAnchorNW);
+            //◢◣◥
 
             // Change z-index to top by physically moving DOM location
             // and cardsData map insertion order *hack?*
             getCardContainerTag().appendChild(focused);
-            let data = this.cardsData.get(id);
+            let data = card;
             this.cardsData.delete(id);
             this.set(id, data);
         }
@@ -430,19 +475,6 @@ export class CardsData {
         }
         cardContainer.onmousedown = mouseDown;
         cardContainer.ontouchstart = mouseDown;
-        cardContainer.onmousemove = (e) => {
-            const pos = new util.Vector2D(e.pageX, e.pageY);
-            const rect = cardContainer.getBoundingClientRect();
-
-            const distThreshold = 10;
-            // Distance from resize points, in compass directions
-            const nw = pos.dist(rect.x, rect.y);
-            if (nw < distThreshold) {
-                document.body.style.cursor = "nwse-resize";
-            }
-            else document.body.style.cursor = "default";
-        };
-        cardContainer.onmouseleave = () => document.body.style.cursor = "default";
 
         // sectioned into separate inline function
         cardContainer.appendChild(cardHTML(this));
@@ -462,6 +494,7 @@ export class CardsData {
                 that.updateCardContent(id);
             };
 
+            // To allow content highlighting without card movement
             p.onmousedown = (e) => e.stopPropagation();
 
             return p;
