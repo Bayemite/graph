@@ -462,6 +462,8 @@ export class CardsData {
                 that.updateCardContent(id);
             };
 
+            p.onmousedown = (e) => e.stopPropagation();
+
             return p;
         }
     }

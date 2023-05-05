@@ -190,6 +190,7 @@ button,
     object-position: center;
     /* margin: auto; */
     margin: 1rem auto;
+    cursor: default;
 }
 
 .text {
@@ -198,7 +199,7 @@ button,
     text-anchor: middle;
     padding: 10px 10px;
     margin: 5px;
-    cursor: default;
+    cursor: text;
 }
 
 .text:focus {
