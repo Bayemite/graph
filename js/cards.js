@@ -3,8 +3,9 @@ import * as util from './util.js';
 const defaultColor = "rgb(200, 200, 200)";
 
 export class CardObject {
-    constructor (pos = util.vec2(), text = "", connectionSet = new Set(), color = defaultColor) {
+    constructor (pos = util.vec2(), size = util.vec2(), text = "", connectionSet = new Set(), color = defaultColor) {
         this.pos = pos;
+        this.size = size;
         this.text = text;
         this.connections = connectionSet;
         this.color = color;
@@ -85,6 +86,7 @@ export class CardsData {
         this.addNewCard(
             new CardObject(
                 util.vec2(200, 100),
+                util.vec2(),
                 'Title',
                 new Set([0]),
                 defaultColor
@@ -439,11 +441,14 @@ export class CardsData {
 
                 let bounds = util.resizeBounds(drag, event, focused);
 
+                card.size.x = bounds.width;
+                card.size.y = bounds.height;
+
+                // TODO: undo/redo
                 focused.style.left = `${bounds.x}px`;
                 focused.style.top = `${bounds.y}px`;
                 focused.style.minWidth = `${bounds.width}px`;
                 focused.style.minHeight = `${bounds.height}px`;
-
             });
 
             // HACK!
@@ -548,6 +553,8 @@ export class CardsData {
         }
         cardContainer.style.left = cardObject.pos.x + "px";
         cardContainer.style.top = cardObject.pos.y + "px";
+        cardContainer.style.minWidth = cardObject.size.x + "px";
+        cardContainer.style.minHeight = cardObject.size.y + "px";
     }
 
     // returns id of card
@@ -582,6 +589,7 @@ export class CardsData {
             this.set(Number(card.id),
                 new CardObject(
                     util.vec2(card.x, card.y),
+                    util.vec2(card.width, card.height),
                     card.text,
                     new Set(Array.from(card.connections)),
                     card.color,
@@ -601,6 +609,8 @@ export class CardsData {
                 "id": cardId,
                 "x": card.pos.x,
                 "y": card.pos.y,
+                "width": card.size.x,
+                "height": card.size.y,
                 "text": card.text,
                 "fontSize": card.fontSize,
                 "connections": Array.from(card.connections),

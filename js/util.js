@@ -614,6 +614,10 @@ export class Rect {
     }
 }
 
+export function rect(x = 0, y = 0, width = 0, height = 0) {
+    return new Rect(x, y, width, height);
+}
+
 // Helper function
 export function styleRect(style) {
     let x = parseInt(style.left);
