@@ -654,5 +654,5 @@ export function resizeAnchors(cardColor) {
     SW.style.transform = 'translate(-50%, 50%)';
 
     // Keep NW NE SE SW index order
-    return [NW, SE, NE, SW];
+    return [NW, NE, SE, SW];
 }
