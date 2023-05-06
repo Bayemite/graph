@@ -47,7 +47,7 @@ export function checkArgs(args, paramCount) {
         console.error(`Arg count does not match param count of ${paramCount}:`, args);
         return;
     }
-    for (let i = 0;i < args.length;i++) {
+    for (let i = 0; i < args.length; i++) {
         if (args[i] === undefined || args[i] === null) {
             console.error(`Arg ${i} null or undefined:`, args);
             return;
@@ -606,7 +606,7 @@ export function minSize(elem) {
 }
 
 export class Rect {
-    constructor (x, y, width, height) {
+    constructor (x = 0, y = 0, width = 0, height = 0) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -655,4 +655,58 @@ export function resizeAnchors(cardColor) {
 
     // Keep NW NE SE SW index order
     return [NW, NE, SE, SW];
+}
+
+export function resizeBounds(drag, event, card) {
+    let bounds = new Rect();
+
+    let rect = card.getBoundingClientRect();
+    let style = window.getComputedStyle(card);
+    let prev = styleRect(style);
+
+    // Delta calculations. Halved? --> half for width/height, half for x/y
+    let delX = (x) => { return (event.pageX - x) / 2; };
+    let delY = (y) => { return (event.pageY - y) / 2; };
+    let dX = delX(rect.left);
+    let dY = delY(rect.top);
+
+    if (drag == 0) {
+        bounds.x = prev.x + dX;
+        bounds.y = prev.y + dY;
+        bounds.width = prev.width - dX;
+        bounds.height = prev.height - dY;
+    }
+    if (drag == 1) {
+        dX = delX(rect.right);
+        bounds.x = prev.x;
+        bounds.y = prev.y + dY;
+        bounds.width = prev.width + dX;
+        bounds.height = prev.height - dY;
+    }
+    else {
+        dY = delY(rect.bottom);
+        if (drag == 2) {
+            dX = delX(rect.right);
+            bounds.x = prev.x;
+            bounds.y = prev.y;
+            bounds.width = prev.height + dX;
+            bounds.height = prev.height + dY;
+        }
+        else if (drag == 3) {
+            dX = delX(rect.left);
+            bounds.x = prev.x + dX;
+            bounds.y = prev.y;
+            bounds.width = prev.width - dX;
+            bounds.height = prev.height + dY;
+        }
+    }
+
+    let min = minSize(card);
+    // Simply not setting size when newSize < minSize
+    // jolts the card position when the minimum size is reached.
+    // So this is the correct option.
+    if (bounds.width < min.x) { bounds.width = prev.width; bounds.x = prev.x; }
+    if (bounds.height < min.y) { bounds.height = prev.height; bounds.y = prev.y; }
+
+    return bounds;
 }
