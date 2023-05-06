@@ -19,11 +19,19 @@ function initListeners(canvas, cardsData) {
 
     document.addEventListener('keydown', (event) => {
         if (event.ctrlKey) {
-            if (event.code == "KeyZ") {
+            if (event.key == 'z') {
                 cardsData.undo(); event.preventDefault();
             }
-            else if (event.code == "KeyY") {
+            else if (event.key == 'y') {
                 cardsData.undoRedoStack.redo(); event.preventDefault();
+            }
+        }
+        else {
+            if (event.key == "Delete") {
+                let id = cardsData.focusCardID;
+                cardsData.focusCard(-1);
+                if (id != -1)
+                    util.getCardTag(id).remove();
             }
         }
     });
@@ -124,7 +132,7 @@ window.onload = function () {
         window.camera.update();
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
+
         let theme = util.getTheme();
         if (theme == 'dark') {
             ctx.fillStyle = 'white';
