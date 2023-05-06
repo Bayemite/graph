@@ -234,6 +234,7 @@ export class CardsData {
         let backgroundColor;
         let borderColor;
 
+        console.log(components)
         // darken background if dark theme, else darken border
         if (util.getTheme() == 'dark') {
             backgroundColor = components.map(c => c / 4);
@@ -403,8 +404,10 @@ export class CardsData {
             let unfocused = getCardTag(this.focusCardID);
             if (!unfocused) { this.focusCardID = -1; return; }
             let editUI = unfocused.getElementsByClassName("actions")[0];
-            if (editUI)
+            if (editUI) {
                 unfocused.removeChild(editUI);
+                unfocused.removeChild(unfocused.querySelector(".unselectable"));
+            }
         }
 
         this.focusCardID = id;
@@ -484,6 +487,9 @@ export class CardsData {
         function cardHTML(that) {
             let p = document.createElement('p');
             p.classList.add('text');
+            if (cardObject.fontSize) {
+                p.style.fontSize = cardObject.fontSize
+            }
             p.contentEditable = true;
             p.innerHTML = globalThis.sanitizeHtml(cardObject.text);
             // Re-add sanitised styles
@@ -563,7 +569,7 @@ export class CardsData {
                     util.vec2(card.x, card.y),
                     card.text,
                     new Set(Array.from(card.connections)),
-                    card.color
+                    card.color,
                 )
             );
         }
@@ -581,6 +587,7 @@ export class CardsData {
                 "x": card.pos.x,
                 "y": card.pos.y,
                 "text": card.text,
+                "fontSize": card.fontSize,
                 "connections": Array.from(card.connections),
                 "color": card.color,
             });
