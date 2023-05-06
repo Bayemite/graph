@@ -375,10 +375,16 @@ export class CardsData {
             cardData.color = color;
             let colors = that.borderBackgroundColors(color);
             let cardTag = getCardTag(id);
+
             cardTag.style.borderColor = colors.border;
             cardTag.style.backgroundColor = colors.background;
+            let anchors = cardTag.getElementsByClassName('resize-anchor');
+            for (let a of anchors)
+                a.style.color = colors.border;
 
             updateColorIconColor(colorEdit.style.color);
+
+
         };
         colorEdit.style.color = cardData.color;
 
