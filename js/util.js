@@ -680,7 +680,7 @@ export function resizeBounds(drag, event, card) {
         bounds.width = prev.width - dX;
         bounds.height = prev.height - dY;
     }
-    if (drag == 1) {
+    else if (drag == 1) {
         dX = delX(rect.right);
         bounds.x = prev.x;
         bounds.y = prev.y + dY;
@@ -693,7 +693,7 @@ export function resizeBounds(drag, event, card) {
             dX = delX(rect.right);
             bounds.x = prev.x;
             bounds.y = prev.y;
-            bounds.width = prev.height + dX;
+            bounds.width = prev.width + dX;
             bounds.height = prev.height + dY;
         }
         else if (drag == 3) {
@@ -709,8 +709,8 @@ export function resizeBounds(drag, event, card) {
     // Simply not setting size when newSize < minSize
     // jolts the card position when the minimum size is reached.
     // So this is the correct option.
-    if (bounds.width < min.x) { bounds.width = prev.width; bounds.x = prev.x; }
-    if (bounds.height < min.y) { bounds.height = prev.height; bounds.y = prev.y; }
+    if (bounds.width < min.x) { bounds.width =   min.width; bounds.x = prev.x; }
+    if (bounds.height < min.y) { bounds.height = min.height; bounds.y = prev.y; }
 
     return bounds;
 }

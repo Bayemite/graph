@@ -11,6 +11,7 @@
 - Card resizing occasionally 'catches'/sticks just before minimum size
 
 # Features
+- Resize images independent of containing card
 - Mobile support: touch input
 - Printer friendliness (day mode: background white)
   - (styling partial)

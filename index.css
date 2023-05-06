@@ -159,7 +159,8 @@ button,
     padding: 8px 20px;
 
     /* Make sure resize/move is not affected when changing these width/height styles */
-    width: min-content;
+    width:  max-content;
+    height: max-content;
 
     border: 2px solid var(--border-color);
     border-radius: 20px;
@@ -197,6 +198,7 @@ button,
 .text[contenteditable]:empty::before {
     content: "Enter text";
     color: var(--text-color);
+    opacity: 0.3;
 }
 
 #peer-id {
