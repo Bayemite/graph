@@ -28,6 +28,5 @@
 - Loading from file breaks connections
 
 ## Bayemite: working memory
-- force card dimensions
 - Undo/redo
 - peer JS
