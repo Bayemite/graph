@@ -19,10 +19,10 @@ function initListeners(canvas, cardsData) {
 
     document.addEventListener('keydown', (event) => {
         if (event.ctrlKey) {
-            if (event.key == 'z') {
+            if (event.key == 'z' || event.key == 'Undo') {
                 cardsData.undo(); event.preventDefault();
             }
-            else if (event.key == 'y') {
+            else if (event.key == 'y' || event.key == 'Redo') {
                 cardsData.undoRedoStack.redo(); event.preventDefault();
             }
         }
@@ -31,7 +31,7 @@ function initListeners(canvas, cardsData) {
                 let id = cardsData.focusCardID;
                 cardsData.focusCard(-1);
                 if (id != -1)
-                    util.getCardTag(id).remove();
+                    cardsData.deleteCard(id);
             }
         }
     });

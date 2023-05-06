@@ -710,7 +710,3 @@ export function resizeBounds(drag, event, card) {
 
     return bounds;
 }
-
-export function getCardTag(id) {
-    return document.getElementById(`card-${id}`);
-}
