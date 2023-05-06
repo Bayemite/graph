@@ -20,10 +20,12 @@ function initListeners(canvas, cardsData) {
     document.addEventListener('keydown', (event) => {
         if (event.ctrlKey) {
             if (event.key == 'z') {
-                // cardsData.undo();
+                cardsData.undo();
+                event.preventDefault();
             }
             else if (event.key == 'y') {
-                // cardsData.undoRedoStack.redo();
+                cardsData.undoRedoStack.redo();
+                event.preventDefault();
             }
         }
         else {

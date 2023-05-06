@@ -322,16 +322,6 @@ export class CardsData {
 
         editRootNode.appendChild(imgElem);
 
-        let deleteCard = document.createElement('button');
-        deleteCard.innerHTML = `
-        <span class="material-symbols-outlined">
-            delete
-        </span>
-        `;
-        deleteCard.classList.add("actions-button");
-        deleteCard.addEventListener('click', () => { this.deleteCard(id); });
-        editRootNode.appendChild(deleteCard);
-
         let clrPicker = document.createElement('span');
         clrPicker.classList.add('color-picker');
 
@@ -408,13 +398,19 @@ export class CardsData {
             }
 
             let editUI = unfocused.getElementsByClassName("actions")[0];
+            // Presence of editUI implies all the rest of these focus elements are here
             if (editUI) {
-                unfocused.removeChild(editUI);
+                editUI.remove();
+
                 let anchors = unfocused.getElementsByClassName("resize-anchor");
                 // Copy to array to avoid skipping elements as
                 // they are deleted (getElem.. returns a live HTML collection)
                 for (let e of Array.from(anchors))
-                    unfocused.removeChild(e);
+                    e.remove();
+
+                // The other buttons should be inside the editUI
+                let deleteBtn = unfocused.getElementsByClassName("actions-button")[0];
+                deleteBtn.remove();
             }
         }
 
@@ -424,6 +420,22 @@ export class CardsData {
             let card = this.cardsData.get(id);
             let focused = getCardTag(this.focusCardID);
             focused.appendChild(this.htmlEditUI(id));
+
+            let deleteBtn = document.createElement('button');
+            deleteBtn.classList.add("actions-button");
+            deleteBtn.innerHTML = `
+                <span class="material-symbols-outlined">
+                    close
+                </span>
+            `;
+            deleteBtn.style = `
+                position: absolute;
+                top: 0;
+                right: 5px;
+                transform: translateY(-50%) scale(50%);
+            `;
+            deleteBtn.onclick = () => this.deleteCard(id);
+            focused.appendChild(deleteBtn);
 
             let resizeAnchors = util.resizeAnchors(card.color);
             let drag = -1; // corresponds to resizeAnchors index
