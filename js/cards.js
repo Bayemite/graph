@@ -397,8 +397,6 @@ export class CardsData {
 
     // let id = -1 to unfocus without focusing on another.
     focusCard(id) {
-        this.moveCardID = id;
-
         if (id === this.focusCardID) return;
 
         // Cleanup the previously focused card
@@ -483,6 +481,7 @@ export class CardsData {
             e.stopPropagation();
 
             that.focusCard(id);
+            that.moveCardID = id;
 
             let boundRect = cardContainer.getBoundingClientRect();
             let mousePos;
@@ -521,7 +520,7 @@ export class CardsData {
             };
 
             // To allow content highlighting without card movement
-            p.onmousedown = (e) => { e.stopPropagation(); that.focusCard(-1); };
+            p.onmousedown = (e) => { e.stopPropagation(); that.focusCard(id); };
 
             return p;
         }

@@ -19,11 +19,11 @@ function initListeners(canvas, cardsData) {
 
     document.addEventListener('keydown', (event) => {
         if (event.ctrlKey) {
-            if (event.key == 'z' || event.key == 'Undo') {
-                cardsData.undo(); event.preventDefault();
+            if (event.key == 'z') {
+                // cardsData.undo();
             }
-            else if (event.key == 'y' || event.key == 'Redo') {
-                cardsData.undoRedoStack.redo(); event.preventDefault();
+            else if (event.key == 'y') {
+                // cardsData.undoRedoStack.redo();
             }
         }
         else {
