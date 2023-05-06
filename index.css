@@ -159,7 +159,7 @@ button,
     padding: 8px 20px;
 
     /* Make sure resize/move is not affected when changing these width/height styles */
-    width:  min-content;
+    width: min-content;
 
     border: 2px solid var(--border-color);
     border-radius: 20px;
@@ -293,6 +293,12 @@ button,
     box-shadow: 0 0 0px 2px rgba(255, 255, 255, 0.5);
     transform: scale(1);
     opacity: 1;
+}
+
+@media print {
+    .break-link-button {
+        display: none;
+    }
 }
 
 @keyframes scaleIn {

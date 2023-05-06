@@ -109,10 +109,10 @@ export class CardsData {
         breakLink.classList.add('break-link-button');
         breakLink.id = `unlink-${start}-${end}`;
         breakLink.innerHTML = `
-                <span class="material-symbols-outlined">
-                    delete
-                </span>
-                `;
+            <span class="material-symbols-outlined">
+                close
+            </span>
+        `;
         breakLink.onclick = () => this.deleteLink(start, end);
 
         getBreakLinkContainerTag().appendChild(breakLink);
