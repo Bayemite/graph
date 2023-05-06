@@ -3,7 +3,7 @@ import * as util from './util.js';
 const defaultColor = "rgb(200, 200, 200)";
 
 export class CardObject {
-    constructor (pos = util.vec2(), text = "", connectionSet = new Set(), color = defaultColor) {
+    constructor(pos = util.vec2(), text = "", connectionSet = new Set(), color = defaultColor) {
         this.pos = pos;
         this.text = text;
         this.connections = connectionSet;
@@ -12,7 +12,7 @@ export class CardObject {
 }
 
 class UndoRedoStack {
-    constructor () {
+    constructor() {
         this.undoStack = [];
         this.redoStack = [];
     }
@@ -64,7 +64,7 @@ export class CardsData {
     // - card id: `card-{cardId, from this.cardIds}`
     // - unlink id: `unlink-{fromCardId}-{toCardId}`
 
-    constructor () {
+    constructor() {
         // id -> CardObject
         this.cardsData = new Map();
         this.cardIds = new util.IDAssign();
@@ -137,8 +137,8 @@ export class CardsData {
     }
 
     changeFont(i, fontSize) {
-        this.cardsData.set(i).fontSize = fontSize;
-        
+        this.cardsData.get(i).fontSize = fontSize;
+        getCardTag(i).style.fontSize = fontSize;
     }
 
     // i : id of card
@@ -273,13 +273,13 @@ export class CardsData {
         `;
         fontElem.classList.add("actions-button", "link-button");
         fontElem.onclick = () => {
-            fSize = "initial";
+            let fSize = "initial";
             if (!this.cardsData.get(id).fontSize) {
-                fSize = "30px";
+                fSize = "1.4rem";
             }
             if (this.cardsData.get(id).fontSize == "initial") {
-                fSize = "30px";
-            } else if (this.cardsData.get(id).fontSize == "30px") {
+                fSize = "1.4rem";
+            } else if (this.cardsData.get(id).fontSize == "1.4rem") {
                 fSize = "initial";
             }
             this.changeFont(id, fSize);
