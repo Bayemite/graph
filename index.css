@@ -186,6 +186,7 @@ button,
     padding: 10px 10px;
     margin: 5px;
     cursor: text;
+    width: fit-content;
 }
 
 .text:focus {
