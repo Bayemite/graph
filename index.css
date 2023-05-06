@@ -157,8 +157,8 @@ button,
     text-anchor: middle;
 
     padding: 8px 20px;
-    min-height: fit-content;
-    min-width: max-content;
+    min-height: min-content;
+    min-width: min-content;
 
     border: 2px solid var(--border-color);
     border-radius: 20px;
