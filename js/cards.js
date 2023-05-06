@@ -440,25 +440,26 @@ export class CardsData {
                 let style = window.getComputedStyle(focused);
                 let prev = util.styleRect(style);
                 let rect = focused.getBoundingClientRect();
-                
+
                 let deltaX = (e.pageX - rect.left) / 2;
                 let deltaY = (e.pageY - rect.top) / 2;
 
+                let newX = prev.x + deltaX;
+                let newY = prev.y + deltaY;
                 let newWidth = prev.width - deltaX;
                 let newHeight = prev.height - deltaY;
 
-                let newX = prev.x + deltaX;
-                let newY = prev.y + deltaY;
-
                 let minSize = util.minSize(focused);
-                if (newWidth > minSize.x) {
-                    focused.style.left = `${newX}px`;
-                    focused.style.minWidth = `${newWidth}px`;
-                }
-                if (newHeight > minSize.y) {
-                    focused.style.top = `${newY}px`;
-                    focused.style.minHeight = `${newHeight}px`;
-                }
+                // This way works. Simply not setting size when newSize < minSize
+                // jolts the card position when the minimum size is reached.
+                if (newWidth < minSize.x) { newWidth = prev.width;    newX = prev.x; }
+                if (newHeight < minSize.y) { newHeight = prev.height; newY = prev.y; }
+
+                focused.style.minWidth = `${newWidth}px`;
+                focused.style.left = `${newX}px`;
+                focused.style.minHeight = `${newHeight}px`;
+                focused.style.top = `${newY}px`;
+
             });
 
             // HACK!
