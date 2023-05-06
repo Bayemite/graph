@@ -3,7 +3,7 @@ import * as util from './util.js';
 const defaultColor = "rgb(200, 200, 200)";
 
 export class CardObject {
-    constructor(pos = util.vec2(), text = "", connectionSet = new Set(), color = defaultColor) {
+    constructor (pos = util.vec2(), text = "", connectionSet = new Set(), color = defaultColor) {
         this.pos = pos;
         this.text = text;
         this.connections = connectionSet;
@@ -12,7 +12,7 @@ export class CardObject {
 }
 
 class UndoRedoStack {
-    constructor() {
+    constructor () {
         this.undoStack = [];
         this.redoStack = [];
     }
@@ -64,7 +64,7 @@ export class CardsData {
     // - card id: `card-{cardId, from this.cardIds}`
     // - unlink id: `unlink-{fromCardId}-{toCardId}`
 
-    constructor() {
+    constructor () {
         // id -> CardObject
         this.cardsData = new Map();
         this.cardIds = new util.IDAssign();
@@ -234,7 +234,6 @@ export class CardsData {
         let backgroundColor;
         let borderColor;
 
-        console.log(components)
         // darken background if dark theme, else darken border
         if (util.getTheme() == 'dark') {
             backgroundColor = components.map(c => c / 4);
@@ -400,40 +399,71 @@ export class CardsData {
 
         if (id === this.focusCardID) return;
 
+        // Cleanup the previously focused card
         if (this.focusCardID != -1) {
             let unfocused = getCardTag(this.focusCardID);
-            if (!unfocused) { this.focusCardID = -1; return; }
+            if (!unfocused) {
+                this.focusCardID = -1;
+                return;
+            }
+
             let editUI = unfocused.getElementsByClassName("actions")[0];
             if (editUI) {
                 unfocused.removeChild(editUI);
-                unfocused.removeChild(unfocused.querySelector(".unselectable"));
+                let anchors = unfocused.getElementsByClassName("resize-anchor");
+                // Copy to array to avoid skipping elements as
+                // they are deleted (getElem.. returns a live HTML collection)
+                for (let e of Array.from(anchors))
+                    unfocused.removeChild(e);
             }
         }
 
+        // Setup the newly focused card
         this.focusCardID = id;
         if (this.focusCardID != -1) {
-            let focused = getCardTag(this.focusCardID);
             let card = this.cardsData.get(id);
-
+            let focused = getCardTag(this.focusCardID);
             focused.appendChild(this.htmlEditUI(id));
-            let resizeAnchorNW = document.createElement('span');
-            resizeAnchorNW.innerText = '◤';
-            resizeAnchorNW.classList.add('unselectable');
-            resizeAnchorNW.style = `
-            color: ${card.color};
-            position: absolute;
-            top: -6px;
-            left: -6px;
-            font-family: Monospaced;
-            font-size: 14px;
-            cursor: nwse-resize;`;
-            // resizeAnchorNW.on
-            // also need to remove on unfocus
-            focused.appendChild(resizeAnchorNW);
-            //◢◣◥
 
+            let resizeAnchors = util.resizeAnchors(card.color);
+            let drag = -1; // corresponds to resizeAnchors index
+            for (let i = 0; i < resizeAnchors.length; i++) {
+                let a = resizeAnchors[i];
+                focused.appendChild(a);
+                a.onmousedown = (e) => { e.stopPropagation(); drag = i; };
+            }
+
+            document.addEventListener('mouseup', () => drag = -1);
+            document.addEventListener('mousemove', (e) => {
+                if (drag == -1) return;
+
+                let style = window.getComputedStyle(focused);
+                let prev = util.styleRect(style);
+                let rect = focused.getBoundingClientRect();
+                
+                let deltaX = (e.pageX - rect.left) / 2;
+                let deltaY = (e.pageY - rect.top) / 2;
+
+                let newWidth = prev.width - deltaX;
+                let newHeight = prev.height - deltaY;
+
+                let newX = prev.x + deltaX;
+                let newY = prev.y + deltaY;
+
+                let minSize = util.minSize(focused);
+                if (newWidth > minSize.x) {
+                    focused.style.left = `${newX}px`;
+                    focused.style.minWidth = `${newWidth}px`;
+                }
+                if (newHeight > minSize.y) {
+                    focused.style.top = `${newY}px`;
+                    focused.style.minHeight = `${newHeight}px`;
+                }
+            });
+
+            // HACK!
             // Change z-index to top by physically moving DOM location
-            // and cardsData map insertion order *hack?*
+            // and cardsData map insertion order (for serialization of z-index)
             getCardContainerTag().appendChild(focused);
             let data = card;
             this.cardsData.delete(id);
@@ -488,7 +518,7 @@ export class CardsData {
             let p = document.createElement('p');
             p.classList.add('text');
             if (cardObject.fontSize) {
-                p.style.fontSize = cardObject.fontSize
+                p.style.fontSize = cardObject.fontSize;
             }
             p.contentEditable = true;
             p.innerHTML = globalThis.sanitizeHtml(cardObject.text);
@@ -501,7 +531,7 @@ export class CardsData {
             };
 
             // To allow content highlighting without card movement
-            p.onmousedown = (e) => e.stopPropagation();
+            p.onmousedown = (e) => { e.stopPropagation(); that.focusCard(-1); };
 
             return p;
         }
@@ -519,7 +549,7 @@ export class CardsData {
         return id;
     }
 
-    // Add a card from data to HTML.
+    // Add prev card from data to HTML.
     addCardHTML(cardId, adjustOriginCentre = false) {
         let cardContainer = getCardContainerTag().appendChild(
             this.genHTMLCard(cardId)
@@ -536,7 +566,7 @@ export class CardsData {
     }
 
     // returns id of card
-    // pos: should have .x and .y (eg. util Vector2D)
+    // pos: should have .x and .y (eg. util Vec2)
     // adjustOriginToCenter: pos = centre of card instead of top left
     addDefaultCardHtml(pos = util.vec2(), adjustOriginCentre = false) {
         let id = this.addNewCard(new CardObject(pos));

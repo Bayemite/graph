@@ -1,5 +1,6 @@
 import { Matrix } from './matrix.js';
-// Basically a file dump for extraneous definitions used in index.js
+
+// Basically a file dump for extraneous definitions
 
 // return array of [r,g,b,a] from any valid color. if failed returns undefined
 // https://stackoverflow.com/questions/34980574/how-to-extract-color-values-from-rgb-string-in-javascript
@@ -96,7 +97,7 @@ export class rgb {
 }
 
 
-export class Vector2D {
+export class Vec2 {
     constructor (x = 0, y = 0) {
         this.x = x;
         this.y = y;
@@ -126,7 +127,7 @@ export class Vector2D {
 }
 
 export function vec2(x = 0, y = 0) {
-    return new Vector2D(x, y);
+    return new Vec2(x, y);
 }
 
 /**
@@ -592,4 +593,66 @@ export function updateTheme(theme) {
     set('--text-color', `--${theme}-text-color`);
     set('--transparent-color', `--${theme}-transparent-color`);
     set('--border-color', `--${theme}-border-color`);
+}
+
+export function minSize(elem) {
+    elem.style.minWidth = 'min-content';
+    elem.style.minHeight = 'min-content';
+    let minStyle = window.getComputedStyle(elem);
+    let minW = parseInt(minStyle.width);
+    let minH = parseInt(minStyle.height);
+
+    return vec2(minW, minH);
+}
+
+export class Rect {
+    constructor (x, y, width, height) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+    }
+}
+
+// Helper function
+export function styleRect(style) {
+    let x = parseInt(style.left);
+    let y = parseInt(style.top);
+    let w = parseInt(style.width);
+    let h = parseInt(style.height);
+
+    return new Rect(x, y, w, h);
+}
+
+export function resizeAnchors(cardColor) {
+    let NW = document.createElement('span');
+    NW.classList.add('unselectable');
+    NW.classList.add('resize-anchor');
+    NW.innerText = '◤';
+    NW.style = `
+        color: ${cardColor};
+        cursor: nwse-resize;
+        position: absolute;
+        inset: 0 auto auto 0;
+        transform: translate(-50%, -50%)
+    `;
+
+    let SE = NW.cloneNode();
+    SE.innerText = '◢';
+    SE.style.inset = 'auto 0 0 auto';
+    SE.style.transform = 'translate(50%, 50%)';
+
+    let NE = NW.cloneNode();
+    NE.innerText = '◥';
+    NE.style.cursor = 'nesw-resize';
+    NE.style.inset = '0 0 auto auto';
+    NE.style.transform = 'translate(50%, -50%)';
+
+    let SW = NE.cloneNode();
+    SW.innerText = '◣';
+    SW.style.inset = 'auto auto 0 0';
+    SW.style.transform = 'translate(-50%, 50%)';
+
+    // Keep NW NE SE SW index order
+    return [NW, SE, NE, SW];
 }
