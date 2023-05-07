@@ -31,6 +31,9 @@ function initListeners(canvas, cardsData) {
         else {
             if (event.key == "Delete") {
                 let id = cardsData.focusCardID;
+                let cardTag = util.getCardTag(id);
+                if (document.hasFocus(cardTag.querySelector('.text')))
+                    return;
                 cardsData.focusCard(-1);
                 if (id != -1)
                     cardsData.deleteCard(id);

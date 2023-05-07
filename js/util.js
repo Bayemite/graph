@@ -709,8 +709,12 @@ export function resizeBounds(drag, event, card) {
     // Simply not setting size when newSize < minSize
     // jolts the card position when the minimum size is reached.
     // So this is the correct option.
-    if (bounds.width < min.x) { bounds.width =   min.width; bounds.x = prev.x; }
+    if (bounds.width < min.x) { bounds.width = min.width; bounds.x = prev.x; }
     if (bounds.height < min.y) { bounds.height = min.height; bounds.y = prev.y; }
 
     return bounds;
+}
+
+export function getCardTag(id) {
+    return document.getElementById(`card-${id}`);
 }

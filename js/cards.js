@@ -40,10 +40,6 @@ class UndoRedoStack {
     }
 }
 
-function getCardTag(id) {
-    return document.getElementById(`card-${id}`);
-}
-
 function getTitleTag() {
     return document.getElementById("title");
 }
@@ -140,7 +136,7 @@ export class CardsData {
 
     changeFont(i, fontSize) {
         this.cardsData.get(i).fontSize = fontSize;
-        getCardTag(i).style.fontSize = fontSize;
+        util.getCardTag(i).style.fontSize = fontSize;
     }
 
     // i : id of card
@@ -197,7 +193,7 @@ export class CardsData {
         }
 
         this.cardsData.delete(id);
-        document.getElementById('translate').removeChild(getCardTag(id));
+        document.getElementById('translate').removeChild(util.getCardTag(id));
 
         if (addUndo) {
             this.undoRedoStack.addUndoCmd({
@@ -223,7 +219,7 @@ export class CardsData {
         cardData.pos.x = pos.x - (this.moveCardOffset.x / camera.zoom);
         cardData.pos.y = pos.y - (this.moveCardOffset.y / camera.zoom);
 
-        let card = getCardTag(id);
+        let card = util.getCardTag(id);
         card.getElementsByClassName("text")[0].blur();
         // TODO: undo/redo
         card.style.left = `${cardData.pos.x}px`;
@@ -310,7 +306,7 @@ export class CardsData {
                     imageNode.alt = "Image";
                     imageNode.classList.add("card-image");
 
-                    const cardContainer = getCardTag(id).querySelector(".text");
+                    const cardContainer = util.getCardTag(id).querySelector(".text");
                     cardContainer.appendChild(imageNode);
 
                     this.updateCardContent(id);
@@ -374,7 +370,7 @@ export class CardsData {
             let color = colorEdit.style.color;
             cardData.color = color;
             let colors = that.borderBackgroundColors(color);
-            let cardTag = getCardTag(id);
+            let cardTag = util.getCardTag(id);
 
             cardTag.style.borderColor = colors.border;
             cardTag.style.backgroundColor = colors.background;
@@ -397,7 +393,7 @@ export class CardsData {
 
         // Cleanup the previously focused card
         if (this.focusCardID != -1) {
-            let unfocused = getCardTag(this.focusCardID);
+            let unfocused = util.getCardTag(this.focusCardID);
             if (!unfocused) {
                 this.focusCardID = -1;
                 return;
@@ -424,7 +420,7 @@ export class CardsData {
         this.focusCardID = id;
         if (this.focusCardID != -1) {
             let card = this.cardsData.get(id);
-            let focused = getCardTag(this.focusCardID);
+            let focused = util.getCardTag(this.focusCardID);
             focused.appendChild(this.htmlEditUI(id));
 
             let deleteBtn = document.createElement('button');
@@ -546,7 +542,7 @@ export class CardsData {
 
     updateCardContent(id) {
         // TODO: undo/redo
-        this.cardsData.get(id).text = getCardTag(id).querySelector('p').innerHTML;
+        this.cardsData.get(id).text = util.getCardTag(id).querySelector('p').innerHTML;
     }
 
     // Add to data, returns id.
