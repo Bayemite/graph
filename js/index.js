@@ -5,7 +5,7 @@ let theme = 'dark';
 if (window.localStorage.getItem('theme') != null)
     theme = window.localStorage.getItem('theme');
 else (window.localStorage.setItem('theme', theme));
-util.updateTheme(theme);
+util.updateTheme(theme);  
 
 function initListeners(canvas, cardsData) {
     util.addSaveOpenFileListeners(cardsData);
@@ -27,6 +27,12 @@ function initListeners(canvas, cardsData) {
             else if (event.key == 'y') {
                 cardsData.undoRedoStack.redo();
                 event.preventDefault();
+            }
+        }
+        else if (event.altKey) {
+            if (event.key == 'n') {
+                const camera = window.camera;
+                cardsData.addDefaultCardHtml(camera.globalCoords(camera.mousePos), true);
             }
         }
         else {

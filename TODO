@@ -27,6 +27,19 @@
 - Deleting card leaves connection del btn 
 - Loading from file breaks connections
 
+## Potential ideas
+- Auto layout
+- Spoken commands
+- Smart categorisation
+- More themes
+- Integration with other tools
+- Mindmap templates
+- Node/card search
+- Analytics of how many card has been clicked on or edited
+
 ## Bayemite: working memory
 - Image Object URL (base64) -> Undo/redo
 - peer JS
+
+## Technotech:
+- Font configuration
