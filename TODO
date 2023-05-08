@@ -29,5 +29,5 @@
 - Loading from file breaks connections
 
 ## Bayemite: working memory
-- Undo/redo
+- Image Object URL (base64) -> Undo/redo
 - peer JS
