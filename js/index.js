@@ -4,6 +4,7 @@ import * as cards from './cards.js';
 let theme = 'dark';
 if (window.localStorage.getItem('theme') != null)
     theme = window.localStorage.getItem('theme');
+else (window.localStorage.setItem('theme', theme));
 util.updateTheme(theme);
 
 function initListeners(canvas, cardsData) {
