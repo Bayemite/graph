@@ -8,7 +8,6 @@
 - Request animation frames is not exactly required
 - Hover to open UI under card sometimes disappears when trying to move cursor to buttons
 - Add move card UI (dotted box, something like for the resize UI?)
-- Card resizing occasionally 'catches'/sticks just before minimum size
 
 # Features
 - Resize images independent of containing card
