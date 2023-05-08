@@ -534,7 +534,13 @@ export class CardsData {
             };
 
             // To allow content highlighting without card movement
-            p.onmousedown = (e) => { e.stopPropagation(); that.focusCard(id); };
+            p.onmousedown = (e) => {
+                e.stopPropagation();
+                that.focusCard(id);
+
+                if (that.linkInProgress)
+                    that.endLink(id);
+            };
 
             return p;
         }
