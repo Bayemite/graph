@@ -431,7 +431,18 @@ input[type="file"] {
     user-select: none;
 }
 
+@keyframes resizeScaleIn {
+    0% {
+        scale: 0;
+    }
+
+    100% {
+        scale: 1;
+    }
+}
+
 .resize-anchor {
     font-family: Monospaced;
     font-size: 14px;
+    animation: resizeScaleIn 0.2s cubic-bezier(0.075, 0.9, 0.165, 1);
 }
