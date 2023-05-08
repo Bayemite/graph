@@ -543,6 +543,8 @@ export class CardsData {
 
                 if (that.linkInProgress)
                     that.endLink(id);
+                
+                p.focus();
             };
 
             return p;
