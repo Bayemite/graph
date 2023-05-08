@@ -3,12 +3,13 @@ import * as util from './util.js';
 const defaultColor = "rgb(200, 200, 200)";
 
 export class CardObject {
-    constructor (pos = util.vec2(), size = util.vec2(), text = "", connectionSet = new Set(), color = defaultColor) {
+    constructor (pos = util.vec2(), size = util.vec2(), text = "", connectionSet = new Set(), color = defaultColor, fontSize = 'initial') {
         this.pos = pos;
         this.size = size;
         this.text = text;
         this.connections = connectionSet;
         this.color = color;
+        this.fontSize = fontSize;
     }
 }
 
@@ -85,7 +86,7 @@ export class CardsData {
                 util.vec2(),
                 'Title',
                 new Set([0]),
-                defaultColor
+                defaultColor,
             )
         );
     }
@@ -135,8 +136,10 @@ export class CardsData {
     }
 
     changeFont(i, fontSize) {
+        console.log(util.getCardTag(i))
         this.cardsData.get(i).fontSize = fontSize;
-        util.getCardTag(i).style.fontSize = fontSize;
+        util.getCardTag(i).querySelector('p').style.fontSize = fontSize;
+        console.log(this.cardsData.get(i))
     }
 
     // i : id of card
@@ -612,6 +615,7 @@ export class CardsData {
                     card.text,
                     new Set(Array.from(card.connections)),
                     card.color,
+                    card.fontSize
                 )
             );
         }
