@@ -427,7 +427,7 @@ export class CardsData {
             focused.appendChild(this.htmlEditUI(id));
 
             let deleteBtn = document.createElement('button');
-            deleteBtn.classList.add("actions-button");
+            deleteBtn.classList.add("actions-button", "remove-button");
             deleteBtn.innerHTML = `
                 <span class="material-symbols-outlined">
                     close
@@ -437,7 +437,6 @@ export class CardsData {
                 position: absolute;
                 top: 0;
                 right: 5px;
-                transform: translateY(-50%) scale(50%);
             `;
             deleteBtn.onclick = () => this.deleteCard(id);
             focused.appendChild(deleteBtn);
