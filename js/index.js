@@ -23,6 +23,12 @@ function initListeners(canvas, cardsData) {
                 event.preventDefault();
             }
         }
+        else if (event.altKey) {
+            if (event.key == 'n') {
+                const camera = window.camera;
+                cardsData.addDefaultCardHtml(camera.globalCoords(camera.mousePos), true);
+            }
+        }
         else {
             if (event.key == "Delete") {
                 let id = cardsData.focusCardID;
