@@ -136,10 +136,10 @@ export class CardsData {
     }
 
     changeFont(i, fontSize) {
-        console.log(util.getCardTag(i))
+        console.log(util.getCardTag(i));
         this.cardsData.get(i).fontSize = fontSize;
         util.getCardTag(i).querySelector('p').style.fontSize = fontSize;
-        console.log(this.cardsData.get(i))
+        console.log(this.cardsData.get(i));
     }
 
     // i : id of card
@@ -456,6 +456,8 @@ export class CardsData {
 
                 let bounds = util.resizeBounds(drag, event, focused);
 
+                card.pos.x = bounds.x;
+                card.pos.y = bounds.y;
                 card.size.x = bounds.width;
                 card.size.y = bounds.height;
 
@@ -543,7 +545,7 @@ export class CardsData {
 
                 if (that.linkInProgress)
                     that.endLink(id);
-                
+
                 p.focus();
             };
 
