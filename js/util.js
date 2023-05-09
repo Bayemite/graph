@@ -581,13 +581,16 @@ export function loadLocalSave(cardsData) {
 export function getTheme() { return window.localStorage.getItem('theme'); }
 export function setTheme(theme) { window.localStorage.setItem('theme', theme); }
 
-export function updateTheme(theme) {
+export function updateTheme() {
     // Edits css :root css variables
     let set = (key, val) => {
         let e = document.documentElement;
         val = window.getComputedStyle(e).getPropertyValue(val);
         e.style.setProperty(key, val);
     };
+
+    let theme = getTheme();
+    if (theme == null) { theme = 'dark'; setTheme(theme); }
 
     set('--background-color', `--${theme}-background-color`);
     set('--text-color', `--${theme}-text-color`);
@@ -710,15 +713,17 @@ export function resizeBounds(drag, event, card) {
     // for the drag types not handled in the inner if statements.
     if (bounds.width < min.x) {
         dX = (prev.width - min.x) / 2;
-        bounds.width = prev.width - dX;
-        if (drag == 0 || drag == 3)
+        if (drag == 0 || drag == 3) {
+            bounds.width = prev.width - dX;
             bounds.x = prev.x + dX;
+        }
     }
     if (bounds.height < min.y) {
         dY = (prev.height - min.y) / 2;
-        bounds.height = prev.height - dY;
-        if (drag == 0 || drag == 1)
+        if (drag == 0 || drag == 1) {
+            bounds.height = prev.height - dY;
             bounds.y = prev.y + dY;
+        }
     }
 
     return bounds;

@@ -1,11 +1,6 @@
 import * as util from './util.js';
 import * as cards from './cards.js';
 
-let theme = 'dark';
-if (window.localStorage.getItem('theme') != null)
-    theme = window.localStorage.getItem('theme');
-util.updateTheme(theme);
-
 function initListeners(canvas, cardsData) {
     util.addSaveOpenFileListeners(cardsData);
     util.addLocalSaveListener(cardsData);
@@ -104,13 +99,9 @@ function initListeners(canvas, cardsData) {
 
     document.getElementById('theme-button').onclick = () => {
         let theme = util.getTheme();
-        if (theme == null)
-            util.setTheme('dark');
-        else {
-            theme = theme == 'dark' ? 'light' : 'dark';
-            util.setTheme(theme);
-        }
-        util.updateTheme(theme);
+        theme = theme == 'dark' ? 'light' : 'dark';
+        util.setTheme(theme);
+        util.updateTheme();
         // Re-render all cards with new color theme
         cardsData.addCardsHTML();
     };
@@ -130,6 +121,8 @@ window.onload = function () {
     initListeners(canvas, cardsData);
     util.loadLocalSave(cardsData);
 
+    util.updateTheme();
+    // Re-render all cards with new color theme
     cardsData.addCardsHTML();
 
     function main() {
