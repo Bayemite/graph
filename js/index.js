@@ -33,7 +33,7 @@ function initListeners(canvas, cardsData) {
             if (event.key == "Delete") {
                 let id = cardsData.focusCardID;
                 let cardTag = util.getCardTag(id);
-                if (document.hasFocus(cardTag.querySelector('.text')))
+                if (document.activeElement == cardTag.querySelector('.text'))
                     return;
                 cardsData.focusCard(-1);
                 if (id != -1)
