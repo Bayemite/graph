@@ -672,8 +672,8 @@ export function resizeBounds(drag, event, card) {
     let prev = styleRect(style);
 
     // Delta calculations. Halved? --> half for width/height, half for x/y
-    let delX = (x) => { return (event.pageX - x) / 2; };
-    let delY = (y) => { return (event.pageY - y) / 2; };
+    let delX = (x) => { return Math.round((event.pageX - x) / 2); };
+    let delY = (y) => { return Math.round((event.pageY - y) / 2); };
     let dX = delX(rect.left);
     let dY = delY(rect.top);
 
@@ -712,14 +712,14 @@ export function resizeBounds(drag, event, card) {
     // dX/Y is half the required distance to min. size (acceptable)
     // for the drag types not handled in the inner if statements.
     if (bounds.width < min.x) {
-        dX = (prev.width - min.x) / 2;
+        dX = Math.round((prev.width - min.x) / 2);
         if (drag == 0 || drag == 3) {
             bounds.width = prev.width - dX;
             bounds.x = prev.x + dX;
         }
     }
     if (bounds.height < min.y) {
-        dY = (prev.height - min.y) / 2;
+        dY = Math.round((prev.height - min.y) / 2);
         if (drag == 0 || drag == 1) {
             bounds.height = prev.height - dY;
             bounds.y = prev.y + dY;
