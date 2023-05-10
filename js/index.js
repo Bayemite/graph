@@ -101,6 +101,8 @@ function initListeners(canvas, cardsData) {
     document.getElementById('reset-button').onclick = () => {
         cardsData.cardsData = new Map();
         cardsData.addCardsHTML();
+        window.camera.pos = util.vec2(0, 0);
+        window.camera.zoom = 1;
     };
 
     document.getElementById('theme-button').onclick = () => {
