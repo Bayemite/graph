@@ -19,23 +19,29 @@
 </head>
 
 <body>
+    <h4 contenteditable id="title">Mindmap</h4>
     <div id="overlay">
-        <h4 contenteditable id="title">Mindmap</h4>
-        <div style="display: flex; flex-direction: row;">
-            <button id="save">
-                Save
-            </button>
-            <label class="label">
-                <input id="openFile" accept=".json" type="file">
-                <span id="upload">Open</span>
-            </label>
-            <button id="reset-button">
-                Reset
-            </button>
-            <button id="theme-button">
-                Theme
-            </button>
-        </div>
+        <button class="sidebar-button" id="save">
+            <span class="material-symbols-outlined">
+                save
+            </span>
+        </button>
+        <label class="label">
+            <input id="openFile" accept=".json" type="file">
+            <span class="material-symbols-outlined">
+                folder_open
+            </span>
+        </label>
+        <button class="sidebar-button" id="reset-button">
+            <span class="material-symbols-outlined">
+                refresh
+            </span>
+        </button>
+        <button class="sidebar-button" id="theme-button">
+            <span class="material-symbols-outlined">
+                color_lens
+            </span>
+        </button>
     </div>
     <div id="dialog-container"></div>
     <div id="container">
