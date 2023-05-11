@@ -48,10 +48,17 @@ body {
     left: 3rem;
     font-size: large;
     width: max-content;
-    max-width: 20vw;
+    /* word-wrap: break-word; */
+    /* word-break: keep-all; */
+    /* max-width: 20vw; */
+    /* max-width is either 20vw or 4rem */
+    max-width: max(30vw, 7rem);
     margin: 0;
     padding: 15px 20px;
     z-index: 10000;
+    background-color: var(--transparent-color);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     color: var(--text-color);
     border: 2px solid var(--border-color);
     border-top: 0;
