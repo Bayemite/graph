@@ -1815,11 +1815,13 @@ export class PeerManager {
                 // Assume card-{id}
                 let id = cmd.id.substring(5);
 
-                let html = cmd.text;
+                let html = DOMPurify.sanitize(cmd.text);
+                this.cardsData.get(id).text = html;
+
                 let hide = this.cardsData.undoHandler.get(id).hide;
                 hide(() => {
                     let content = getCardContent(id);
-                    content.innerHTML = DOMPurify.sanitize(html);
+                    content.innerHTML = html;
 
                     for (let img of content.getElementsByClassName('card-image')) {
                         let imageId = null;
