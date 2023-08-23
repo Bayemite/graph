@@ -1,0 +1,225 @@
+/* optional, togglable animations */
+
+button:hover,
+.label:hover {
+    background-position: 100%;
+    color: var(--background-color);
+}
+
+.selected:hover {
+    background-color: rgba(84, 206, 62, 0.8) !important;
+}
+
+.accordion-header:hover {
+    background-color: #2b2b2b;
+    border-radius: 15px;
+}
+
+.break-link-button:hover {
+    transform: scale(1) translate(0, -20%);
+    opacity: 1;
+}
+
+#image-sidebar-content img:hover {
+    filter: brightness(0.5);
+}
+
+#undo-redo-buttons>button:not([data-no-action=true]):hover span {
+    color: var(--background-color);
+}
+
+#undo-redo-buttons>button[data-no-action=true]:hover {
+    background: none;
+}
+
+body {
+    transition: background-color 0.6s cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+#title {
+    transition: 0.3s left cubic-bezier(0, 0.96, 0, 0.99);
+}
+
+button,
+.label {
+    transition: 0.5s background cubic-bezier(0, 0.96, 0, 0.99), 0.5s;
+}
+
+.accordion-header {
+    transition: 0.5s;
+}
+
+.accordion-content {
+    transition: max-height 0.15s cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+.text {
+    transition: 0.6s font-size cubic-bezier(0, 0.5, 0, 0.99);
+}
+
+
+#peer-container {
+    transition: left 0.4s cubic-bezier(0.75, 0, 0.25, 1), transform 0.4s cubic-bezier(0.75, 0, 0.25, 1);
+}
+
+.break-link-button {
+    transition: 0.2s opacity, 0.1s transform, 0s left, top;
+}
+
+.dialog-button-container {
+    transition: margin-left 0s, transform 0s, all 0.5s;
+}
+
+#file-sidebar,
+#image-sidebar,
+#peer-sidebar,
+#image-sidebar-content img {
+    transition: 0.3s;
+}
+
+#undo-redo-buttons>button span {
+    transition: color 0.3s;
+}
+
+@keyframes menu-desc {
+    0% {
+        transform: scale(0%);
+    }
+
+    1% {
+        display: inline-block;
+        transform: scale(0%);
+    }
+
+    100% {
+        transform: scale(100%);
+    }
+}
+
+@keyframes actionsScaleIn {
+    0% {
+        transform: scale(0);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes removeScaleIn {
+    0% {
+        transform: translateY(-50%) scale(0);
+    }
+
+    100% {
+        transform: translateY(-50%) scale(0.5);
+    }
+}
+
+@keyframes connection {
+
+    /* at 0, opacity 0 */
+    0% {
+        opacity: 0;
+        transform: scale(0);
+    }
+
+    /* at 1, opacity 0.2 */
+    100% {
+        opacity: 0.5;
+        transform: scale(0.75);
+    }
+}
+
+@keyframes dialog {
+    0% {
+        transform: scale(0);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes dialog-remove {
+    0% {
+        transform: scale(1);
+    }
+
+    100% {
+        transform: scale(0);
+    }
+}
+
+@keyframes resizeScaleIn {
+    0% {
+        scale: 0;
+    }
+
+    100% {
+        scale: 1;
+    }
+}
+
+#left-sidebar[data-opened="true"] .menu-desc {
+    animation: menu-desc 0.5s forwards cubic-bezier(0, 0.96, 0, 0.99);
+}
+
+.actions-button {
+    animation: actionsScaleIn 0.2s forwards;
+    transform: scale(0);
+}
+
+.actions-button:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.actions-button:nth-child(2) {
+    animation-delay: 0.05s;
+}
+
+.actions-button:nth-child(3) {
+    animation-delay: 0.1s;
+}
+
+.actions-button:nth-child(4) {
+    animation-delay: 0.15s;
+}
+
+.dialog {
+    animation: 0.5s dialog cubic-bezier(0.075, 0.82, 0.165, 1);
+    animation-fill-mode: forwards;
+}
+
+.dialog-remove {
+    animation: 0.2s dialog-remove cubic-bezier(0.075, 0.82, 0.165, 1);
+    animation-fill-mode: forwards;
+}
+
+.resize-anchor {
+    animation: resizeScaleIn 0.2s cubic-bezier(0.075, 0.9, 0.165, 1);
+}
+
+.actions>.clr-field {
+    transform: scale(0);
+    animation: actionsScaleIn 0.2s forwards;
+    animation-delay: 0.15s;
+}
+
+.remove-button {
+    animation: removeScaleIn 0.1s cubic-bezier(0.2, 0.7, 0, 1) forwards;
+}
+
+@keyframes open {
+    0% {
+        transform: scale(0);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.clr-open {
+    animation: open 0.2s ease;
+}

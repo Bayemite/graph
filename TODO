@@ -1,0 +1,56 @@
+# Features
+- Peer connections for collaboration (hard, started)
+- keyboard shortcuts
+- Resize images independent of containing card
+- Mobile support: touch input
+- Google Drive/Microsoft integration/peer auth.
+
+## Potential ideas
+- Auto layout
+- Spoken commands
+- Smart categorisation
+- More themes
+- Integration with other tools
+- Node/card search
+- Analytics of how many times card has been clicked on or edited
+
+## Bayemite
+- peer JS
+    - change link to actual url (dev -> main)
+    - don't replace share url so that reload doesn't disconnect
+    - Reconnect between reloads
+    - security?
+    - Diffing for cards
+- Peer user cursor location
+    - follow other cursors
+    - Custom cursors/edit locks
+- undo deltas (hard?)
+- use Worker for saving (perf)
+
+## Technotech
+- Mindmap templates
+- Font configuration
+
+## Other
+- Drag and drop image onto the blank background creates a new node with the image on it
+
+## Done
+- Peer user cursor location
+    - Forward from host to peers
+    - Match color in collab sidebar list
+- Add feature to move nodes using arrow keys so you can adjust the node locations specifically
+- Resizing card manually (nice to have)
+- Printer friendliness (day mode: background white)
+  - (styling partial)
+  - display none for ui elements
+- Bold, italics, etc. for text
+- Color change: text, arrows (where to put UI though, appear on text focus?)
+- Z-index: move to top when focused
+- Images in cards
+- Deleting card leaves connection del btn 
+- Loading from file breaks connections
+- Sidebar
+- Use File System Access API for offline storage (esp. autosaves)
+- Request animation frames is not exactly required
+- Hover to open UI under card sometimes disappears when trying to move cursor to buttons
+- Add move card UI (dotted box, something like for the resize UI?)
