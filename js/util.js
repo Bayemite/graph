@@ -1896,7 +1896,7 @@ export class PeerManager {
         this.hostBtn.innerText = 'Stop Hosting';
 
         this.localPeer.on('open', () => {
-            this.collabTag.value = `bayemite.github.io/graph/index.html?hostId=${this.localPeer.id}`;
+            this.collabTag.value = `https://bayemite.github.io/graph/index.html?hostId=${this.localPeer.id}`;
             this.onUpdate(msg => {
                 for (let conn of this.connections.values())
                     conn.send(msg);
