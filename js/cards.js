@@ -434,6 +434,7 @@ export class CardsData {
     htmlEditUI(id) {
         let editRootNode = document.createElement("div");
         editRootNode.classList.add("actions");
+        editRootNode.classList.add("unselectable");
 
         let linkElem = document.createElement("button");
         linkElem.innerHTML = `

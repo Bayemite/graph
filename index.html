@@ -27,7 +27,7 @@
 </head>
 
 <body>
-    <div id="title-div">
+    <div id="title-div" class="unselectable">
         <input id="title" placeholder="Untitled" maxlength="255">
         <p id="save-status" class="no-print">Unsaved</p>
     </div>
@@ -125,8 +125,8 @@
         </div>
     </div>
 
-    <canvas id="canvas"></canvas>
-    <svg xmlns="http://www.w3.org/2000/svg" id="links-svg">
+    <canvas id="canvas" class="unselectable"></canvas>
+    <svg xmlns="http://www.w3.org/2000/svg" id="links-svg" class="unselectable">
         <g id="links-transform"></g>
     </svg>
 </body>
