@@ -1972,10 +1972,10 @@ export class PeerManager {
         this.collabTag.value = window.location;
 
         this.hostConn.on('disconnected', () => {
-            this.peerList.removeChild(hostTag);
+            this.peerList.removeChild(document.getElementById(`peer-${this.hostId}`));
         });
         this.hostConn.on('close', () => {
-            this.peerList.removeChild(hostTag);
+            this.peerList.removeChild(document.getElementById(`peer-${this.hostId}`));
         });
 
         this.onUpdate(msg => this.hostConn.send(msg));
