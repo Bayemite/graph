@@ -1,4 +1,6 @@
-# Features
+# TODO
+
+## Features
 - Peer connections for collaboration (hard, started)
 - keyboard shortcuts
 - Resize images independent of containing card
@@ -14,9 +16,16 @@
 - Node/card search
 - Analytics of how many times card has been clicked on or edited
 
+## Other
+- Drag and drop image onto the blank background creates a new node with the image on it
+- Fix any issues with peer connections
+  - Fix issue with emojis in peer connections
+  - Reset peer sidebar when host stops sharing
+- Resolve any bugs
+- Bring back theme change transition animation?
+
 ## Bayemite
 - peer JS
-    - change link to actual url (dev -> main)
     - don't replace share url so that reload doesn't disconnect
     - Reconnect between reloads
     - security?
@@ -28,13 +37,23 @@
 - use Worker for saving (perf)
 
 ## Technotech
+- Fix styling with checkbox and input
 - Mindmap templates
+  - Dialog with templates to choose from
+  - Open when creating new map
+- Show peer text cursors and selected cards?
 - Font configuration
-
-## Other
-- Drag and drop image onto the blank background creates a new node with the image on it
+  - Open small window instead of font size toggle
+  - font size, family, font weight, color, alignment in card
+- Color theme in settings window (reimplement)
+  - Change light and dark colours
+  - Add more interesting themes?
+  - Custom background
+- Peer chat
+  - Show in sidebar
 
 ## Done
+- change link to actual url (dev -> main)
 - Peer user cursor location
     - Forward from host to peers
     - Match color in collab sidebar list
@@ -51,6 +70,6 @@
 - Loading from file breaks connections
 - Sidebar
 - Use File System Access API for offline storage (esp. autosaves)
-- Request animation frames is not exactly required
+- Request animation frames no longer required
 - Hover to open UI under card sometimes disappears when trying to move cursor to buttons
 - Add move card UI (dotted box, something like for the resize UI?)
