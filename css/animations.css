@@ -16,7 +16,7 @@ button:hover,
 }
 
 .break-link-button:hover {
-    transform: scale(1) translate(0, -20%);
+    transform: translate(-15%, -15%) scale(1);
     opacity: 1;
 }
 
