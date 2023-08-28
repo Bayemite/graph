@@ -26,6 +26,20 @@
     --border-color: var(--dark-border-color);
     --sidebar-color: var(--dark-sidebar-color);
 
+    /* z-indexes */
+    --image-sidebar-content-z: -100;
+    --links-z: -10;
+    --canvas-z: -10;
+    --cursor-con-z: 10;
+    --peer-cursors-z: 10;
+    --title-z: 100;
+    --title-div-z: 100;
+    --sidebar-z: 1000;
+    --image-sidebar-top-z: 1000;
+    --undo-btns-z: 10000;
+    --clr-picker-z: 100000;
+    --dialog-z: 10000000;
+
     /* Other variables */
     --sidebar-width: 3em;
     --border-width: 2px;
@@ -35,7 +49,7 @@
 }
 
 canvas {
-    z-index: -100000;
+    z-index: var(--canvas-z);
 }
 
 #snapshot-canvas {
@@ -49,7 +63,7 @@ canvas {
 }
 
 #links-svg {
-    z-index: -100000;
+    z-index: var(--links-z);
     position: fixed;
     left: 0;
     top: 0;
@@ -94,7 +108,7 @@ input {
 .cursor-con {
     position: absolute;
     pointer-events: none;
-    z-index: 1000;
+    z-index: var(--cursor-con-z);
     transform: translate(-5px, -5px);
 }
 
@@ -124,7 +138,7 @@ input {
 
     margin: 1rem 1.5rem;
 
-    z-index: 10000000;
+    z-index: var(--title-div-z);
 }
 
 #title-div p {
@@ -142,7 +156,7 @@ input {
     font-size: large;
     width: 10em;
     text-align: center;
-    z-index: 10000;
+    z-index: var(--title-z);
     color: var(--text-color);
     text-decoration: underline;
     cursor: text;
@@ -197,7 +211,7 @@ input {
     top: 0;
     left: 0;
     border-radius: 0;
-    z-index: 1000000;
+    z-index: var(--sidebar-z);
     color: var(--text-color);
     border-right: var(--border);
     background-color: var(--sidebar-color);
@@ -443,7 +457,7 @@ button:hover,
 }
 
 #clr-picker {
-    z-index: 10000000000;
+    z-index: var(--clr-picker-z);
 }
 
 .break-link-button {
@@ -485,7 +499,7 @@ button:hover,
     border-radius: 50px;
     width: max-content;
     max-width: 50vw;
-    z-index: 10000000;
+    z-index: var(--dialog-z);
 }
 
 .dialog-header {
@@ -532,7 +546,7 @@ input[type="file"] {
     left: 0;
     transform: translateX(-101%);
     top: 0;
-    z-index: 10000;
+    z-index: var(--sidebar-z);
 
     color: var(--text-color);
     background-color: var(--sidebar-color);
@@ -636,7 +650,7 @@ input[type="file"] {
 
 #image-sidebar-content {
     position: relative;
-    z-index: -1000;
+    z-index: var(--image-sidebar-content-z);
     display: flex;
     flex-wrap: wrap;
     padding: 0.4em;
@@ -653,7 +667,7 @@ input[type="file"] {
     height: var(--image-sidebar-top-height);
     border-bottom: var(--border);
     background-color: var(--background-color);
-    z-index: 1000;
+    z-index: var(--image-sidebar-top-z);
 
     padding-right: 0;
     display: flex;
@@ -691,7 +705,7 @@ input[type="file"] {
     right: 2rem;
     top: 1.25rem;
     transform: scale(1.5);
-    z-index: 10000000;
+    z-index: var(undo-btns-z);
 }
 
 #undo-redo-buttons>button {
@@ -741,6 +755,6 @@ input[type="file"] {
 }
 
 #peer-cursors {
-    z-index: 1000;
+    z-index: var(--peer-cursors-z);
     position: fixed;
 }
