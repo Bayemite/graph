@@ -5,11 +5,17 @@
 - keyboard shortcuts
 - Resize images independent of containing card
 - Mobile support: touch input
+	- Zoom does not really work
+	- Creating cards, linking cards, and peer to peer work
+	- Peer seems to immediately disconnect if you unfocus the window
 - Google Drive/Microsoft integration/peer auth.
+	- Could be a priority, as some users may not want to have to manually use something like OneDrive to store mindmaps
 
 ## Potential ideas
 - Auto layout
 - Spoken commands
+	- Perhaps possible via Whisper.cpp wasm and the tiny model or similar
+	- -> use fuzzy search to match to xommands, embedding model is likely too large
 - Smart categorisation
 - More themes
 - Integration with other tools
@@ -17,6 +23,7 @@
 - Analytics of how many times card has been clicked on or edited
 
 ## Other
+- Resolve massive image sizes (practically unusable at the moment)
 - Drag and drop image onto the blank background creates a new node with the image on it
 - Fix any issues with peer connections
   - Fix issue with emojis in peer connections
