@@ -6,6 +6,7 @@
 - Resize images independent of containing card
 - Mobile support: touch input
 	- Zoom does not really work
+		- Fix: stop pinch zoom if possible and/or add +/- zoom buttons
 	- Creating cards, linking cards, and peer to peer work
 	- Peer seems to immediately disconnect if you unfocus the window
 - Google Drive/Microsoft integration/peer auth.
