@@ -560,8 +560,6 @@ export class CardsData {
             for (let [type, callback] of this.focusCallbacks)
                 document.removeEventListener(type, callback);
 
-            if (document.getElementById("suggestions-list"))
-                document.getElementById("suggestions-list").remove();
             let card = this.getFocusedCard();
             if (!card) {
                 this.focusCardID = -1;

@@ -166,28 +166,6 @@ input {
     margin-left: 4px;
 }
 
-#suggestions-list {
-    position: absolute;
-    padding: 0.5rem 1rem;
-    margin: 0;
-    left: 3rem;
-    list-style: none;
-    width: max-content;
-    max-width: max(30vw, 7rem);
-}
-
-#suggestions-list li {
-    background-color: var(--transparent-color);
-    color: var(--text-color);
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-}
-
-#suggestions-list li:nth-child(1) {
-    background-color: var(--text-color);
-    color: var(--background-color);
-}
-
 .material-symbols-outlined {
     -webkit-user-select: none;
     user-select: none;
