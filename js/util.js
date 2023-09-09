@@ -28,6 +28,10 @@ export function tagSVG(type) {
     return document.createElementNS('http://www.w3.org/2000/svg', type);
 }
 
+export function newEvent(type, detail) {
+    return new CustomEvent(type, { detail: detail });
+}
+
 // get a valid int, fallback if needed
 export function getInt(str, fallback = 0) {
     let n = parseInt(str);
@@ -133,16 +137,14 @@ export class UndoRedoStack extends EventTarget {
         this.undoStack = [];
         this.redoStack = [];
 
-        let event = new CustomEvent('change', { detail: { type: 'clear' } });
+        let event = newEvent('change', { type: 'clear' });
         this.dispatchEvent(event);
     }
 
     dispatchChange(cmd) {
-        let event = new CustomEvent('change', {
-            detail: {
-                type: 'add',
-                cmd: cmd
-            }
+        let event = newEvent('change', {
+            type: 'add',
+            cmd: cmd
         });
         this.dispatchEvent(event);
     }
@@ -1190,9 +1192,7 @@ class ResizeAnchors extends EventTarget {
                 e.stopPropagation();
                 this.current = i;
 
-                let event = new CustomEvent('mousedown', {
-                    detail: { index: i }
-                });
+                let event = newEvent('mousedown', { index: i });
                 this.dispatchEvent(event);
             };
         }
@@ -1201,9 +1201,9 @@ class ResizeAnchors extends EventTarget {
             if (this.current == -1)
                 return;
 
-            let event = new CustomEvent('resize', {
-                detail: { bounds: resizeBounds(this.current, e, this.parent) }
-            });
+            let event = newEvent('resize',
+                { bounds: resizeBounds(this.current, e, this.parent) }
+            );
             this.dispatchEvent(event);
         };
         this.onmouseup = () => this.current = -1;
