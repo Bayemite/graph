@@ -607,17 +607,13 @@ export class CardsData {
             deleteBtn.onclick = () => this.deleteCard(id);
             focused.appendChild(deleteBtn);
 
-            let resizeAnchors = util.resizeAnchors(cardData.color);
-            let drag = -1; // corresponds to resizeAnchors index
-            for (let i = 0; i < resizeAnchors.length; i++) {
-                let a = resizeAnchors[i];
-                focused.appendChild(a);
-                a.onmousedown = (e) => {
-                    e.stopPropagation();
-                    drag = i;
-                    this.initialBounds = util.computedStyleRect(focused);
-                };
-            }
+            let resizeAnchors = util.resizeAnchors(cardData.color, focused);
+            resizeAnchors.addEventListener('mousedown', () =>
+                this.initialBounds = util.computedStyleRect(focused)
+            );
+            resizeAnchors.addEventListener('resize', (e) => {
+                this.updateCardBounds(id, e.detail.bounds);
+            });
 
             this.focusCallbacks.set('keydown', (e) => {
                 if (e.key == 'Control') this.snapGrid = true;
@@ -642,7 +638,6 @@ export class CardsData {
                 else if (e.key == 'Shift') this.snapAxis = false;
             });
             this.focusCallbacks.set('mouseup', () => {
-                drag = -1;
                 this.snapAxis = false;
                 this.snapGrid = false;
                 this.moveCardID = -1;
@@ -668,16 +663,9 @@ export class CardsData {
                     this.initialBounds = null;
                 }
             });
-            this.focusCallbacks.set('mousemove', (e) => {
-                if (drag == -1) return;
-
-                let bounds = util.resizeBounds(drag, e, focused);
-                this.updateCardBounds(id, bounds);
-            });
             document.addEventListener('keydown', this.focusCallbacks.get('keydown'));
             document.addEventListener('keyup', this.focusCallbacks.get('keyup'));
             document.addEventListener('mouseup', this.focusCallbacks.get('mouseup'));
-            document.addEventListener('mousemove', this.focusCallbacks.get('mousemove'));
 
             // HACK!
             // Change z-index to top by physically moving DOM location

@@ -1171,13 +1171,54 @@ export function computedStyleRect(tag) {
     return styleRect(style);
 }
 
-export function resizeAnchors(cardColor) {
+class ResizeAnchors extends EventTarget {
+    // anchors for each corner
+    constructor(NW, NE, SE, SW, parentTag) {
+        super();
+
+        this.parent = parentTag;
+        this.tag = tag('div');
+        this.current = -1;
+
+        this.tag.append(NW, NE, SE, SW);
+        this.parent.append(this.tag);
+
+        let resizeAnchors = [NW, NE, SE, SW];
+        for (let i = 0; i < resizeAnchors.length; i++) {
+            let a = resizeAnchors[i];
+            a.onmousedown = (e) => {
+                e.stopPropagation();
+                this.current = i;
+
+                let event = new CustomEvent('mousedown', {
+                    detail: { index: i }
+                });
+                this.dispatchEvent(event);
+            };
+        }
+
+        this.onmousemove = (e) => {
+            if (this.current == -1)
+                return;
+
+            let event = new CustomEvent('resize', {
+                detail: { bounds: resizeBounds(this.current, e, this.parent) }
+            });
+            this.dispatchEvent(event);
+        };
+        this.onmouseup = () => this.current = -1;
+        document.addEventListener('mouseup', this.onmouseup);
+        document.addEventListener('mousemove', this.onmousemove);
+    }
+}
+
+export function resizeAnchors(color, tag) {
     let NW = document.createElement('span');
     NW.classList.add('unselectable');
     NW.classList.add('resize-anchor');
     NW.innerText = '◤';
     NW.style = `
-        color: ${cardColor};
+        color: ${color};
         cursor: nwse-resize;
         position: absolute;
         inset: 0 auto auto 0;
@@ -1200,15 +1241,14 @@ export function resizeAnchors(cardColor) {
     SW.style.inset = 'auto auto 0 0';
     SW.style.transform = 'translate(-50%, 50%)';
 
-    // Keep NW NE SE SW index order
-    return [NW, NE, SE, SW];
+    return new ResizeAnchors(NW, NE, SE, SW, tag);
 }
 
-export function resizeBounds(drag, event, card) {
+export function resizeBounds(anchorIndex, event, tag) {
     let bounds = new Rect();
 
-    let rect = card.getBoundingClientRect();
-    let prev = computedStyleRect(card);
+    let rect = tag.getBoundingClientRect();
+    let prev = computedStyleRect(tag);
 
     // Delta calculations. Halved? --> half for width/height, half for x/y
     let delX = (x) => { return Math.round((event.pageX - x) / 2); };
@@ -1216,13 +1256,13 @@ export function resizeBounds(drag, event, card) {
     let dX = delX(rect.left);
     let dY = delY(rect.top);
 
-    if (drag == 0) {
+    if (anchorIndex == 0) {
         bounds.x = prev.x + dX;
         bounds.y = prev.y + dY;
         bounds.width = prev.width - dX;
         bounds.height = prev.height - dY;
     }
-    else if (drag == 1) {
+    else if (anchorIndex == 1) {
         dX = delX(rect.right);
         bounds.x = prev.x;
         bounds.y = prev.y + dY;
@@ -1231,14 +1271,14 @@ export function resizeBounds(drag, event, card) {
     }
     else {
         dY = delY(rect.bottom);
-        if (drag == 2) {
+        if (anchorIndex == 2) {
             dX = delX(rect.right);
             bounds.x = prev.x;
             bounds.y = prev.y;
             bounds.width = prev.width + dX;
             bounds.height = prev.height + dY;
         }
-        else if (drag == 3) {
+        else if (anchorIndex == 3) {
             dX = delX(rect.left);
             bounds.x = prev.x + dX;
             bounds.y = prev.y;
@@ -1247,19 +1287,19 @@ export function resizeBounds(drag, event, card) {
         }
     }
 
-    let min = minSize(card);
+    let min = minSize(tag);
     // dX/Y is half the required distance to min. size (acceptable)
     // for the drag types not handled in the inner if statements.
     if (bounds.width < min.x) {
         dX = Math.round((prev.width - min.x) / 2);
-        if (drag == 0 || drag == 3) {
+        if (anchorIndex == 0 || anchorIndex == 3) {
             bounds.width = prev.width - dX;
             bounds.x = prev.x + dX;
         }
     }
     if (bounds.height < min.y) {
         dY = Math.round((prev.height - min.y) / 2);
-        if (drag == 0 || drag == 1) {
+        if (anchorIndex == 0 || anchorIndex == 1) {
             bounds.height = prev.height - dY;
             bounds.y = prev.y + dY;
         }
