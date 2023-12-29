@@ -132,11 +132,11 @@ input {
 
 #title-div {
     position: absolute;
-    top: 0;
     left: 50vw;
+    margin-right: -50%;
     transform: translateX(-50%);
 
-    margin: 1rem 1.5rem;
+    margin-top: 1rem;
 
     z-index: var(--title-div-z);
 }
