@@ -274,7 +274,7 @@ export function radiansToDegrees(radians) {
 
 export class Dialog {
     // bodyTag : array or single tag for dialog content
-    // btns: String label for close button OR 
+    // btns: String label for close button (default is 'Ok') OR 
     // an array of {
     //   label: String, 
     //   onclick : callback (undefined defaults to closing dialog, return false to keep dialog open),
@@ -312,7 +312,7 @@ export class Dialog {
         let addBtn = (label, onclick, id) => {
             let btn = document.createElement('button');
             btn.className = 'dialog-button';
-            btn.innerText = label;
+            btn.innerText = label ? label : 'Ok';
             if (id)
                 btn.id = id;
             btn.tabIndex = 0;
