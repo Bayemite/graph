@@ -18,6 +18,32 @@ if (visited == null) {
     initDialog.show();
 }
 
+window.onload = async () => {
+    Coloris({ clearButton: false });
+    await util.loadSettings();
+
+    let canvasTag = document.getElementById('canvas');
+    let dashboardTag = document.querySelector('#file-sidebar-content');
+
+    let cardsData = new card.CardsData();
+    window.camera = new util.Camera(cardsData);
+
+    let localSaver = await util.localSaver(cardsData, dashboardTag);
+    let peerManager = new util.PeerManager(cardsData, localSaver);
+
+    peerManager.initListeners();
+    initListeners(canvasTag, cardsData, localSaver);
+
+    await localSaver.loadLocalSave();
+
+    cardsData.updateHTML(false);
+    util.updateTheme(cardsData);
+
+    window.camera.update();
+
+    takeSnapshot(localSaver);
+};
+
 function setCanvasSize(canvas) {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -169,29 +195,7 @@ function initListeners(canvas, cardsData, localSaver) {
     );
 };
 
-window.onload = async () => {
-    Coloris({ clearButton: false });
-    await util.loadSettings();
-
-    let canvasTag = document.getElementById('canvas');
-    let dashboardTag = document.querySelector('#file-sidebar-content');
-
-    let cardsData = new card.CardsData();
-    window.camera = new util.Camera(cardsData);
-
-    let localSaver = await util.localSaver(cardsData, dashboardTag);
-    let peerManager = new util.PeerManager(cardsData, localSaver);
-
-    peerManager.initListeners();
-    initListeners(canvasTag, cardsData, localSaver);
-
-    await localSaver.loadLocalSave();
-
-    cardsData.updateHTML(false);
-    util.updateTheme(cardsData);
-
-    window.camera.update();
-
+function takeSnapshot(localSaver) {
     let linksSvg = document.querySelector('#links-svg');
     let snapshotImg = document.querySelector('#snapshot-img');
     let xml = new XMLSerializer().serializeToString(linksSvg);
@@ -229,4 +233,4 @@ window.onload = async () => {
         });
 
     };
-};
+}
