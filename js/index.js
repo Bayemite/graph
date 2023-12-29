@@ -11,7 +11,7 @@ if (visited == null) {
             'p',
             `This mindmapping website is under development!<br>
             Some features may not be available or may not function properly.<br>
-            You can follow along at <a style="overflow-wrap: break-word;"
+            You can follow along at <a style="overflow-wrap: anywhere;"
             href="https://github.com/bayemite/graph">https://github.com/bayemite/graph</a>.`
         ),
         'OK'
