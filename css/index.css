@@ -35,6 +35,7 @@
     --title-z: 100;
     --title-div-z: 100;
     --sidebar-z: 1000;
+    --top-sidebar-z: 1001;
     --image-sidebar-top-z: 1000;
     --undo-btns-z: 10000;
     --clr-picker-z: 100000;
@@ -46,6 +47,27 @@
     --border: var(--border-width) solid var(--border-color);
     --image-sidebar-top-height: 3rem;
     --warning-red: #D0342C;
+}
+
+#left-sidebar-mobile-open {
+    display: none;
+}
+
+/* Mobile */
+@media screen and (max-width: 450px) {
+
+    .sidebar {
+        visibility: hidden;
+    }
+
+    #left-sidebar-mobile-open {
+        visibility: visible;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: var(--undo-btns-z);
+    }
 }
 
 canvas {
@@ -189,7 +211,7 @@ input {
     top: 0;
     left: 0;
     border-radius: 0;
-    z-index: var(--sidebar-z);
+    z-index: var(--top-sidebar-z);
     color: var(--text-color);
     border-right: var(--border);
     background-color: var(--sidebar-color);
@@ -683,7 +705,7 @@ input[type="file"] {
     right: 2rem;
     top: 1.25rem;
     transform: scale(1.5);
-    z-index: var(undo-btns-z);
+    z-index: var(--undo-btns-z);
 }
 
 #undo-redo-buttons>button {

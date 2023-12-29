@@ -42,7 +42,9 @@ body {
 
 button,
 .label {
-    transition: 0.5s background cubic-bezier(0, 0.96, 0, 0.99), 0.5s;
+    transition: 0.5s background cubic-bezier(0, 0.96, 0, 0.99),
+        0.5s,
+        visibility 0s;
 }
 
 .accordion-header {
@@ -74,7 +76,7 @@ button,
 #image-sidebar,
 #peer-sidebar,
 #image-sidebar-content img {
-    transition: 0.3s;
+    transition: 0.3s, visibility 0s;
 }
 
 #undo-redo-buttons>button span {

@@ -34,6 +34,7 @@ window.onload = async () => {
 
     peerManager.initListeners();
     initListeners(canvasTag, cardsData, localSaver);
+    mobileSidebarListeners();
 
     await localSaver.loadLocalSave();
 
@@ -44,6 +45,18 @@ window.onload = async () => {
 
     takeSnapshot(localSaver);
 };
+
+function mobileSidebarListeners() {
+    let open = false;
+    document.querySelector('#left-sidebar-mobile-open').onclick = () => {
+        open = !open;
+        let visible = open ? 'visible' : 'hidden';
+        let sidebars = document.getElementsByClassName('sidebar');
+
+        for (let s of sidebars)
+            s.style.visibility = visible;
+    };
+}
 
 function setCanvasSize(canvas) {
     canvas.width = window.innerWidth;
