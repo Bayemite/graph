@@ -1642,8 +1642,13 @@ export class PeerManager {
         // id (.peer) -> Peer object
         this.connections = new Map();
 
-        let params = new URLSearchParams(window.location.search);
-        this.hostId = params.get('hostId');
+        let params = {};
+        let regex = /([^&=]+)=([^&]*)/g, m; // Check hash for query style key=val&key1=val1
+        let fragmentString = location.hash.substring(1);
+        while (m = regex.exec(fragmentString))
+            params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
+
+        this.hostId = params['hostId'];
         this.hostConn = null;
 
         if (this.hostId) {
@@ -1938,7 +1943,9 @@ export class PeerManager {
         this.hostBtn.innerText = 'Stop Hosting';
 
         this.localPeer.on('open', () => {
-            this.collabTag.value = `https://bayemite.github.io/graph/index.html?hostId=${this.localPeer.id}`;
+            this.collabTag.value = window.location.host +
+                window.location.pathname +
+                `#hostId=${this.localPeer.id}`;
             this.onUpdate(msg => {
                 for (let conn of this.connections.values())
                     conn.send(msg);
