@@ -1634,6 +1634,7 @@ export class PeerManager {
         this.peerList = document.querySelector('#peer-list');
         this.peerCursors = document.querySelector('#peer-cursors');
 
+        this.isLocalClose = false;
         this.localPeer = null;
         this.peerName = '';
 
@@ -1696,6 +1697,13 @@ export class PeerManager {
         }
     }
 
+    resetUI() {
+        this.hostBtn.innerText = 'Host';
+        this.peerList.innerHTML = '';
+        this.collabTag.value = '';
+        document.querySelector('#local-peername').innerHTML = '';
+    };
+
     initListeners() {
         this.collabTag.onpointerdown = () => {
             this.collabTag.select();
@@ -1705,24 +1713,14 @@ export class PeerManager {
 
         this.hostBtn.onclick = () => {
             if (this.hosting) {
-                this.hosting = false;
-
-                for (let dataConn of this.connections.values())
-                    dataConn.close();
-
-                this.localPeer.destroy();
-
-                this.hostBtn.innerText = 'Host';
-                this.collabTag.value = '';
+                this.closeHost();
+                this.resetUI();
             }
             else if (this.connected) {
+                this.isLocalClose = true;
                 this.connected = false;
                 this.hostConn.close();
-
-                this.hostBtn.innerText = 'Host';
-                this.collabTag.value = '';
-                this.peerList.innerHTML = '';
-                document.querySelector('#local-peername').innerHTML = '';
+                this.resetUI();
             }
             else
                 this.host();
@@ -1953,6 +1951,7 @@ export class PeerManager {
         });
 
         this.localPeer.on('connection', (conn) => this.onNewPeer(conn));
+        window.addEventListener('beforeunload', () => this.localPeer.destroy());
     }
 
     onPeerData(data, senderId) {
@@ -2011,6 +2010,15 @@ export class PeerManager {
         newConn.on('data', data => this.onPeerData(data, id));
     }
 
+    closeHost() {
+        this.hosting = false;
+
+        for (let dataConn of this.connections.values())
+            dataConn.close();
+
+        this.localPeer.destroy();
+    }
+
     // Peer (not-host) specific functions
     onHostOpen() {
         this.connected = true;
@@ -2018,11 +2026,27 @@ export class PeerManager {
 
         this.collabTag.value = window.location;
 
+        let hostCloseDialog = new Dialog(
+            'Host Closed', tag('p', `
+             The host has closed the collaboration session.<br>
+             You can continue working on your local copy.
+            `)
+        );
         this.hostConn.on('disconnected', () => {
-            this.peerList.removeChild(document.getElementById(`peer-${this.hostId}`));
+            this.removePeer(this.hostId);
+            if (!this.isLocalClose)
+                hostCloseDialog.show();
+
+            this.connected = false;
+            this.resetUI();
         });
         this.hostConn.on('close', () => {
-            this.peerList.removeChild(document.getElementById(`peer-${this.hostId}`));
+            this.removePeer(this.hostId);
+            if (!this.isLocalClose)
+                hostCloseDialog.show();
+
+            this.connected = false;
+            this.resetUI();
         });
 
         this.onUpdate(msg => this.hostConn.send(msg));
