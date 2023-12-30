@@ -475,6 +475,7 @@ export class CardsData {
         colorInput.type = "text";
         colorInput.value = util.defaultColor;
         colorInput.autocomplete = false;
+        colorInput.name = 'color-input';
         colorInput.spellcheck = false;
         colorInput.setAttribute("data-coloris", true);
         colorInput.onclick = (e) => {
