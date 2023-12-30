@@ -60,8 +60,27 @@ export function getColor(str, fallback = defaultColor) {
     return fallback;
 }
 
-export function randomRGBColor(min = 0) {
-    return 'rgb(' + Math.max(0, min + Math.floor(Math.random() * (256 - min))) + ',' + Math.max(0, min + Math.floor(Math.random() * (256 - min))) + ',' + Math.max(0, min + Math.floor(Math.random() * (256 - min))) + ')';
+export class Rainbow {
+    constructor() {
+        this.colors = [
+            '#ff0000', // red
+            '#ff7c00', // orange
+            '#ffbf01', // yellow
+            '#00ff00', // green bright
+            '#00b222', // green dim
+            '#0081fe', // blue
+            '#ab20fd', // purple
+            '#ff00ff'  // pink
+        ];
+        this.i = 0;
+    }
+    next() {
+        let i = this.i % this.colors.length;
+        // golden ratio: even distribution
+        let increment = Math.round(this.colors.length / 1.618);
+        this.i += increment;
+        return this.colors[i];
+    }
 }
 
 // get a valid CSS fontSize string
@@ -1658,6 +1677,7 @@ export class PeerManager {
         this.hostBtn = document.querySelector('#host-button');
         this.peerList = document.querySelector('#peer-list');
         this.peerCursors = document.querySelector('#peer-cursors');
+        this.peerCursorColor = new Rainbow();
 
         this.isLocalClose = false;
         this.localPeer = null;
@@ -1920,7 +1940,7 @@ export class PeerManager {
     }
 
     addPeerCursor(label, peerId) {
-        let color = randomRGBColor();
+        let color = this.peerCursorColor.next();
 
         const mouseContainer = tag('div', `
         <div class="peer-cursor-label">${label}</div>
