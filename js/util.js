@@ -1677,7 +1677,7 @@ export class PeerManager {
         this.hostBtn = document.querySelector('#host-button');
         this.peerList = document.querySelector('#peer-list');
         this.peerCursors = document.querySelector('#peer-cursors');
-        this.peerCursorColor = new Rainbow();
+        this.peerCursorColor = null;
 
         this.isLocalClose = false;
         this.localPeer = null;
@@ -1687,6 +1687,8 @@ export class PeerManager {
         this.connected = false;
         // id (.peer) -> Peer object
         this.connections = new Map();
+        // id (.peer) -> CSS color string
+        this.peerColors = new Map();
 
         let params = {};
         let regex = /([^&=]+)=([^&]*)/g, m; // Check hash for query style key=val&key1=val1
@@ -1939,9 +1941,7 @@ export class PeerManager {
         }
     }
 
-    addPeerCursor(label, peerId) {
-        let color = this.peerCursorColor.next();
-
+    addPeerCursor(label, peerId, color) {
         const mouseContainer = tag('div', `
         <div class="peer-cursor-label">${label}</div>
         <div class="peer-cursor" style="background-color: ${color}"></div>
@@ -1950,8 +1950,6 @@ export class PeerManager {
         mouseContainer.className = 'cursor-con';
 
         this.peerCursors.appendChild(mouseContainer);
-
-        return color;
     }
 
     removePeerCursor(peerId) {
@@ -1959,15 +1957,17 @@ export class PeerManager {
         this.peerCursors.removeChild(cursor);
     }
 
-    // peerDesc: {label: peer.label, id: peer.peer}
+    // peerDesc: {label: peer.label, id: peer.peer, color: a CSS color string}
     addPeer(peerDesc) {
-        let color = this.addPeerCursor(peerDesc.label, peerDesc.id);
+        this.addPeerCursor(peerDesc.label, peerDesc.id, peerDesc.color);
         let listId = `peer-${peerDesc.id}`;
 
         let list = tag('li', '');
         list.id = listId;
-        list.style.color = color;
+        list.style.color = peerDesc.color;
         list.innerText = peerDesc.label;
+        if (peerDesc.id === this.hostId)
+            list.style.fontStyle = 'italic';
         this.peerList.appendChild(list);
     }
 
@@ -1981,6 +1981,7 @@ export class PeerManager {
     // Host specific functions
     host() {
         this.localPeer = this.#makePeer();
+        this.peerCursorColor = new Rainbow();
 
         this.hosting = true;
         this.hostBtn.innerText = 'Stop Hosting';
@@ -2022,17 +2023,19 @@ export class PeerManager {
     async onNewPeer(newConn) {
         let id = newConn.peer;
         let label = newConn.label;
-        let data = { id: id, label: label };
+        let color = this.peerCursorColor.next();
 
+        let data = { id: id, label: label, color: color };
         this.addPeer(data);
 
-        let peers = [{ id: this.localPeer.id, label: 'Host' }];
-        for (let conn of this.connections.values()) {
+        let peers = [{ id: this.localPeer.id, label: 'Host', color: 'gray' }];
+        for (let [id, conn] of this.connections.entries()) {
             conn.send({ type: 'new-peer', data: data });
-            peers.push({ id: conn.peer, label: conn.label });
+            peers.push({ id: conn.peer, label: conn.label, color: this.peerColors.get(id) });
         }
 
         this.connections.set(id, newConn);
+        this.peerColors.set(id, color);
 
         let removeConn = () => {
             for (let conn of this.connections.values())
@@ -2050,6 +2053,7 @@ export class PeerManager {
                 data: await this.cardsData.genSave()
             });
             newConn.send({ type: 'new-peers', data: peers });
+            newConn.send({ type: 'your-color', data: color });
         });
 
         newConn.on('data', data => this.onPeerData(data, id));
@@ -2097,7 +2101,9 @@ export class PeerManager {
         this.onUpdate(msg => this.hostConn.send(msg));
 
         window.addEventListener('beforeunload', () => this.localPeer.destroy());
-        document.querySelector('#local-peername').innerText = `Username: ${this.peerName}`;
+        let localName = document.querySelector('#local-peername');
+        localName.innerHTML = `Username: <span></span>`;
+        localName.querySelector('i').innerText = this.peerName;
     }
 
     async onHostData(data) {
@@ -2128,6 +2134,10 @@ export class PeerManager {
             }
             case 'delete-peer': {
                 this.removePeer(d.id);
+                break;
+            }
+            case 'your-color': {
+                document.querySelector('#local-peername').querySelector('span').style.color = d;
                 break;
             }
         }

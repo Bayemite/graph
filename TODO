@@ -3,7 +3,6 @@
 ## Features
 - Peer connections for collaboration (hard, started)
     - Reconnecting?
-    - Consistent peer colors across clients
 - keyboard shortcuts
 - Resize images independent of containing card
 - Mobile support: touch input
