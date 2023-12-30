@@ -260,12 +260,11 @@ export function vec2(x = 0, y = 0) {
 }
 
 /**
- *  @function clamp
- *  @param {Number} bottom clamp bottom
- *  @param {Number} number number
- *  @param {Number} top clamp top
+ *  @param {Number} x Number to clamp
+ *  @param {Number} a Floor bottom
+ *  @param {Number} b Ceil top
  */
-export function clamp(a, x, b) {
+export function clamp(x, a, b) {
     return Math.max(a, Math.min(x, b));
 }
 
@@ -741,7 +740,7 @@ export class Camera {
 
         const zoomOut = 0.3;
         const zoomIn = 3;
-        this.#zoom = clamp(zoomOut, this.#zoom, zoomIn);
+        this.#zoom = clamp(this.#zoom, zoomOut, zoomIn);
 
         this.update();
     }
