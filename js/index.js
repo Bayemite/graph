@@ -42,8 +42,6 @@ window.onload = async () => {
     util.updateTheme(cardsData);
 
     window.camera.update();
-
-    takeSnapshot(localSaver);
 };
 
 function mobileSidebarListeners() {
@@ -56,11 +54,6 @@ function mobileSidebarListeners() {
         for (let s of sidebars)
             s.style.visibility = visible;
     };
-}
-
-function setCanvasSize(canvas) {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
 }
 
 function initListeners(canvas, cardsData, localSaver) {
@@ -107,7 +100,7 @@ function initListeners(canvas, cardsData, localSaver) {
     };
 
     function resize() {
-        setCanvasSize(canvas);
+        util.setCanvasSize(canvas);
     }
     resize();
     window.addEventListener('resize', resize);
@@ -208,43 +201,3 @@ function initListeners(canvas, cardsData, localSaver) {
         }, { passive: false }
     );
 };
-
-function takeSnapshot(localSaver) {
-    let linksSvg = document.querySelector('#links-svg');
-    let snapshotImg = document.querySelector('#snapshot-img');
-    let xml = new XMLSerializer().serializeToString(linksSvg);
-    snapshotImg.src = 'data:image/svg+xml;base64,' + btoa(xml);
-
-    snapshotImg.onload = () => {
-        let canvas = document.querySelector('#snapshot-canvas');
-        setCanvasSize(canvas);
-        canvas.getContext('2d').drawImage(snapshotImg, 0, 0);
-
-        let options = {
-            canvas: canvas,
-            backgroundColor: null,
-
-            x: window.camera.pos.x,
-            y: window.camera.pos.y,
-            scale: window.camera.zoom,
-
-            ignoreElements: elem => elem.classList.contains('no-print'),
-            onclone: (doc) => {
-                let content = doc.querySelector('#content');
-                let cStyle = content.style;
-                cStyle.width = '100%';
-                cStyle.height = '100%';
-            }
-        };
-        html2canvas(document.querySelector('#content'), options).then(snapshot => {
-            snapshot.toBlob(
-                async (blob) => {
-                    await localSaver.updateFileSnapshot(blob);
-                },
-                'image/png'
-            );
-
-        });
-
-    };
-}

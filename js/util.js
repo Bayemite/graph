@@ -6,6 +6,11 @@ export const defaultColor = '#C8C8C8';
 export const defaultFontSize = 'initial';
 export const fileSuffix = '.msgpack';
 
+export function setCanvasSize(canvas) {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+
 export function getTitleTag() {
     return document.getElementById("title");
 }
@@ -866,37 +871,57 @@ class LocalSaver {
         await this.#updateSnapshots(shots);
     }
 
-    async updateTitleSnapshot(id = null, title = null) {
+    // snapshot: png blob
+    async updateSnapshot(id = null, title = null, snapshot = null) {
+        let shots = await this.#getSnapshots();
+        let shot = shots[id];
+
         if (id === null)
             id = this.id;
         if (title === null)
             title = getTitleTag().value;
-
-        let shots = await this.#getSnapshots();
-        let shot = shots[id];
+        if (snapshot === null)
+            snapshot = shot?.snapshot;
 
         shots[id] = {
             title: title,
-            snapshot: shot?.snapshot
+            snapshot: snapshot
         };
 
         await this.#updateSnapshots(shots);
     }
 
-    // snapshot: png blob
-    async updateFileSnapshot(snapshot) {
-        if (this.id === null)
-            return;
+    async takeSnapshot() {
+        let snapshotImg = document.querySelector('#snapshot-img');
+        let linksSvg = document.querySelector('#links-svg');
+        let xml = new XMLSerializer().serializeToString(linksSvg);
+        snapshotImg.src = 'data:image/svg+xml;base64,' + btoa(xml);
 
-        let shots = await this.#getSnapshots();
-        let shot = shots[this.id];
+        await new Promise(resolve => snapshotImg.onload = () => resolve());
 
-        shots[this.id] = {
-            title: shot?.title,
-            snapshot: snapshot
+        let canvas = document.querySelector('#snapshot-canvas');
+        setCanvasSize(canvas);
+        canvas.getContext('2d', { willReadFrequently: true }).drawImage(snapshotImg, 0, 0);
+
+        let options = {
+            canvas: canvas,
+            backgroundColor: null,
+
+            x: window.camera.pos.x,
+            y: window.camera.pos.y,
+            scale: window.camera.zoom,
+
+            ignoreElements: elem => elem.classList.contains('no-print'),
+            onclone: (doc) => {
+                let content = doc.querySelector('#content');
+                let cStyle = content.style;
+                cStyle.width = '100%';
+                cStyle.height = '100%';
+            }
         };
-
-        await this.#updateSnapshots(shots);
+        let snapshot = await html2canvas(document.querySelector('#content'), options);
+        let blob = await new Promise(resolve => snapshot.toBlob(resolve));
+        return blob;
     }
 
     async #updateDash() {
@@ -1028,7 +1053,8 @@ class LocalSaver {
             this.id = await this.#nextId();
         history.replaceState(null, '', 'index.html?id=' + this.id);
 
-        await this.updateTitleSnapshot();
+        let snapshot = await this.takeSnapshot();
+        await this.updateSnapshot(null, null, snapshot);
 
         await this.#write();
     }
@@ -1052,7 +1078,7 @@ class LocalSaver {
         const removeUnusedImages = false;
         await this.#write(id, data, null, removeUnusedImages);
 
-        this.updateTitleSnapshot(id, 'Untitled');
+        this.updateSnapshot(id, 'Untitled');
 
         return id;
     }
