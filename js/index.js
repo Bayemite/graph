@@ -110,6 +110,8 @@ function initListeners(canvas, cardsData, localSaver) {
         switch (event.key) {
             case 'Delete': {
                 let id = cardsData.focusCardID;
+                if (id == -1)
+                    break;
                 let cardTag = card.getCardTag(id);
                 if (document.activeElement == cardTag.querySelector('.text'))
                     break;
