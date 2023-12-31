@@ -59,10 +59,21 @@ function mobileSidebarListeners() {
 function initListeners(canvas, cardsData, localSaver) {
     localSaver.addLocalSaveListeners();
     localSaver.loadDashboardListener();
-    document.getElementById('menu').onclick = () => util.sidebar.toggle('file-sidebar');
 
-    util.addExternSaveFileListeners(cardsData, localSaver);
+    document.getElementById('menu').onclick = () => util.sidebar.toggle('file-sidebar');
     util.addImageListeners(cardsData);
+    document.getElementById('peer-button').onclick = () => util.sidebar.toggle('peer-sidebar');
+
+    let themeBtn = document.getElementById('theme-button');
+    themeBtn.onclick = () => {
+        let theme = util.getTheme();
+        themeBtn.querySelector("span").innerHTML = `
+            ${theme}_mode
+        `;
+        theme = theme == 'dark' ? 'light' : 'dark';
+        util.setTheme(theme);
+        util.updateTheme(cardsData);
+    };
 
     document.getElementById('settings-button').onclick = async () => {
         let tag = await util.settingsTag();
@@ -77,7 +88,8 @@ function initListeners(canvas, cardsData, localSaver) {
         );
         settingsDialog.show();
     };
-    document.getElementById('peer-button').onclick = () => util.sidebar.toggle('peer-sidebar');
+
+    util.addExternSaveFileListeners(cardsData, localSaver);
 
     document.getElementById('new-button').onclick = async () => {
         let id = await localSaver.createNewSave();
@@ -87,17 +99,6 @@ function initListeners(canvas, cardsData, localSaver) {
     document.getElementById('undo-button').onclick = () => cardsData.undo();
     document.getElementById('redo-button').onclick = () => cardsData.redo();
     document.getElementById('title').onchange = (e) => cardsData.title = e.target.value;
-
-    let themeBtn = document.getElementById('theme-button');
-    themeBtn.onclick = () => {
-        let theme = util.getTheme();
-        themeBtn.querySelector("span").innerHTML = `
-            ${theme}_mode
-        `;
-        theme = theme == 'dark' ? 'light' : 'dark';
-        util.setTheme(theme);
-        util.updateTheme(cardsData);
-    };
 
     function resize() {
         util.setCanvasSize(canvas);
