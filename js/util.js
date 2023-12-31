@@ -1096,7 +1096,8 @@ class LocalSaver {
         const removeUnusedImages = false;
         await this.#write(id, data, null, removeUnusedImages);
 
-        this.updateSnapshot(id, 'Untitled');
+        let snapshot = await this.takeSnapshot();
+        this.updateSnapshot(id, 'Untitled', snapshot);
 
         return id;
     }
