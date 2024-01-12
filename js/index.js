@@ -144,6 +144,8 @@ function initListeners(canvas, cardsData, localSaver) {
         }
     });
     let linksSvg = util.getLinksContainer();
+    let touchHandler = new util.TouchHandler(linksSvg);
+
     linksSvg.addEventListener('mousedown', () => cardsData.focusCard(-1));
     linksSvg.addEventListener('touchstart', () => cardsData.focusCard(-1));
     function mouseUp() {
@@ -203,4 +205,6 @@ function initListeners(canvas, cardsData, localSaver) {
             window.camera.onWheel(event);
         }, { passive: false }
     );
+
+    touchHandler.addEventListener('zoom', e => window.camera.doZoom(e.detail.delta));
 };
