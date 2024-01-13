@@ -144,43 +144,18 @@ function initListeners(canvas, cardsData, localSaver) {
         }
     });
     let linksSvg = util.getLinksContainer();
-    let touchHandler = new util.TouchHandler(linksSvg);
+    let touchHandler = new util.TouchHandler();
 
-    linksSvg.addEventListener('mousedown', () => cardsData.focusCard(-1));
-    linksSvg.addEventListener('touchstart', () => cardsData.focusCard(-1));
-    function mouseUp() {
-        cardsData.moveCardID = -1;
-        window.camera.onMouseUp();
-    }
-    document.addEventListener('mouseup', mouseUp);
-    document.addEventListener('touchend', mouseUp);
-
-    function mouseMove(event) {
-        if (cardsData.moveCardID != -1)
-            cardsData.moveElem();
-
-        if (event.touches != undefined)
-            window.camera.onMouseMove(util.vec2(event.touches[0].pageX, event.touches[0].pageY));
-        else window.camera.onMouseMove(util.vec2(event.pageX, event.pageY));
-    }
-    document.addEventListener('mousemove', mouseMove);
-    document.addEventListener('touchmove', mouseMove);
-
-    linksSvg.addEventListener('dblclick', () => {
-        const camera = window.camera;
-        cardsData.addDefaultCardHtml(camera.globalCoords(camera.mousePos), true);
-    });
 
     function mouseDown(event) {
+        console.log('mousedown');
+        cardsData.focusCard(-1);
+
         const camera = window.camera;
-        if (event.touches != undefined) {
-            let t = event.touches[0];
-            camera.onMouseDown(util.vec2(t.pageX, t.pageY));
-        }
-        else camera.onMouseDown(util.vec2(event.pageX, event.pageY));
+        camera.onMouseDown(util.vec2(event.pageX, event.pageY));
 
         if (cardsData.linkInProgress) {
-            if (event.touches != undefined || event.button == 0) {
+            if (event.button == 0) {
                 let pos = camera.globalCoords(camera.mousePos);
                 let centerOrigin = true;
                 let id = cardsData.addDefaultCardHtml(pos, centerOrigin);
@@ -189,8 +164,42 @@ function initListeners(canvas, cardsData, localSaver) {
             else cardsData.linkInProgress = false;
         }
     }
-    linksSvg.addEventListener('touchstart', mouseDown);
+
     linksSvg.addEventListener('mousedown', mouseDown);
+    linksSvg.addEventListener('pointerdown', e => {
+        touchHandler.onpointerdown(e);
+        if (touchHandler.count() == 1)
+            mouseDown(e);
+    });
+
+    function mouseUp() {
+        cardsData.moveCardID = -1;
+        window.camera.onMouseUp();
+    }
+    document.addEventListener('mouseup', mouseUp);
+    document.addEventListener('pointerup', e => {
+        touchHandler.onpointerup(e);
+        if (touchHandler.count() == 1)
+            mouseUp();
+    });
+
+    function mouseMove(event) {
+        if (cardsData.moveCardID != -1)
+            cardsData.moveElem();
+
+        window.camera.onMouseMove(util.vec2(event.pageX, event.pageY));
+    }
+    document.addEventListener('mousemove', mouseMove);
+    document.addEventListener('pointermove', e => {
+        touchHandler.onpointermove(e);
+        if (touchHandler.count() == 1)
+            mouseMove(e);
+    });
+
+    linksSvg.addEventListener('dblclick', () => {
+        const camera = window.camera;
+        cardsData.addDefaultCardHtml(camera.globalCoords(camera.mousePos), true);
+    });
 
     document.querySelector('#content').addEventListener('wheel',
         (event) => {
@@ -206,5 +215,5 @@ function initListeners(canvas, cardsData, localSaver) {
         }, { passive: false }
     );
 
-    touchHandler.addEventListener('zoom', e => window.camera.doZoom(e.detail.delta));
+    touchHandler.addEventListener('zoom', e => window.camera.doZoom(e.detail.delta * 4));
 };

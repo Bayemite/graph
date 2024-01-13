@@ -2152,62 +2152,53 @@ export class PeerManager {
 // Stolen (adapted) from https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events/Pinch_zoom_gestures
 // Has 'zoom' event with details: delta
 export class TouchHandler extends EventTarget {
-    constructor(element) {
+    constructor() {
         super();
         this.evCache = [];
         this.prevDist = -1;
+    }
 
-        let that = this;
+    onpointerdown(ev) {
+        this.evCache.push(ev);
+    }
 
-        function onpointerdown(ev) {
-            that.evCache.push(ev);
-        }
-
-        function onpointermove(ev) {
-            for (let i = 0; i < that.evCache.length; i++) {
-                if (that.evCache[i].pointerId === ev.pointerId) {
-                    that.evCache[i] = ev;
-                    break;
-                }
-            }
-
-            if (that.evCache.length === 2) {
-                let e1 = that.evCache[0], e2 = that.evCache[1];
-                let p = vec2(e1.clientX, e1.clientY);
-                let dist = p.dist(e2.clientX, e2.clientY);
-                if (that.prevDist > 0) {
-                    let delta = dist - that.prevDist;
-                    let event = newEvent('zoom', {
-                        delta: delta * 2
-                    });
-                    that.dispatchEvent(event);
-                }
-
-                // Cache the distance for the next move event
-                that.prevDist = dist;
+    onpointermove(ev) {
+        for (let i = 0; i < this.evCache.length; i++) {
+            if (this.evCache[i].pointerId === ev.pointerId) {
+                this.evCache[i] = ev;
+                break;
             }
         }
 
-        function onpointerup(ev) {
-            for (let i = 0; i < that.evCache.length; i++) {
-                let cachedEv = that.evCache[i];
-                if (cachedEv.pointerId === ev.pointerId) {
-                    that.evCache.splice(i, 1);
-                    break;
-                }
+        if (this.evCache.length === 2) {
+            let e1 = this.evCache[0], e2 = this.evCache[1];
+            let p = vec2(e1.clientX, e1.clientY);
+            let dist = p.dist(e2.clientX, e2.clientY);
+            if (this.prevDist > 0) {
+                let delta = dist - this.prevDist;
+                let event = newEvent('zoom', {
+                    delta: delta
+                });
+                this.dispatchEvent(event);
             }
 
-            if (that.evCache.length < 2) {
-                that.prevDist = -1;
+            // Cache the distance for the next move event
+            this.prevDist = dist;
+        }
+    }
+
+    onpointerup(ev) {
+        for (let i = 0; i < this.evCache.length; i++) {
+            let cachedEv = this.evCache[i];
+            if (cachedEv.pointerId === ev.pointerId) {
+                this.evCache.splice(i, 1);
+                break;
             }
         }
 
-        element.addEventListener('pointerdown', onpointerdown);
-        element.addEventListener('pointermove', onpointermove);
-        element.addEventListener('pointerup', onpointerup);
-        element.addEventListener('pointercancel', onpointerup);
-        element.addEventListener('pointerout', onpointerup);
-        element.addEventListener('pointerleave', onpointerup);
+        if (this.evCache.length < 2) {
+            this.prevDist = -1;
+        }
     }
 
     count() { return this.evCache.length; }
