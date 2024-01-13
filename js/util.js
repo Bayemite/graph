@@ -2201,5 +2201,5 @@ export class TouchHandler extends EventTarget {
         }
     }
 
-    count() { return this.evCache.length; }
+    isPinchZoom() { return this.evCache.length === 2 && this.prevDist > 0; }
 }

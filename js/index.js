@@ -144,11 +144,10 @@ function initListeners(canvas, cardsData, localSaver) {
         }
     });
     let linksSvg = util.getLinksContainer();
-    let touchHandler = new util.TouchHandler();
-
+    window.touchHandler = new util.TouchHandler();
+    let touchHandler = window.touchHandler;
 
     function mouseDown(event) {
-        console.log('mousedown');
         cardsData.focusCard(-1);
 
         const camera = window.camera;
@@ -168,8 +167,7 @@ function initListeners(canvas, cardsData, localSaver) {
     linksSvg.addEventListener('mousedown', mouseDown);
     linksSvg.addEventListener('pointerdown', e => {
         touchHandler.onpointerdown(e);
-        if (touchHandler.count() == 1)
-            mouseDown(e);
+        mouseDown(e);
     });
 
     function mouseUp() {
@@ -179,21 +177,19 @@ function initListeners(canvas, cardsData, localSaver) {
     document.addEventListener('mouseup', mouseUp);
     document.addEventListener('pointerup', e => {
         touchHandler.onpointerup(e);
-        if (touchHandler.count() == 1)
-            mouseUp();
+        mouseUp();
     });
 
     function mouseMove(event) {
         if (cardsData.moveCardID != -1)
             cardsData.moveElem();
-
-        window.camera.onMouseMove(util.vec2(event.pageX, event.pageY));
+        if (!touchHandler.isPinchZoom())
+            window.camera.onMouseMove(util.vec2(event.pageX, event.pageY));
     }
     document.addEventListener('mousemove', mouseMove);
     document.addEventListener('pointermove', e => {
         touchHandler.onpointermove(e);
-        if (touchHandler.count() == 1)
-            mouseMove(e);
+        mouseMove(e);
     });
 
     linksSvg.addEventListener('dblclick', () => {

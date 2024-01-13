@@ -702,10 +702,7 @@ export class CardsData {
             that.moveCardID = id;
 
             let boundRect = cardContainer.getBoundingClientRect();
-            let mousePos;
-            if (e.touches)
-                mousePos = util.vec2(e.touches[0].pageX, e.touches[0].pageY);
-            else mousePos = util.vec2(e.pageX, e.pageY);
+            let mousePos = util.vec2(e.pageX, e.pageY);
 
             that.moveCardOffset.x = mousePos.x - boundRect.left;
             that.moveCardOffset.y = mousePos.y - boundRect.top;
@@ -715,7 +712,11 @@ export class CardsData {
                 that.endLink(id);
         }
         cardContainer.onmousedown = mouseDown;
-        cardContainer.ontouchstart = mouseDown;
+        cardContainer.onpointerdown = e => {
+            window.touchHandler.onpointerdown(e);
+            if (!window.touchHandler.isPinchZoom())
+                mouseDown(e);
+        };
 
         // sectioned into separate inline function
         cardContainer.appendChild(cardHTML(this));
