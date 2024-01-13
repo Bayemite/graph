@@ -180,6 +180,10 @@ function initListeners(canvas, cardsData, localSaver) {
         mouseUp();
     });
 
+    document.addEventListener('pointercancel', e => touchHandler.onpointerup(e));
+    document.addEventListener('pointerout', e => touchHandler.onpointerup(e));
+    document.addEventListener('pointerleave', e => touchHandler.onpointerup(e));
+
     function mouseMove(event) {
         if (cardsData.moveCardID != -1)
             cardsData.moveElem();
