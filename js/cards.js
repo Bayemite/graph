@@ -493,13 +493,13 @@ export class CardsData {
         colorEdit.classList.add("clr-field");
         colorEdit.style.color = util.defaultColor;
         colorEdit.innerHTML = `
-        <span 
+        <span
             class="material-symbols-outlined"
-            style="position:absolute; 
+            style="position:absolute;
             top: 50%; left: 50%; margin-right: -50%; transform: translate(-50%, -50%);
             z-index: 1; color:  var(--color-edit-icon-color);
             transition: color 1s;
-            pointer-events: none;" 
+            pointer-events: none;"
         >
             palette
         </span>
@@ -609,7 +609,7 @@ export class CardsData {
             focused.appendChild(deleteBtn);
 
             let resizeAnchors = util.resizeAnchors(cardData.color, focused);
-            resizeAnchors.addEventListener('mousedown', () =>
+            resizeAnchors.addEventListener('pointerdown', () =>
                 this.initialBounds = util.computedStyleRect(focused)
             );
             resizeAnchors.addEventListener('resize', (e) => {
@@ -638,7 +638,7 @@ export class CardsData {
                 if (e.key == 'Control') this.snapGrid = false;
                 else if (e.key == 'Shift') this.snapAxis = false;
             });
-            this.focusCallbacks.set('mouseup', () => {
+            this.focusCallbacks.set('pointerup', () => {
                 this.snapAxis = false;
                 this.snapGrid = false;
                 this.moveCardID = -1;
@@ -666,7 +666,7 @@ export class CardsData {
             });
             document.addEventListener('keydown', this.focusCallbacks.get('keydown'));
             document.addEventListener('keyup', this.focusCallbacks.get('keyup'));
-            document.addEventListener('mouseup', this.focusCallbacks.get('mouseup'));
+            document.addEventListener('pointerup', this.focusCallbacks.get('pointerup'));
 
             // HACK!
             // Change z-index to top by physically moving DOM location
@@ -741,7 +741,7 @@ export class CardsData {
             that.undoHandler.set(id, undoFuncs);
 
             // To allow content highlighting without card movement
-            let mouseDown = (e) => {
+            let pointerDown = (e) => {
                 e.stopPropagation();
 
                 that.focusCard(id);
@@ -753,7 +753,7 @@ export class CardsData {
             };
 
             p.oninput = () => window.camera.updateLink(id);
-            p.onmousedown = (e) => mouseDown(e);
+            p.onpointerdown = (e) => pointerDown(e);
 
             return p;
         }

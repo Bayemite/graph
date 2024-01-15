@@ -147,11 +147,11 @@ function initListeners(canvas, cardsData, localSaver) {
     window.touchHandler = new util.TouchHandler();
     let touchHandler = window.touchHandler;
 
-    function mouseDown(event) {
+    function pointerDown(event) {
         cardsData.focusCard(-1);
 
         const camera = window.camera;
-        camera.onMouseDown(util.vec2(event.pageX, event.pageY));
+        camera.onPointerDown(util.vec2(event.pageX, event.pageY));
 
         if (cardsData.linkInProgress) {
             if (event.button == 0) {
@@ -164,36 +164,33 @@ function initListeners(canvas, cardsData, localSaver) {
         }
     }
 
-    linksSvg.addEventListener('mousedown', mouseDown);
     linksSvg.addEventListener('pointerdown', e => {
         touchHandler.onpointerdown(e);
-        mouseDown(e);
+        pointerDown(e);
     });
 
-    function mouseUp() {
+    function pointerUp() {
         cardsData.moveCardID = -1;
-        window.camera.onMouseUp();
+        window.camera.onPointerUp();
     }
-    document.addEventListener('mouseup', mouseUp);
     document.addEventListener('pointerup', e => {
         touchHandler.onpointerup(e);
-        mouseUp();
+        pointerUp();
     });
 
     document.addEventListener('pointercancel', e => touchHandler.onpointerup(e));
     document.addEventListener('pointerout', e => touchHandler.onpointerup(e));
     document.addEventListener('pointerleave', e => touchHandler.onpointerup(e));
 
-    function mouseMove(event) {
+    function pointerMove(event) {
         if (cardsData.moveCardID != -1)
             cardsData.moveElem();
         if (!touchHandler.isPinchZoom())
-            window.camera.onMouseMove(util.vec2(event.pageX, event.pageY));
+            window.camera.onPointerMove(util.vec2(event.pageX, event.pageY));
     }
-    document.addEventListener('mousemove', mouseMove);
     document.addEventListener('pointermove', e => {
         touchHandler.onpointermove(e);
-        mouseMove(e);
+        pointerMove(e);
     });
 
     linksSvg.addEventListener('dblclick', () => {

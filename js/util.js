@@ -722,7 +722,7 @@ export class Camera {
         this.updateCanvas();
     };
 
-    onMouseMove(mousePos) {
+    onPointerMove(mousePos) {
         this.mousePos.x = mousePos.x;
         this.mousePos.y = mousePos.y;
 
@@ -738,7 +738,7 @@ export class Camera {
         this.update();
     }
 
-    onMouseDown(mousePos) {
+    onPointerDown(mousePos) {
         this.#doScroll = true;
         this.#oldScrollPos.x = mousePos.x;
         this.#oldScrollPos.y = mousePos.y;
@@ -747,7 +747,7 @@ export class Camera {
         this.update();
     }
 
-    onMouseUp() {
+    onPointerUp() {
         this.#doScroll = false;
         this.update();
     }
@@ -1241,12 +1241,12 @@ class ResizeAnchors extends EventTarget {
                 e.stopPropagation();
                 this.current = i;
 
-                let event = newEvent('mousedown', { index: i });
+                    let event = newEvent('pointerdown', { index: i });
                 this.dispatchEvent(event);
             };
         }
 
-        this.onmousemove = (e) => {
+        this.onpointermove = (e) => {
             if (this.current == -1)
                 return;
 
@@ -1255,9 +1255,9 @@ class ResizeAnchors extends EventTarget {
             );
             this.dispatchEvent(event);
         };
-        this.onmouseup = () => this.current = -1;
-        document.addEventListener('mouseup', this.onmouseup);
-        document.addEventListener('mousemove', this.onmousemove);
+        this.onpointerup = () => this.current = -1;
+        document.addEventListener('pointerup', this.onpointerup);
+        document.addEventListener('pointermove', this.onpointermove);
     }
 }
 
@@ -1864,7 +1864,7 @@ export class PeerManager {
             msgHandler({ type: 'mouse', data: { id: this.localPeer.id, pos: pos } });
         };
 
-        document.addEventListener('mousemove', onCursorPos);
+        document.addEventListener('pointermove', onCursorPos);
         this.cardsData.undoRedoStack.addEventListener('change', onchange);
     }
 
