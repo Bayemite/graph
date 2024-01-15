@@ -695,9 +695,8 @@ export class CardsData {
 
         // Needed to reference 'this' class within callback, instead of 'this' tag
         let that = this;
-        function mouseDown(e) {
+        function pointerDown(e) {
             e.stopPropagation();
-
             that.focusCard(id);
             that.moveCardID = id;
 
@@ -711,11 +710,10 @@ export class CardsData {
             if (that.linkInProgress)
                 that.endLink(id);
         }
-        cardContainer.onmousedown = mouseDown;
         cardContainer.onpointerdown = e => {
             window.touchHandler.onpointerdown(e);
             if (!window.touchHandler.isPinchZoom())
-                mouseDown(e);
+                pointerDown(e);
         };
 
         // sectioned into separate inline function

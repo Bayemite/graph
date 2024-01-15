@@ -1237,7 +1237,7 @@ class ResizeAnchors extends EventTarget {
         let resizeAnchors = [NW, NE, SE, SW];
         for (let i = 0; i < resizeAnchors.length; i++) {
             let a = resizeAnchors[i];
-            a.onmousedown = (e) => {
+            a.onpointerdown = (e) => {
                 e.stopPropagation();
                 this.current = i;
 
