@@ -1241,7 +1241,7 @@ class ResizeAnchors extends EventTarget {
                 e.stopPropagation();
                 this.current = i;
 
-                    let event = newEvent('pointerdown', { index: i });
+                let event = newEvent('pointerdown', { index: i });
                 this.dispatchEvent(event);
             };
         }
@@ -1992,9 +1992,7 @@ export class PeerManager {
         this.hostBtn.innerText = 'Stop Hosting';
 
         this.localPeer.on('open', () => {
-            this.collabTag.value = window.location.host +
-                window.location.pathname +
-                `#hostId=${this.localPeer.id}`;
+            this.collabTag.value = window.location.origin + window.location.pathname + `#hostId=${this.localPeer.id}`;
             this.onUpdate(msg => {
                 for (let conn of this.connections.values())
                     conn.send(msg);
