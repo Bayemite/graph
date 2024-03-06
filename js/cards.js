@@ -316,11 +316,13 @@ export class CardsData {
         window.camera.updateLink(id);
     }
 
-    getCardMovePos() {
-        let newPos = camera.globalCoords(camera.mousePos);
-        let x = this.moveCardOffset.x / camera.zoom;
-        let y = this.moveCardOffset.y / camera.zoom;
-        return newPos.minus(util.vec2(x, y));
+    getCardMovePos(oldPos) {
+        let delta = camera.globalCoords(camera.mousePos);
+        delta = delta.minus(this.prevMousePos);
+
+        let newPos = oldPos.add(delta);
+        this.prevMousePos = camera.globalCoords(camera.mousePos);
+        return newPos;
     }
 
     moveElem() {
@@ -331,7 +333,7 @@ export class CardsData {
         let cardElem = getCardTag(id);
         let oldPos = util.vec2(cardData.pos.x, cardData.pos.y);
 
-        let newPos = this.getCardMovePos();
+        let newPos = this.getCardMovePos(oldPos);
 
         if (this.snapGrid) {
             // snap to grid
@@ -699,6 +701,7 @@ export class CardsData {
             e.stopPropagation();
             that.focusCard(id);
             that.moveCardID = id;
+            that.prevMousePos = camera.globalCoords(camera.mousePos);
 
             let boundRect = cardContainer.getBoundingClientRect();
             let mousePos = util.vec2(e.pageX, e.pageY);
