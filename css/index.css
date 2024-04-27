@@ -623,6 +623,12 @@ input[type="file"] {
 
 .img-div {
     width: fit-content;
+    border: var(--border);
+    border-radius: 8px;
+}
+
+.img-div img {
+    border-radius: 8px;
 }
 
 .delete-btn-parent {

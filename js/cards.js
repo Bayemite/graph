@@ -829,7 +829,7 @@ export class CardsData {
         // This means deleted images will reappear in palette if there are still references to it
         // TODO: maybe prompt for deleting all instances of the image?
         // stopPropogation so that image is not inserted on delete
-        util.addRemoveBtn(imgDiv, {}, (e) => e.stopPropagation());
+        util.addRemoveBtn(imgDiv, (e) => e.stopPropagation());
 
         let imgRefs = document.getElementsByClassName(className);
         for (let ref of imgRefs)
