@@ -846,7 +846,7 @@ export class CardsData {
             });
         }
 
-        return id;
+        return new Promise(resolve => img.onload = resolve);
     }
 
     // returns id of card
@@ -878,11 +878,17 @@ export class CardsData {
 
         // Must be after card updates, as img refs in card content are updated here
         clearHtmlImages();
-        for (const [id, blob] of this.images)
-            this.addImage(id, blob, addUndo);
 
-        window.camera.updateLinks();
-        window.camera.update();
+        let loadImgPromises = [];
+        for (const [id, blob] of this.images) {
+            let loadedPromise = this.addImage(id, blob, addUndo);
+            loadImgPromises.push(loadedPromise);
+        }
+
+        Promise.all(loadImgPromises).then(() => {
+            window.camera.updateLinks();
+            window.camera.update();
+        });
     }
 
     loadSave(parsedData) {
