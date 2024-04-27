@@ -581,22 +581,26 @@ input[type="file"] {
     display: flex;
     margin: 8px;
     border: var(--border);
+    border-radius: 8px;
     color: var(--text-color);
 }
 
 #file-sidebar-content img {
     border-right: var(--border);
-    width: 50%;
+    width: 40%;
     height: 100px;
     object-fit: contain;
 }
 
 .file-desc {
     margin-left: 4px;
+    margin-right: 20px;
     padding: 4px;
+    width: 60%;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     overflow: hidden;
 }
-
 
 #file-sidebar>button {
     margin: 0;
@@ -633,8 +637,8 @@ input[type="file"] {
 
 .delete-btn {
     position: absolute;
-    top: 2px;
-    right: 2px;
+    top: 0;
+    right: 0;
     width: 1.5rem;
     height: 1.5rem;
 
@@ -646,8 +650,11 @@ input[type="file"] {
 
     background-color: var(--transparent-color);
     color: var(--text-color);
-    border: var(--border);
-    border-radius: 100%;
+    border-left: var(--border);
+    border-bottom: var(--border);
+    border-right: none;
+    border-top: none;
+    border-radius: 0 4px 0 8px;
 }
 
 #image-sidebar-content {

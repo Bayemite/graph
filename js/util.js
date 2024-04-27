@@ -1000,7 +1000,7 @@ class LocalSaver {
 
                 return new Promise(onresolve);
             };
-            addRemoveBtn(snapshotTag, {}, ondelete, awaitOnDelete);
+            addRemoveBtn(snapshotTag, ondelete, awaitOnDelete);
 
             this.dashboardTag.appendChild(snapshotTag);
         }
@@ -1567,48 +1567,34 @@ export function addImageListeners(cardsData) {
 
 // Add an x remove btn
 // tag: that you want the remove btn on (class 'delete-btn-parent' is added)
-// focusedTag: object reference, will store the currently focused html tag (mouse hover)
 // onclick: callback before delete (return false to cancel delete)
 // awaitOnClick: true if should await the onclick callback
-export function addRemoveBtn(tag, focusedTag = {}, onclick = null, awaitOnClick = false) {
+export function addRemoveBtn(tag, onclick = null, awaitOnClick = false) {
     tag.classList.add('delete-btn-parent');
-    const className = 'delete-btn';
 
-    tag.onmouseleave = () => {
-        if (focusedTag)
-            focusedTag.getElementsByClassName(className)[0].remove();
-    };
-
-    tag.onmouseenter = () => {
-        let deleteBtn = document.createElement('button');
-        deleteBtn.className = className;
-        deleteBtn.innerHTML = `
+    let deleteBtn = document.createElement('button');
+    deleteBtn.className = 'delete-btn';
+    deleteBtn.innerHTML = `
             <span class="material-symbols-outlined">
                 close
             </span>
         `;
 
-        deleteBtn.onclick = async (e) => {
-            if (onclick) {
-                let proceed;
-                if (awaitOnClick)
-                    proceed = await onclick(e);
-                else
-                    proceed = onclick(e);
+    deleteBtn.onclick = async (e) => {
+        if (onclick) {
+            let proceed;
+            if (awaitOnClick)
+                proceed = await onclick(e);
+            else
+                proceed = onclick(e);
 
-                if (proceed === false)
-                    return;
-            }
-
-            if (focusedTag && tag.isSameNode(focusedTag))
-                focusedTag = null;
-            tag.remove();
-        };
-
-        tag.appendChild(deleteBtn);
-        focusedTag = tag;
+            if (proceed === false)
+                return;
+        }
+        tag.remove();
     };
 
+    tag.appendChild(deleteBtn);
 }
 
 async function getSettings() {
