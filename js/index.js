@@ -184,7 +184,7 @@ function initListeners(canvas, cardsData, localSaver) {
 
     function pointerMove(event) {
         if (cardsData.moveCardID != -1)
-            cardsData.moveElem();
+            cardsData.moveElem(util.vec2(event.pageX, event.pageY));
         if (!touchHandler.isPinchZoom())
             window.camera.onPointerMove(util.vec2(event.pageX, event.pageY));
     }
