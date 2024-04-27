@@ -2187,3 +2187,20 @@ export class TouchHandler extends EventTarget {
 
     isPinchZoom() { return this.evCache.length === 2 && this.prevDist > 0; }
 }
+
+export function updateColorIconColor(color) {
+    let colorVals = colorValues(color);
+    let blackDist =
+        (0 - colorVals[0]) ** 2 +
+        (0 - colorVals[1]) ** 2 +
+        (0 - colorVals[2]) ** 2;
+    let whiteDist =
+        (255 - colorVals[0]) ** 2 +
+        (255 - colorVals[1]) ** 2 +
+        (255 - colorVals[2]) ** 2;
+    let iconColor = whiteDist >= blackDist ? "white" : "black";
+    document.documentElement.style.setProperty(
+        "--color-edit-icon-color",
+        iconColor
+    );
+};

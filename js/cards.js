@@ -400,23 +400,6 @@ export class CardsData {
         }
     }
 
-    updateColorIconColor(color) {
-        let colorVals = util.colorValues(color);
-        let blackDist =
-            (0 - colorVals[0]) ** 2 +
-            (0 - colorVals[1]) ** 2 +
-            (0 - colorVals[2]) ** 2;
-        let whiteDist =
-            (255 - colorVals[0]) ** 2 +
-            (255 - colorVals[1]) ** 2 +
-            (255 - colorVals[2]) ** 2;
-        let iconColor = whiteDist >= blackDist ? "white" : "black";
-        document.documentElement.style.setProperty(
-            "--color-edit-icon-color",
-            iconColor
-        );
-    };
-
     setCardColor(id, color) {
         let cardData = this.get(id);
         cardData.color = color;
@@ -430,7 +413,7 @@ export class CardsData {
         let anchors = cardTag.getElementsByClassName("resize-anchor");
         for (let a of anchors) a.style.color = colors.border;
 
-        this.updateColorIconColor(color);
+        util.updateColorIconColor(color);
     }
 
     htmlEditUI(id) {
@@ -507,7 +490,7 @@ export class CardsData {
         </span>
         <button type="button" style="margin:0px;"></button>
         `;
-        this.updateColorIconColor(colorEdit.style.color);
+        util.updateColorIconColor(colorEdit.style.color);
 
         colorEdit.appendChild(colorInput);
         colorEdit.appendChild(clrPicker);
