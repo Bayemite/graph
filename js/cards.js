@@ -100,6 +100,8 @@ export class CardsData {
         this.linkInProgress = false;
 
         this.moveCardID = -1;
+        this.prevMousePos = null;
+        this.initMousePos = null;
         this.snapAxis = false; // for movement axis locking ('x','y', or false)
         this.snapGrid = false; // snap to specific increment
         this.initialBounds = null;
@@ -541,7 +543,7 @@ export class CardsData {
                 this.focusCardID = -1;
                 return;
             }
-
+            card.querySelector('.text').contentEditable = false;
             let editUI = card.getElementsByClassName("actions")[0];
             // Presence of editUI implies all the rest of these focus elemen[lccts are here
             if (editUI) {
@@ -694,7 +696,7 @@ export class CardsData {
 
         function cardHTML(that) {
             let p = document.createElement("p");
-            p.contentEditable = true;
+            p.contentEditable = false;
             p.classList.add("text");
             if (cardObject.fontSize) {
                 p.style.fontSize = cardObject.fontSize;
@@ -713,18 +715,25 @@ export class CardsData {
 
             // To allow content highlighting without card movement
             let pointerDown = (e) => {
-                e.stopPropagation();
+                if (p.contentEditable == 'true')
+                    e.stopPropagation();
+                that.initMousePos = camera.globalCoords(util.vec2(e.pageX, e.pageY));
 
                 that.focusCard(id);
 
                 if (that.linkInProgress)
                     that.endLink(id);
-
-                p.focus();
             };
 
             p.oninput = () => window.camera.updateLink(id);
             p.onpointerdown = (e) => pointerDown(e);
+            p.onpointerup = (e) => {
+                let point = window.camera.globalCoords(util.vec2(e.pageX, e.pageY));
+                if (point.x == that.initMousePos.x && point.y == that.initMousePos.y) {
+                    p.contentEditable = true;
+                    p.focus();
+                }
+            };
 
             return p;
         }
