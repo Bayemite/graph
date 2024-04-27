@@ -410,7 +410,7 @@ button:hover,
 #collab-link {
     color: var(--text-color);
     border: var(--border);
-    border-radius: 0;
+    border-radius: 6px;
     padding: 6px;
     margin: 4px 0;
     max-height: 20vh;
