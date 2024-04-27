@@ -49,8 +49,32 @@ export function getCardContent(id) {
 function clearHtmlCards() {
     getCardContainerTag().innerHTML = `<div id="break-link-btns-container"></div>`;
 }
+
 function clearHtmlImages() {
     document.getElementById('image-sidebar-content').innerHTML = '';
+}
+
+// Create a contrast between border & background colors of card
+// Returns {background: "rgba(...)", border: "rgba(...)"}
+function borderBackgroundColorPairs(color = util.defaultColor) {
+    let components = util.colorValues(color);
+    let backgroundColor;
+    let borderColor;
+
+    // darken background if dark theme, else darken border
+    if (util.getTheme() == "dark") {
+        backgroundColor = components.map((c) => c / 4);
+        backgroundColor[3] = 1;
+        borderColor = components;
+    } else {
+        backgroundColor = components;
+        borderColor = components.map((c) => c / 4);
+    }
+
+    backgroundColor = "rgba(" + backgroundColor.join(", ") + ")";
+    borderColor = "rgba(" + borderColor.join(", ") + ")";
+
+    return { background: backgroundColor, border: borderColor };
 }
 
 export class CardsData {
@@ -90,20 +114,20 @@ export class CardsData {
 
         this.undoRedoStack = new util.UndoRedoStack();
         this.undoRedoStack.addEventListener('change', (e) => {
-            this.updateUndoRedoBtnDisable();
+            this.#updateUndoRedoBtnDisable();
             if (e.detail.type == 'add') {
                 this.dirty = true;
             }
         });
-        this.updateUndoRedoBtnDisable();
+        this.#updateUndoRedoBtnDisable();
 
-        let cardId = this.addNewCard(
+        let cardId = this.#addNewCard(
             new CardObject(util.vec2(-100, 150))
         );
 
         let conn = new Set();
         conn.add(cardId);
-        this.addNewCard(
+        this.#addNewCard(
             new CardObject(
                 util.vec2(),
                 util.vec2(),
@@ -114,24 +138,11 @@ export class CardsData {
         );
     }
 
-    needSave() {
-        this.dirty = true;
-        this.undoRedoStack.dispatchChange();
-    }
-
-    reset() {
-        this.cardsData = new Map();
-        this.updateHTML();
-        this.undoRedoStack.undoStack = [];
-        this.undoRedoStack.redoStack = [];
-        this.updateUndoRedoBtnDisable();
-    }
-
     getFocusedCard() {
         return getCardTag(this.focusCardID);
     }
 
-    updateUndoRedoBtnDisable() {
+    #updateUndoRedoBtnDisable() {
         if (this.undoRedoStack.hasUndo())
             document.getElementById('undo-button').setAttribute('data-no-action', false);
         else
@@ -145,15 +156,15 @@ export class CardsData {
 
     undo() {
         this.undoRedoStack.undo();
-        this.updateUndoRedoBtnDisable();
+        this.#updateUndoRedoBtnDisable();
     }
 
     redo() {
         this.undoRedoStack.redo();
-        this.updateUndoRedoBtnDisable();
+        this.#updateUndoRedoBtnDisable();
     }
 
-    freezeColorUndoCmd() {
+    #freezeColorUndoCmd() {
         let next = this.undoRedoStack.nextUndo();
         if (next?.type == 'card-color' && next.data.merge == true)
             next.data.merge = false;
@@ -245,7 +256,8 @@ export class CardsData {
         }
     }
 
-    linksToCard(id) {
+    // For restoration of links to a deleted card on undo
+    #linksToCard(id) {
         let links = [];
         for (let [cardId, card] of this.cardsData)
             if (card.connections.has(id))
@@ -258,7 +270,7 @@ export class CardsData {
     // linksToCard: array of card ids that link to cardObj.
     restoreCard(id, cardObj, linksToCard) {
         this.set(id, cardObj);
-        this.addCardHTML(id, false, false);
+        this.#addCardHTML(id, false, false);
 
         cardObj.connections.forEach(endId => this.addLink(id, endId));
         linksToCard.forEach(startLinkId => this.addLink(startLinkId, id));
@@ -276,7 +288,7 @@ export class CardsData {
             this.undoRedoStack.addUndoCmd({
                 type: 'delete-card',
                 id: `${id}`,
-                data: { card: this.get(id), links: this.linksToCard(id) },
+                data: { card: this.get(id), links: this.#linksToCard(id) },
                 undo: (data) => this.restoreCard(id, data.card, data.links),
                 redo: () => this.deleteCard(id, false)
             });
@@ -315,7 +327,7 @@ export class CardsData {
         window.camera.updateLink(id);
     }
 
-    getCardMovePos(oldPos, mousePos) {
+    #getCardMovePos(oldPos, mousePos) {
         let delta = camera.globalCoords(mousePos);
         delta = delta.minus(this.prevMousePos);
 
@@ -332,7 +344,7 @@ export class CardsData {
         let cardElem = getCardTag(id);
         let oldPos = util.vec2(cardData.pos.x, cardData.pos.y);
 
-        let newPos = this.getCardMovePos(oldPos, mousePos);
+        let newPos = this.#getCardMovePos(oldPos, mousePos);
         // newPos = window.camera.globalCoords(mousePos);
 
         if (this.snapGrid) {
@@ -355,34 +367,12 @@ export class CardsData {
         this.updateCardBounds(id, newPos);
     }
 
-    // Returns {background: "rgba(...)", border: "rgba(...)"}
-    borderBackgroundColors(color = util.defaultColor) {
-        let components = util.colorValues(color);
-        let backgroundColor;
-        let borderColor;
-
-        // darken background if dark theme, else darken border
-        if (util.getTheme() == "dark") {
-            backgroundColor = components.map((c) => c / 4);
-            backgroundColor[3] = 1;
-            borderColor = components;
-        } else {
-            backgroundColor = components;
-            borderColor = components.map((c) => c / 4);
-        }
-
-        backgroundColor = "rgba(" + backgroundColor.join(", ") + ")";
-        borderColor = "rgba(" + borderColor.join(", ") + ")";
-
-        return { background: backgroundColor, border: borderColor };
-    }
-
     // For use with themes, optional id to update a single card, otherwise all are updated
     updateColors(id) {
         let update = (card, container) => {
             let style = container.style;
 
-            let colors = this.borderBackgroundColors(card.color);
+            let colors = borderBackgroundColorPairs(card.color);
             style.borderColor = colors.border;
             style.backgroundColor = colors.background;
         };
@@ -404,7 +394,7 @@ export class CardsData {
         let cardData = this.get(id);
         cardData.color = color;
 
-        let colors = this.borderBackgroundColors(color);
+        let colors = borderBackgroundColorPairs(color);
         let cardTag = getCardTag(id);
 
         cardTag.style.borderColor = colors.border;
@@ -416,7 +406,7 @@ export class CardsData {
         util.updateColorIconColor(color);
     }
 
-    htmlEditUI(id) {
+    #htmlEditUI(id) {
         let editRootNode = document.createElement("div");
         editRootNode.classList.add("actions");
         editRootNode.classList.add("unselectable");
@@ -501,7 +491,7 @@ export class CardsData {
             this.cardColors.add(colorEdit.style.color);
             window.colorSettings(Array.from(this.cardColors));
 
-            this.freezeColorUndoCmd();
+            this.#freezeColorUndoCmd();
         };
 
         let cardData = this.get(id);
@@ -566,7 +556,7 @@ export class CardsData {
                 let deleteBtn = card.getElementsByClassName("actions-button")[0];
                 deleteBtn.remove();
 
-                this.freezeColorUndoCmd();
+                this.#freezeColorUndoCmd();
                 document.getElementById('clr-picker').classList.remove('clr-open');
             }
         }
@@ -576,7 +566,7 @@ export class CardsData {
         if (this.focusCardID != -1) {
             let cardData = this.get(id);
             let focused = getCardTag(this.focusCardID);
-            focused.appendChild(this.htmlEditUI(id));
+            focused.appendChild(this.#htmlEditUI(id));
 
             let deleteBtn = document.createElement("button");
             deleteBtn.classList.add("actions-button", "remove-button");
@@ -665,7 +655,7 @@ export class CardsData {
 
     // Generate all HTML data for card except for position
     // which is deferred to after appendChild, to align to centre using client bounds.
-    genHTMLCard(id) {
+    #genHTMLCard(id) {
         let cardObject = this.get(id);
 
         let cardContainer = document.createElement("div");
@@ -674,7 +664,7 @@ export class CardsData {
         let style = cardContainer.style;
         cardContainer.classList.add("card");
 
-        let colors = this.borderBackgroundColors(cardObject.color);
+        let colors = borderBackgroundColorPairs(cardObject.color);
         style.borderColor = colors.border;
         style.backgroundColor = colors.background;
 
@@ -740,17 +730,17 @@ export class CardsData {
         }
     }
 
-    // Add to data, returns id. Helper func.
-    addNewCard(cardObject = new CardObject()) {
+    // Add to data, returns ID. Helper function.
+    #addNewCard(cardObject = new CardObject()) {
         let id = this.cardIds.getNextId();
         this.set(id, cardObject);
         return id;
     }
 
     // Add prev card from data to HTML.
-    addCardHTML(cardId, adjustOriginCentre = false, addUndo = true) {
+    #addCardHTML(cardId, adjustOriginCentre = false, addUndo = true) {
         let cardContainer = getCardContainerTag().appendChild(
-            this.genHTMLCard(cardId)
+            this.#genHTMLCard(cardId)
         );
 
         let cardObject = this.get(cardId);
@@ -768,7 +758,7 @@ export class CardsData {
             this.undoRedoStack.addUndoCmd({
                 type: 'add-card',
                 id: `${cardId}`,
-                data: { card: this.get(cardId), links: this.linksToCard(cardId) },
+                data: { card: this.get(cardId), links: this.#linksToCard(cardId) },
                 undo: () => this.deleteCard(cardId, false),
                 redo: (data) => this.restoreCard(cardId, data.card, data.links),
             });
@@ -840,8 +830,8 @@ export class CardsData {
         adjustOriginCentre = false,
         addUndo = true
     ) {
-        let id = this.addNewCard(new CardObject(pos));
-        this.addCardHTML(id, adjustOriginCentre, addUndo);
+        let id = this.#addNewCard(new CardObject(pos));
+        this.#addCardHTML(id, adjustOriginCentre, addUndo);
         this.updateColors(id);
         return id;
     }
@@ -853,7 +843,7 @@ export class CardsData {
         util.clearLinksContainer();
 
         for (const [cardId, card] of this.cardsData) {
-            this.addCardHTML(cardId, false, addUndo);
+            this.#addCardHTML(cardId, false, addUndo);
 
             for (let c of card.connections.values())
                 this.addLink(cardId, c, false);
