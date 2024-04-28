@@ -98,7 +98,10 @@ function initListeners(canvas, cardsData, localSaver) {
 
     document.getElementById('undo-button').onclick = () => cardsData.undo();
     document.getElementById('redo-button').onclick = () => cardsData.redo();
-    document.getElementById('title').onchange = (e) => cardsData.title = e.target.value;
+    document.getElementById('title').onchange = (e) => {
+        cardsData.title = e.target.value;
+        cardsData.undoRedoStack.dispatchChange({ type: 'title-change' });
+    };
 
     function resize() {
         util.setCanvasSize(canvas);
