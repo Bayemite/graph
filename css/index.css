@@ -379,6 +379,7 @@ button:hover,
     margin: 1em auto;
     cursor: default;
     max-width: 100%;
+    pointer-events: none;
 }
 
 .text {
