@@ -674,23 +674,19 @@ export class CardsData {
         style.borderColor = colors.border;
         style.backgroundColor = colors.background;
 
-        // Needed to reference 'this' class within callback, instead of 'this' tag
-        let that = this;
-        function pointerDown(e) {
-            e.stopPropagation();
-            that.focusCard(id);
-            that.moveCardID = id;
-            that.prevMousePos = camera.globalCoords(util.vec2(e.pageX, e.pageY));
-
-            that.initialBounds = util.computedStyleRect(cardContainer);
-
-            if (that.linkInProgress)
-                that.endLink(id);
-        }
         cardContainer.onpointerdown = e => {
             window.touchHandler.onpointerdown(e);
-            if (!window.touchHandler.isPinchZoom())
-                pointerDown(e);
+            if (!window.touchHandler.isPinchZoom()) {
+            e.stopPropagation();
+                this.focusCard(id);
+
+                this.moveCardID = id;
+                this.prevMousePos = camera.globalCoords(util.vec2(e.pageX, e.pageY));
+                this.initialBounds = util.computedStyleRect(cardContainer);
+
+                if (this.linkInProgress)
+                    this.endLink(id);
+        }
         };
 
         // sectioned into separate inline function

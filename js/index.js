@@ -147,7 +147,8 @@ function initListeners(canvas, cardsData, localSaver) {
     window.touchHandler = new util.TouchHandler();
     let touchHandler = window.touchHandler;
 
-    function pointerDown(event) {
+    linksSvg.addEventListener('pointerdown', e => {
+        touchHandler.onpointerdown(e);
         cardsData.focusCard(-1);
 
         const camera = window.camera;
@@ -162,35 +163,23 @@ function initListeners(canvas, cardsData, localSaver) {
             }
             else cardsData.linkInProgress = false;
         }
-    }
-
-    linksSvg.addEventListener('pointerdown', e => {
-        touchHandler.onpointerdown(e);
-        pointerDown(e);
     });
 
-    function pointerUp() {
-        cardsData.moveCardID = -1;
-        window.camera.onPointerUp();
-    }
     document.addEventListener('pointerup', e => {
         touchHandler.onpointerup(e);
-        pointerUp();
+        window.camera.onPointerUp();
     });
 
     document.addEventListener('pointercancel', e => touchHandler.onpointerup(e));
     document.addEventListener('pointerout', e => touchHandler.onpointerup(e));
     document.addEventListener('pointerleave', e => touchHandler.onpointerup(e));
 
-    function pointerMove(event) {
-        if (cardsData.moveCardID != -1)
-            cardsData.moveElem(util.vec2(event.pageX, event.pageY));
-        if (!touchHandler.isPinchZoom())
-            window.camera.onPointerMove(util.vec2(event.pageX, event.pageY));
-    }
     document.addEventListener('pointermove', e => {
         touchHandler.onpointermove(e);
-        pointerMove(e);
+        if (cardsData.moveCardID != -1)
+            cardsData.moveElem(util.vec2(e.pageX, e.pageY));
+        if (!touchHandler.isPinchZoom())
+            window.camera.onPointerMove(util.vec2(e.pageX, e.pageY));
     });
 
     linksSvg.addEventListener('dblclick', () => {
