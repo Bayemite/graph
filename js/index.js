@@ -150,6 +150,7 @@ function initListeners(canvas, cardsData, localSaver) {
     linksSvg.addEventListener('pointerdown', e => {
         touchHandler.onpointerdown(e);
         cardsData.focusCard(-1);
+        util.sidebar.closeAll();
 
         const camera = window.camera;
         camera.onPointerDown(util.vec2(event.pageX, event.pageY));

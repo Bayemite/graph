@@ -1514,15 +1514,18 @@ export class sidebar {
     static sidebars = new Map();
 
     static open(id, buttonId) {
-        for (let [sidebarId, isOpen] of this.sidebars) {
-            if (isOpen) {
-                this.close(sidebarId, sidebarMap[sidebarId]);
-            }
-        }
+        this.closeAll();
 
         this.sidebars.set(id, true);
         document.getElementById(id).classList.add('visible');
         document.getElementById(buttonId).classList.add('visible-button');
+    }
+
+    static closeAll() {
+        for (let [sidebarId, isOpen] of this.sidebars) {
+            if (isOpen)
+                this.close(sidebarId, sidebarMap[sidebarId]);
+        }
     }
 
     static close(id, buttonId) {
