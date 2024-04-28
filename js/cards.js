@@ -347,7 +347,6 @@ export class CardsData {
         let oldPos = util.vec2(cardData.pos.x, cardData.pos.y);
 
         let newPos = this.#getCardMovePos(oldPos, mousePos);
-        // newPos = window.camera.globalCoords(mousePos);
 
         if (this.snapGrid) {
             // snap to grid
@@ -365,7 +364,8 @@ export class CardsData {
 
         }
 
-        cardElem.getElementsByClassName("text")[0].blur();
+        cardElem.querySelector('.text').blur();
+        window.getSelection().removeAllRanges();
         this.updateCardBounds(id, newPos);
     }
 
@@ -543,7 +543,11 @@ export class CardsData {
                 this.focusCardID = -1;
                 return;
             }
-            card.querySelector('.text').contentEditable = false;
+
+            let text = card.querySelector('.text');
+            text.classList.add("unselectable");
+            text.contentEditable = false;
+
             let editUI = card.getElementsByClassName("actions")[0];
             // Presence of editUI implies all the rest of these focus elemen[lccts are here
             if (editUI) {
@@ -696,8 +700,10 @@ export class CardsData {
 
         function cardHTML(that) {
             let p = document.createElement("p");
+
             p.contentEditable = false;
-            p.classList.add("text");
+            p.classList.add("text", "unselectable");
+
             if (cardObject.fontSize) {
                 p.style.fontSize = cardObject.fontSize;
             }
@@ -731,6 +737,7 @@ export class CardsData {
                 let point = window.camera.globalCoords(util.vec2(e.pageX, e.pageY));
                 if (point.x == that.initMousePos.x && point.y == that.initMousePos.y) {
                     p.contentEditable = true;
+                    p.classList.remove('unselectable');
                     p.focus();
                 }
             };
