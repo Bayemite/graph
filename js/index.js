@@ -176,8 +176,7 @@ function initListeners(canvas, cardsData, localSaver) {
 
     document.addEventListener('pointermove', e => {
         touchHandler.onpointermove(e);
-        if (cardsData.moveCardID != -1)
-            cardsData.moveElem(util.vec2(e.pageX, e.pageY));
+        cardsData.moveElem(e);
         if (!touchHandler.isPinchZoom())
             window.camera.onPointerMove(util.vec2(e.pageX, e.pageY));
     });

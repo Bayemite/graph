@@ -100,6 +100,7 @@ export class CardsData {
         this.linkInProgress = false;
 
         this.moveCardID = -1;
+        this.movePointerId = null;
         this.prevMousePos = null;
         this.initMousePos = null;
         this.snapAxis = false; // for movement axis locking ('x','y', or false)
@@ -338,7 +339,10 @@ export class CardsData {
         return newPos;
     }
 
-    moveElem(mousePos) {
+    moveElem(e) {
+        if (this.movePointerId != e.pointerId || this.moveCardID == -1)
+            return;
+
         let id = this.moveCardID;
         window.camera.updateLink(id);
 
@@ -346,7 +350,7 @@ export class CardsData {
         let cardElem = getCardTag(id);
         let oldPos = util.vec2(cardData.pos.x, cardData.pos.y);
 
-        let newPos = this.#getCardMovePos(oldPos, mousePos);
+        let newPos = this.#getCardMovePos(oldPos, util.vec2(e.pageX, e.pageY));
 
         if (this.snapGrid) {
             // snap to grid
@@ -623,6 +627,7 @@ export class CardsData {
                 this.snapAxis = false;
                 this.snapGrid = false;
                 this.moveCardID = -1;
+                this.movePointerId = null;
 
                 let bounds = util.computedStyleRect(focused);
                 if (this.initialBounds && !bounds.equals(this.initialBounds)) {
@@ -677,16 +682,17 @@ export class CardsData {
         cardContainer.onpointerdown = e => {
             window.touchHandler.onpointerdown(e);
             if (!window.touchHandler.isPinchZoom()) {
-            e.stopPropagation();
+                e.stopPropagation();
                 this.focusCard(id);
 
                 this.moveCardID = id;
+                this.movePointerId = e.pointerId;
                 this.prevMousePos = camera.globalCoords(util.vec2(e.pageX, e.pageY));
                 this.initialBounds = util.computedStyleRect(cardContainer);
 
                 if (this.linkInProgress)
                     this.endLink(id);
-        }
+            }
         };
 
         // sectioned into separate inline function
