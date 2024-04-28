@@ -108,7 +108,7 @@ body {
     overflow: hidden;
 
     width: 100vw;
-    height: 100vh;
+    height: 100%;
     min-width: 400px;
 }
 
@@ -209,7 +209,7 @@ input {
     flex-direction: column;
     text-align: center;
     width: var(--sidebar-width);
-    height: 100vh;
+    height: 100%;
     top: 0;
     left: 0;
     border-radius: 0;
@@ -294,7 +294,7 @@ button:hover,
     color: var(--background-color);
 }
 
-.bottom {
+.sidebar-bottom {
     margin-top: auto;
 }
 
