@@ -761,7 +761,7 @@ export class Camera {
         const zoomFactor = 0.001;
         this.#zoom += delta * zoomFactor;
 
-        const zoomOut = 0.3;
+            const zoomOut = 0.1;
         const zoomIn = 3;
         this.#zoom = clamp(this.#zoom, zoomOut, zoomIn);
 
@@ -1126,6 +1126,7 @@ class LocalSaver {
                 let written = false;
                 console.log(this.cardsData.dirty);
                 this.#write().then(() => written = true);
+                // TODO: preventDefault is annoying, is there another way to make sure save is done?
                 if (!written)
                     e.preventDefault();
             }
