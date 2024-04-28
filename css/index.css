@@ -2,7 +2,6 @@
 
 * {
     box-sizing: border-box;
-    touch-action: none;
 }
 
 :root {
@@ -100,6 +99,7 @@ canvas {
     margin: 0;
     margin-bottom: 10px;
     position: fixed;
+    touch-action: none;
 }
 
 body {
@@ -574,7 +574,7 @@ input[type="file"] {
     overflow-y: auto;
     height: 100%;
     /* 1/2 height of img: scroll clipping @ bottom */
-    padding-bottom: 50px;
+    padding-bottom: 150px;
 }
 
 #file-sidebar-content a {
@@ -675,7 +675,7 @@ input[type="file"] {
     overflow-y: auto;
     max-height: 100%;
     /* scroll clipping @ bottom */
-    padding-bottom: 50px;
+    padding-bottom: 150px;
 }
 
 #image-sidebar-top {
