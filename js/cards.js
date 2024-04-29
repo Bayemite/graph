@@ -683,7 +683,6 @@ export class CardsData {
             window.touchHandler.onpointerdown(e);
             if (!window.touchHandler.isPinchZoom()) {
                 e.stopPropagation();
-                this.focusCard(id);
 
                 this.moveCardID = id;
                 this.movePointerId = e.pointerId;
@@ -692,7 +691,9 @@ export class CardsData {
 
                 if (this.linkInProgress)
                     this.endLink(id);
-            }
+                else
+                    this.focusCard(id);
+            };
         };
 
         // sectioned into separate inline function
@@ -721,27 +722,27 @@ export class CardsData {
             let undoFuncs = util.addUndoHandler(that.undoRedoStack, p, cardObject, undoOpts);
             that.undoHandler.set(id, undoFuncs);
 
-            // To allow content highlighting without card movement
-            let pointerDown = (e) => {
+            p.oninput = () => window.camera.updateLink(id);
+            p.onpointerdown = (e) => {
+                // To allow content highlighting without card movement
                 if (p.contentEditable == 'true')
                     e.stopPropagation();
                 that.mouseDownPos = camera.globalCoords(util.vec2(e.pageX, e.pageY));
 
-                that.focusCard(id);
 
                 if (that.linkInProgress)
                     that.endLink(id);
-            };
-
-            p.oninput = () => window.camera.updateLink(id);
-            p.onpointerdown = (e) => pointerDown(e);
-            p.onpointerup = (e) => {
-                let point = window.camera.globalCoords(util.vec2(e.pageX, e.pageY));
-                if (point.x == that.mouseDownPos.x && point.y == that.mouseDownPos.y) {
-                    p.contentEditable = true;
-                    p.classList.remove('unselectable');
-                    p.focus();
+                else if (that.focusCardID == id) {
+                    let point = window.camera.globalCoords(util.vec2(e.pageX, e.pageY));
+                    if (point.x == that.mouseDownPos.x && point.y == that.mouseDownPos.y) {
+                        p.contentEditable = true;
+                        p.classList.remove('unselectable');
+                        p.focus();
+                    }
                 }
+                else
+                    that.focusCard(id);
+
             };
 
             return p;
