@@ -169,6 +169,21 @@ function initListeners(canvas, cardsData, localSaver) {
         }
     });
 
+    let dblClick = false, dblClickTimer = null;
+    linksSvg.addEventListener('click', (e) => {
+        const camera = window.camera;
+        let pos = util.vec2(Math.ceil(e.pageX / 10) * 10, Math.ceil(e.pageY / 10) * 10);
+
+        clearTimeout(dblClickTimer);
+        dblClickTimer = setTimeout(() => dblClick = false, 500);
+        if (dblClick && dblClick.equals(pos)) {
+            cardsData.addDefaultCardHtml(camera.globalCoords(camera.mousePos), true);
+            dblClick = false;
+        }
+        else
+            dblClick = pos;
+    });
+
     document.addEventListener('pointerup', e => {
         touchHandler.onpointerup(e);
         window.camera.onPointerUp();
@@ -183,11 +198,6 @@ function initListeners(canvas, cardsData, localSaver) {
         cardsData.moveElem(e);
         if (!touchHandler.isPinchZoom())
             window.camera.onPointerMove(util.vec2(e.pageX, e.pageY));
-    });
-
-    linksSvg.addEventListener('dblclick', () => {
-        const camera = window.camera;
-        cardsData.addDefaultCardHtml(camera.globalCoords(camera.mousePos), true);
     });
 
     document.querySelector('#content').addEventListener('wheel',
