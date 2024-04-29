@@ -171,12 +171,14 @@ function initListeners(canvas, cardsData, localSaver) {
 
     let dblClick = false, dblClickTimer = null;
     linksSvg.addEventListener('click', (e) => {
-        const camera = window.camera;
-        let pos = util.vec2(Math.ceil(e.pageX / 10) * 10, Math.ceil(e.pageY / 10) * 10);
+        const dblClickMargin = 100;
+        let round = (a) => Math.ceil(a / dblClickMargin) * dblClickMargin;
+        let pos = util.vec2(round(e.pageX), round(e.pageY));
 
         clearTimeout(dblClickTimer);
         dblClickTimer = setTimeout(() => dblClick = false, 500);
         if (dblClick && dblClick.equals(pos)) {
+            const camera = window.camera;
             cardsData.addDefaultCardHtml(camera.globalCoords(camera.mousePos), true);
             dblClick = false;
         }
