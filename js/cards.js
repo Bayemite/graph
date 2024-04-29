@@ -102,7 +102,7 @@ export class CardsData {
         this.moveCardID = -1;
         this.movePointerId = null;
         this.prevMousePos = null;
-        this.initMousePos = null;
+        this.mouseDownPos = null;
         this.snapAxis = false; // for movement axis locking ('x','y', or false)
         this.snapGrid = false; // snap to specific increment
         this.initialBounds = null;
@@ -725,7 +725,7 @@ export class CardsData {
             let pointerDown = (e) => {
                 if (p.contentEditable == 'true')
                     e.stopPropagation();
-                that.initMousePos = camera.globalCoords(util.vec2(e.pageX, e.pageY));
+                that.mouseDownPos = camera.globalCoords(util.vec2(e.pageX, e.pageY));
 
                 that.focusCard(id);
 
@@ -737,7 +737,7 @@ export class CardsData {
             p.onpointerdown = (e) => pointerDown(e);
             p.onpointerup = (e) => {
                 let point = window.camera.globalCoords(util.vec2(e.pageX, e.pageY));
-                if (point.x == that.initMousePos.x && point.y == that.initMousePos.y) {
+                if (point.x == that.mouseDownPos.x && point.y == that.mouseDownPos.y) {
                     p.contentEditable = true;
                     p.classList.remove('unselectable');
                     p.focus();
