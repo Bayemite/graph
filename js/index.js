@@ -156,10 +156,10 @@ function initListeners(canvas, cardsData, localSaver) {
         util.sidebar.closeAll();
 
         const camera = window.camera;
-        camera.onPointerDown(util.vec2(event.pageX, event.pageY));
+        camera.onPointerDown(util.vec2(e.pageX, e.pageY));
 
         if (cardsData.linkInProgress) {
-            if (event.button == 0) {
+            if (e.button == 0) {
                 let pos = camera.globalCoords(camera.mousePos);
                 let centerOrigin = true;
                 let id = cardsData.addDefaultCardHtml(pos, centerOrigin);
