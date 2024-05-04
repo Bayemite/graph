@@ -368,7 +368,7 @@ export class CardsData {
 
         }
 
-        cardElem.querySelector('.text').blur();
+        cardElem.querySelector('.text').contentEditable = false;
         window.getSelection().removeAllRanges();
         this.updateCardBounds(id, newPos);
     }
