@@ -104,7 +104,7 @@ export class CardsData {
         this.prevMousePos = null;
         this.mouseDownPos = null;
         this.snapAxis = false; // for movement axis locking ('x','y', or false)
-        this.snapGrid = false; // snap to specific increment
+        this.snapAlign = false; // snap to nearest card position
         this.initialBounds = null;
 
         this.focusCardID = -1;
@@ -352,11 +352,64 @@ export class CardsData {
 
         let newPos = this.#getCardMovePos(oldPos, util.vec2(e.pageX, e.pageY));
 
-        if (this.snapGrid) {
-            // snap to grid
-            let step = 20;
-            newPos.x = Math.round(newPos.x / step) * step;
-            newPos.y = Math.round(newPos.y / step) * step;
+        if (this.snapAlign) {
+            const npos = Number.MAX_SAFE_INTEGER;
+            let closest = util.vec2(npos, npos);
+            let closestDelta = util.vec2(npos, npos);
+
+            const refRect = getCardTag(id).getBoundingClientRect();
+            const refPos = [ // keep ordering
+                util.vec2(refRect.left, refRect.top),
+                util.vec2(refRect.left + refRect.width / 2, refRect.top + refRect.height / 2),
+                util.vec2(refRect.right, refRect.bottom)
+            ];
+
+            // snap to card positions
+            for (let iterId of this.cardsData.keys()) {
+                if (id == iterId)
+                    continue;
+
+                const snapRect = getCardTag(iterId).getBoundingClientRect();
+                let snapPos = [ // keep ordering
+                    util.vec2(snapRect.left, snapRect.top),
+                    util.vec2(snapRect.left + snapRect.width / 2, snapRect.top + snapRect.height / 2),
+                    util.vec2(snapRect.right, snapRect.bottom)
+                ];
+
+                if ( // Ignore outside of view snaps
+                    snapPos[0].x > window.innerWidth || snapPos[0].y > window.innerHeight ||
+                    snapPos[2].x < 0 || snapPos[2].y < 0
+                )
+                    continue;
+
+                for (let index = 0; index < 9; index++) {
+                    let i = index % 3;
+                    if (index > 0 && i == 0)
+                        snapPos.push(snapPos.shift());
+
+                    let snapP = window.camera.globalCoords(snapPos[i]);
+                    let refP = window.camera.globalCoords(refPos[i]);
+
+                    let deltaX = Math.abs(refP.x - snapP.x);
+                    let deltaY = Math.abs(refP.y - snapP.y);
+
+                    const margin = 2;
+                    if (deltaX < margin && deltaX < closestDelta.x) {
+                        // (- i * etc): convert snapP to top-left of card coords
+                        closest.x = snapP.x - i * (refRect.width / 2);
+                        closestDelta.x = deltaX;
+                    }
+                    if (deltaY < margin && deltaY < closestDelta.y) {
+                        closest.y = snapP.y - i * (refRect.height / 2);
+                        closestDelta.y = deltaY;
+                    }
+                }
+            }
+
+            if (closest.x != npos)
+                newPos.x = closest.x;
+            if (closest.y != npos)
+                newPos.y = closest.y;
         }
 
         if (this.snapAxis) {
@@ -602,7 +655,7 @@ export class CardsData {
             });
 
             this.focusCallbacks.set('keydown', (e) => {
-                if (e.key == 'Control') this.snapGrid = true;
+                if (e.key == 'Control') this.snapAlign = true;
                 else if (e.shiftKey && this.moveCardID != -1) {
                     this.snapAxis = 'x';
                     if (e.key == 'X') this.snapAxis = 'x';
@@ -620,12 +673,12 @@ export class CardsData {
                 }
             });
             this.focusCallbacks.set('keyup', (e) => {
-                if (e.key == 'Control') this.snapGrid = false;
+                if (e.key == 'Control') this.snapAlign = false;
                 else if (e.key == 'Shift') this.snapAxis = false;
             });
             this.focusCallbacks.set('pointerup', () => {
                 this.snapAxis = false;
-                this.snapGrid = false;
+                this.snapAlign = false;
                 this.moveCardID = -1;
                 this.movePointerId = null;
 
