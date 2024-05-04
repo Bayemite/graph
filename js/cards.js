@@ -103,9 +103,11 @@ export class CardsData {
         this.movePointerId = null;
         this.prevMousePos = null;
         this.mouseDownPos = null;
+        this.initialBounds = null;
+
         this.snapAxis = false; // for movement axis locking ('x','y', or false)
         this.snapAlign = false; // snap to nearest card position
-        this.initialBounds = null;
+        this.snapAlignPos = util.vec2(null, null);
 
         this.focusCardID = -1;
         // type: str --> func
@@ -353,9 +355,8 @@ export class CardsData {
         let newPos = this.#getCardMovePos(oldPos, util.vec2(e.pageX, e.pageY));
 
         if (this.snapAlign) {
-            const npos = Number.MAX_SAFE_INTEGER;
-            let closest = util.vec2(npos, npos);
-            let closestDelta = util.vec2(npos, npos);
+            const max = Number.MAX_SAFE_INTEGER;
+            let closestDelta = util.vec2(max, max);
 
             const refRect = getCardTag(id).getBoundingClientRect();
             const refPos = [ // keep ordering
@@ -396,20 +397,17 @@ export class CardsData {
                     const margin = 2;
                     if (deltaX < margin && deltaX < closestDelta.x) {
                         // (- i * etc): convert snapP to top-left of card coords
-                        closest.x = snapP.x - i * (refRect.width / 2);
+                        newPos.x = snapP.x - i * (refRect.width / 2);
                         closestDelta.x = deltaX;
+                        this.snapAlignPos.x = snapPos[i].x;
                     }
                     if (deltaY < margin && deltaY < closestDelta.y) {
-                        closest.y = snapP.y - i * (refRect.height / 2);
+                        newPos.y = snapP.y - i * (refRect.height / 2);
                         closestDelta.y = deltaY;
+                        this.snapAlignPos.y = snapPos[i].y;
                     }
                 }
             }
-
-            if (closest.x != npos)
-                newPos.x = closest.x;
-            if (closest.y != npos)
-                newPos.y = closest.y;
         }
 
         if (this.snapAxis) {
@@ -673,12 +671,17 @@ export class CardsData {
                 }
             });
             this.focusCallbacks.set('keyup', (e) => {
-                if (e.key == 'Control') this.snapAlign = false;
+                if (e.key == 'Control') {
+                    this.snapAlign = false;
+                    this.snapAlignPos = util.vec2(null, null);
+
+                }
                 else if (e.key == 'Shift') this.snapAxis = false;
             });
             this.focusCallbacks.set('pointerup', () => {
                 this.snapAxis = false;
                 this.snapAlign = false;
+                this.snapAlignPos = util.vec2(null, null);
                 this.moveCardID = -1;
                 this.movePointerId = null;
 

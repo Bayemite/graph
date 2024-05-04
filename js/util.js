@@ -588,16 +588,32 @@ function drawLinks(cardsData) {
     }
 }
 
-function drawSnapAxis(ctx, cardsData) {
+function drawSnapOverlay(ctx, cardsData) {
+    ctx.lineWidth = 1;
+
+    let draw = (fn) => {
+        ctx.beginPath();
+        fn();
+        ctx.stroke();
+    };
+
+    if (cardsData.snapAlign) {
+        ctx.strokeStyle = 'magenta';
+
+        if (cardsData.snapAlignPos.y != null)
+            draw(() => {
+                ctx.moveTo(0, cardsData.snapAlignPos.y);
+                ctx.lineTo(window.innerWidth, cardsData.snapAlignPos.y);
+            });
+        if (cardsData.snapAlignPos.x != null)
+            draw(() => {
+                ctx.moveTo(cardsData.snapAlignPos.x, 0);
+                ctx.lineTo(cardsData.snapAlignPos.x, window.innerHeight);
+            });
+    }
+
     if (cardsData.snapAxis) {
         ctx.strokeStyle = 'lightgrey';
-        ctx.lineWidth = 1;
-
-        let draw = (fn) => {
-            ctx.beginPath();
-            fn();
-            ctx.stroke();
-        };
 
         let bounds = cardsData.getFocusedCard()?.getBoundingClientRect();
         if (!bounds) return;
@@ -646,8 +662,13 @@ export class Camera {
         this.#zoom = scale;
     }
 
+    htmlCoords(coords){
+        let p = this.matrix.applyToPoint(coords.x, coords.y);
+        return vec2(p.x, p.y);
+    }
+    
     // Translate from DOM coords to application coords
-    globalCoords(coords = vec2()) {
+    globalCoords(coords) {
         let p = this.matrix.getInverse().applyToPoint(coords.x, coords.y);
         return vec2(p.x, p.y);
     }
@@ -698,7 +719,7 @@ export class Camera {
             let linkOriginElem = document.getElementById(`card-${this.cardsData.linkStart}`);
             drawLinkLine(ctx, linkOriginElem);
         }
-        drawSnapAxis(ctx, this.cardsData);
+        drawSnapOverlay(ctx, this.cardsData);
     }
 
     update() {
@@ -761,7 +782,7 @@ export class Camera {
         const zoomFactor = 0.001;
         this.#zoom += delta * zoomFactor;
 
-            const zoomOut = 0.1;
+        const zoomOut = 0.1;
         const zoomIn = 3;
         this.#zoom = clamp(this.#zoom, zoomOut, zoomIn);
 
