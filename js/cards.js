@@ -778,6 +778,7 @@ export class CardsData {
             let undoFuncs = util.addUndoHandler(that.undoRedoStack, p, cardObject, undoOpts);
             that.undoHandler.set(id, undoFuncs);
 
+            let focusText = true;
             p.oninput = () => window.camera.updateLink(id);
             p.onpointerdown = (e) => {
                 // To allow content highlighting without card movement
@@ -787,16 +788,23 @@ export class CardsData {
 
                 if (that.linkInProgress)
                     that.endLink(id);
-                else
+                else if (that.focusCardID != id) {
+                    focusText = false;
                     that.focusCard(id);
+                }
             };
 
             p.onpointerup = (e) => {
                 if (that.focusCardID != id)
                     return;
 
+                if (!focusText) {
+                    focusText = true;
+                    return;
+                }
+
                 let point = window.camera.globalCoords(util.vec2(e.pageX, e.pageY));
-                if (point.x == that.mouseDownPos.x && point.y == that.mouseDownPos.y) {
+                if (point.equals(that.mouseDownPos)) {
                     p.contentEditable = true;
                     p.classList.remove('unselectable');
                     p.focus();
