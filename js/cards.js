@@ -785,20 +785,22 @@ export class CardsData {
                     e.stopPropagation();
                 that.mouseDownPos = camera.globalCoords(util.vec2(e.pageX, e.pageY));
 
-
                 if (that.linkInProgress)
                     that.endLink(id);
-                else if (that.focusCardID == id) {
-                    let point = window.camera.globalCoords(util.vec2(e.pageX, e.pageY));
-                    if (point.x == that.mouseDownPos.x && point.y == that.mouseDownPos.y) {
-                        p.contentEditable = true;
-                        p.classList.remove('unselectable');
-                        p.focus();
-                    }
-                }
                 else
                     that.focusCard(id);
+            };
 
+            p.onpointerup = (e) => {
+                if (that.focusCardID != id)
+                    return;
+
+                let point = window.camera.globalCoords(util.vec2(e.pageX, e.pageY));
+                if (point.x == that.mouseDownPos.x && point.y == that.mouseDownPos.y) {
+                    p.contentEditable = true;
+                    p.classList.remove('unselectable');
+                    p.focus();
+                }
             };
 
             return p;
