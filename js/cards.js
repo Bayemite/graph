@@ -110,8 +110,6 @@ export class CardsData {
         this.snapAlignPos = util.vec2(null, null);
 
         this.focusCardID = -1;
-        // type: str --> func
-        this.focusCallbacks = new Map();
 
         this.cardColors = new Set();
 
@@ -141,6 +139,78 @@ export class CardsData {
                 util.defaultColor
             )
         );
+
+        let keydown = (e) => {
+            let id = this.focusCardID;
+            if (id == -1)
+                return;
+
+            if (e.key == 'Control')
+                this.snapAlign = true;
+            else if (e.shiftKey && this.moveCardID != -1) {
+                this.snapAxis = 'x';
+                if (e.key == 'X')
+                    this.snapAxis = 'x';
+                else if (e.key == 'Y')
+                    this.snapAxis = 'y';
+
+                window.camera.updateCanvas();
+            }
+            // move card with arrow keys
+            else if (document.activeElement.tagName !== 'P') {
+                if (e.key == 'ArrowUp') this.cardsData.get(id).pos.y -= 1;
+                else if (e.key == 'ArrowDown') this.cardsData.get(id).pos.y += 1;
+                else if (e.key == 'ArrowLeft') this.cardsData.get(id).pos.x -= 1;
+                else if (e.key == 'ArrowRight') this.cardsData.get(id).pos.x += 1;
+
+                this.updateCardBounds(id, this.cardsData.get(id).pos);
+            }
+        };
+        let keyup = (e) => {
+            if (e.key == 'Control') {
+                this.snapAlign = false;
+                this.snapAlignPos = util.vec2(null, null);
+            }
+            else if (e.key == 'Shift')
+                this.snapAxis = false;
+
+            window.camera.updateCanvas();
+        };
+        let pointerup = () => {
+            let id = this.focusCardID;
+            if (id == -1)
+                return;
+
+            this.snapAxis = false;
+            this.snapAlign = false;
+            this.snapAlignPos = util.vec2(null, null);
+            this.moveCardID = -1;
+            this.movePointerId = null;
+
+            let bounds = util.computedStyleRect(getCardTag(id));
+            if (this.initialBounds && !bounds.equals(this.initialBounds)) {
+                this.undoRedoStack.addUndoCmd({
+                    type: 'card-bounds',
+                    id: `${id}`,
+                    data: {
+                        newBounds: bounds,
+                        oldBounds: this.initialBounds
+                    },
+                    undo: (data) => {
+                        this.updateCardBounds(id, data.oldBounds);
+                        this.initialBounds = null;
+                    },
+                    redo: (data) => {
+                        this.updateCardBounds(id, data.newBounds);
+                        this.initialBounds = null;
+                    }
+                });
+                this.initialBounds = null;
+            }
+        };
+        document.addEventListener('keydown', e => keydown(e));
+        document.addEventListener('keyup', e => keyup(e));
+        document.addEventListener('pointerup', e => pointerup(e));
     }
 
     getFocusedCard() {
@@ -586,13 +656,11 @@ export class CardsData {
 
     // let id = -1 to unfocus without focusing on another.
     focusCard(id) {
-        if (id === this.focusCardID) return;
+        if (id === this.focusCardID)
+            return;
 
         // Cleanup the previously focused card
         if (this.focusCardID != -1) {
-            for (let [type, callback] of this.focusCallbacks)
-                document.removeEventListener(type, callback);
-
             let card = this.getFocusedCard();
             if (!card) {
                 this.focusCardID = -1;
@@ -651,64 +719,6 @@ export class CardsData {
             resizeAnchors.addEventListener('resize', (e) => {
                 this.updateCardBounds(id, e.detail.bounds);
             });
-
-            this.focusCallbacks.set('keydown', (e) => {
-                if (e.key == 'Control') this.snapAlign = true;
-                else if (e.shiftKey && this.moveCardID != -1) {
-                    this.snapAxis = 'x';
-                    if (e.key == 'X') this.snapAxis = 'x';
-                    else if (e.key == 'Y') this.snapAxis = 'y';
-                    window.camera.updateCanvas();
-                }
-                // move card with arrow keys
-                else if (document.activeElement.tagName !== 'P') {
-                    if (e.key == 'ArrowUp') this.cardsData.get(id).pos.y -= 1;
-                    else if (e.key == 'ArrowDown') this.cardsData.get(id).pos.y += 1;
-                    else if (e.key == 'ArrowLeft') this.cardsData.get(id).pos.x -= 1;
-                    else if (e.key == 'ArrowRight') this.cardsData.get(id).pos.x += 1;
-
-                    this.updateCardBounds(id, this.cardsData.get(id).pos);
-                }
-            });
-            this.focusCallbacks.set('keyup', (e) => {
-                if (e.key == 'Control') {
-                    this.snapAlign = false;
-                    this.snapAlignPos = util.vec2(null, null);
-
-                }
-                else if (e.key == 'Shift') this.snapAxis = false;
-            });
-            this.focusCallbacks.set('pointerup', () => {
-                this.snapAxis = false;
-                this.snapAlign = false;
-                this.snapAlignPos = util.vec2(null, null);
-                this.moveCardID = -1;
-                this.movePointerId = null;
-
-                let bounds = util.computedStyleRect(focused);
-                if (this.initialBounds && !bounds.equals(this.initialBounds)) {
-                    this.undoRedoStack.addUndoCmd({
-                        type: 'card-bounds',
-                        id: `${id}`,
-                        data: {
-                            newBounds: bounds,
-                            oldBounds: this.initialBounds
-                        },
-                        undo: (data) => {
-                            this.updateCardBounds(id, data.oldBounds);
-                            this.initialBounds = null;
-                        },
-                        redo: (data) => {
-                            this.updateCardBounds(id, data.newBounds);
-                            this.initialBounds = null;
-                        }
-                    });
-                    this.initialBounds = null;
-                }
-            });
-            document.addEventListener('keydown', this.focusCallbacks.get('keydown'));
-            document.addEventListener('keyup', this.focusCallbacks.get('keyup'));
-            document.addEventListener('pointerup', this.focusCallbacks.get('pointerup'));
 
             // HACK!
             // Change z-index to top by physically moving DOM location
