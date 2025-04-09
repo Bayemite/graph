@@ -370,7 +370,7 @@ button:hover,
     height: max-content;
 
     border: var(--border);
-    border-radius: 20px;
+    box-sizing: border-box;
 }
 
 .card-image {
@@ -775,4 +775,22 @@ input[type="file"] {
 #peer-cursors {
     z-index: var(--peer-cursors-z);
     position: fixed;
+}
+
+/* Default card shape */
+.rectangle {
+    border-radius: 20px;
+}
+
+/* Parallelogram left/right connection arrows are not aligned to borders */
+.parallelogram {
+    transform: skew(-20deg);
+}
+
+.parallelogram>p {
+    transform: skew(20deg);
+}
+
+.circle {
+    border-radius: 50%;
 }

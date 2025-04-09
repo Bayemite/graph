@@ -1,5 +1,15 @@
 import * as util from "./util.js";
 
+let cardShape = {
+    0: "rectangle",
+    1: "circle",
+    2: "parallelogram",
+
+    "rectangle": 1,
+    "circle": 2,
+    "parallelogram": 0,
+};
+
 export class CardObject {
     constructor(
         pos = util.vec2(),
@@ -7,7 +17,8 @@ export class CardObject {
         text = "",
         connectionSet = new Set(),
         color = util.defaultColor,
-        fontSize = "initial"
+        fontSize = "initial",
+        shapeClass = "rectangle"
     ) {
         this.pos = pos;
         this.size = size;
@@ -15,6 +26,7 @@ export class CardObject {
         this.connections = connectionSet;
         this.color = color;
         this.fontSize = fontSize;
+        this.shapeClass = shapeClass;
     }
 
     serialise() {
@@ -570,6 +582,45 @@ export class CardsData {
         };
         editRootNode.appendChild(fontElem);
 
+        let shapeElem = document.createElement("button");
+        shapeElem.innerHTML = `
+        <span class="material-symbols-outlined">
+            shapes
+        </span>
+        `;
+        shapeElem.classList.add("actions-button", "shape-button");
+        shapeElem.onclick = () => {
+
+            let setCardShape = (id, oldShape, shape) => {
+                let card = this.getFocusedCard();
+                card.classList.remove(oldShape);
+                card.classList.add(shape);
+
+                let cardObject = this.get(id);
+                cardObject.shapeClass = shape;
+                window.camera.updateLink(id);
+            };
+
+            let cardObject = this.get(id);
+            let nextShapeIndex = cardShape[cardObject.shapeClass];
+            let oldShape = cardObject.shapeClass;
+            let newShape = cardShape[nextShapeIndex];
+            setCardShape(id, oldShape, newShape);
+
+            this.undoRedoStack.addUndoCmd({
+                type: 'card-shape',
+                id: `${id}`,
+                data: {
+                    oldShape: oldShape,
+                    newShape: newShape
+                },
+                undo: (data) => { setCardShape(id, data.newShape, data.oldShape); },
+                redo: (data) => { setCardShape(id, data.oldShape, data.newShape); }
+            });
+        };
+        editRootNode.appendChild(shapeElem);
+
+
         let clrPicker = document.createElement("span");
         clrPicker.classList.add("color-picker");
 
@@ -740,6 +791,7 @@ export class CardsData {
 
         let style = cardContainer.style;
         cardContainer.classList.add("card");
+        cardContainer.classList.add(cardObject.shapeClass);
 
         let colors = borderBackgroundColorPairs(cardObject.color);
         style.borderColor = colors.border;
@@ -977,7 +1029,8 @@ export class CardsData {
                         card.text,
                         new Set(Array.from(card.connections)),
                         util.getColor(card.color),
-                        util.getFontSize(card.fontSize)
+                        util.getFontSize(card.fontSize),
+                        card.shapeClass
                     )
                 );
             }
@@ -1034,6 +1087,7 @@ export class CardsData {
                 fontSize: cardData.fontSize,
                 connections: Array.from(cardData.connections),
                 color: cardData.color,
+                shapeClass: cardData.shapeClass
             });
         }
 

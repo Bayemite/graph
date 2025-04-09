@@ -419,6 +419,7 @@ function rectMatrixed(rect, mat) {
 // For relative distance comparison.
 function squares(p0, p1) { return (p1.x - p0.x) ** 2 + (p1.y - p0.y) ** 2; };
 
+// Returns the midpoint of a side of `rect` that is closest to `pos`.
 // Returns {pos: vec2, angle: number},
 // pos: centre of side, angle: the side in positive degrees (0 is top, clockwise is positive)
 function closestSideCenter(pos, rect) {
@@ -427,7 +428,7 @@ function closestSideCenter(pos, rect) {
     // Both algorithms seem the same.
     let xDiff = pos.x - center.x;
     let yDiff = pos.y - center.y;
-    // If longer horizontally: Choose left/right side.
+    // If distance horizontally is further: Choose left/right side.
     if (Math.abs(xDiff) > Math.abs(yDiff)) {
         if (xDiff > 0)
             return { pos: vec2(rect.right, center.y), angle: 90 };
@@ -507,13 +508,21 @@ function drawLinkLine(ctx, startElement) {
 }
 
 // rootId, endId: card ids
-function drawLink(rootId, endId) {
+function drawLink(cardsData, rootId, endId) {
     const inverse = window.camera.matrix.getInverse();
     const rootTag = getCardTag(rootId);
     const endTag = getCardTag(endId);
 
+    // Removing transformations before client rect call.
+    // Allows links to connect properly to border (client rect does not follow slanted borders).
+    rootTag.classList.remove(cardsData.get(rootId).shapeClass);
     const rootBounds = rectMatrixed(rootTag.getBoundingClientRect(), inverse);
+    rootTag.classList.add(cardsData.get(rootId).shapeClass);
+
+    endTag.classList.remove(cardsData.get(endId).shapeClass);
     const endBounds = rectMatrixed(endTag.getBoundingClientRect(), inverse);
+    endTag.classList.add(cardsData.get(endId).shapeClass);
+
     const endCenter = rectCenter(endBounds);
     const root = closestSideCenter(endCenter, rootBounds);
     let endPos = endCenter;
@@ -584,7 +593,7 @@ function drawLinks(cardsData) {
             continue;
 
         for (let endId of root.connections.values())
-            drawLink(rootId, endId);
+            drawLink(cardsData, rootId, endId);
     }
 }
 
@@ -662,11 +671,11 @@ export class Camera {
         this.#zoom = scale;
     }
 
-    htmlCoords(coords){
+    htmlCoords(coords) {
         let p = this.matrix.applyToPoint(coords.x, coords.y);
         return vec2(p.x, p.y);
     }
-    
+
     // Translate from DOM coords to application coords
     globalCoords(coords) {
         let p = this.matrix.getInverse().applyToPoint(coords.x, coords.y);
@@ -679,14 +688,14 @@ export class Camera {
 
     updateLink(id) {
         for (let endId of this.cardsData.get(id).connections.values())
-            drawLink(id, endId);
+            drawLink(this.cardsData, id, endId);
 
         let endId = id;
         for (let [rootId, root] of this.cardsData.cardsData) {
             if (!root.connections.has(endId))
                 continue;
 
-            drawLink(rootId, endId);
+            drawLink(this.cardsData, rootId, endId);
         }
     }
 
