@@ -4,10 +4,12 @@ let cardShape = {
     0: "rectangle",
     1: "circle",
     2: "parallelogram",
+    3: "diamond",
 
     "rectangle": 1,
     "circle": 2,
-    "parallelogram": 0,
+    "parallelogram": 3,
+    "diamond": 0
 };
 
 export class CardObject {

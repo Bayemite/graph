@@ -791,8 +791,18 @@ input[type="file"] {
     transform: skew(20deg);
 }
 
+.diamond {
+    transform: rotate(45deg);
+    aspect-ratio: 1;
+}
+
+.diamond>p {
+    transform: rotate(-45deg);
+}
+
 .circle {
     border-radius: 50%;
+    aspect-ratio: 1;
 }
 
 .circle>p {

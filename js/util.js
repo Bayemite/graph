@@ -490,12 +490,33 @@ function controlPoints(angle, startPos, endPos) {
     return [cp0, cp1];
 }
 
+// Return client rect with accurate bounds for midpoint of sides
+// for cards with different shapes.
+function shapeRect(cardsData, id) {
+    let elem = getCardTag(id);
+    let obj = cardsData.get(id);
+
+    let apply = (remove) => {
+        // No change needed for diamond, rectangle, or circle
+        if (obj.shapeClass == 'diamond' || obj.shapeClass == 'rectangle' || obj.shapeClass == 'circle')
+            return;
+        if (remove)
+            elem.classList.remove(obj.shapeClass);
+        else
+            elem.classList.add(obj.shapeClass);
+    };
+
+    apply(true);
+    let rect = elem.getBoundingClientRect();
+    apply(false);
+
+    return rect;
+}
+
 // Draws a line that is currently being connected by user (follows their mouse)
-// ctx: canvas contex
-// startElement: card element
-function drawLinkLine(ctx, startElement) {
+function drawLinkLine(cardsData, ctx) {
     const endPos = window.camera.mousePos;
-    const startBounds = startElement.getBoundingClientRect();
+    const startBounds = shapeRect(cardsData, cardsData.linkStart);
     const start = closestSideCenter(endPos, startBounds);
     const cp = controlPoints(start.angle, start.pos, endPos);
 
@@ -513,15 +534,9 @@ function drawLink(cardsData, rootId, endId) {
     const rootTag = getCardTag(rootId);
     const endTag = getCardTag(endId);
 
-    // Removing transformations before client rect call.
-    // Allows links to connect properly to border (client rect does not follow slanted borders).
-    rootTag.classList.remove(cardsData.get(rootId).shapeClass);
-    const rootBounds = rectMatrixed(rootTag.getBoundingClientRect(), inverse);
-    rootTag.classList.add(cardsData.get(rootId).shapeClass);
-
-    endTag.classList.remove(cardsData.get(endId).shapeClass);
-    const endBounds = rectMatrixed(endTag.getBoundingClientRect(), inverse);
-    endTag.classList.add(cardsData.get(endId).shapeClass);
+    // Allows links to connect properly to border (bounds of some shapes do not follow borders).
+    const rootBounds = rectMatrixed(shapeRect(cardsData, rootId), inverse);
+    const endBounds = rectMatrixed(shapeRect(cardsData, endId), inverse);
 
     const endCenter = rectCenter(endBounds);
     const root = closestSideCenter(endCenter, rootBounds);
@@ -725,8 +740,7 @@ export class Camera {
         ctx.lineWidth = 2 * window.camera.zoom;
 
         if (this.cardsData.linkInProgress) {
-            let linkOriginElem = document.getElementById(`card-${this.cardsData.linkStart}`);
-            drawLinkLine(ctx, linkOriginElem);
+            drawLinkLine(this.cardsData, ctx);
         }
         drawSnapOverlay(ctx, this.cardsData);
     }
