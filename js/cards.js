@@ -573,12 +573,25 @@ export class CardsData {
             let cardObject = this.get(id);
 
             let fSize = cardObject.fontSize;
+            let oldFSize = fSize;
             if (fSize == util.defaultFontSize)
                 fSize = '1.3rem';
             else
                 fSize = util.defaultFontSize;
             cardObject.fontSize = fSize;
             this.getFocusedCard().querySelector("p").style.fontSize = fSize;
+
+
+            this.undoRedoStack.addUndoCmd({
+                type: 'font-size',
+                id: `${id}`,
+                data: {
+                    oldFontSize: oldFSize,
+                    newFontSize: fSize
+                },
+                undo: (data) => { getCardTag(id).querySelector("p").style.fontSize = data.oldFontSize; },
+                redo: (data) => { getCardTag(id).querySelector("p").style.fontSize = data.newFontSize; }
+            });
         };
         editRootNode.appendChild(fontElem);
 
