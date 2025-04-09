@@ -808,3 +808,8 @@ input[type="file"] {
 .circle>p {
     padding: 10px;
 }
+
+.invisible {
+    border: none;
+    background-color: var(--background-color) !important;
+}

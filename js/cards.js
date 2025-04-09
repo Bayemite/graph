@@ -1,15 +1,12 @@
 import * as util from "./util.js";
 
-let cardShape = {
-    0: "rectangle",
-    1: "circle",
-    2: "parallelogram",
-    3: "diamond",
+let nextCardShape = {
+    "rectangle": "circle",
+    "circle": "parallelogram",
+    "parallelogram": "diamond",
+    "diamond": "invisible",
+    "invisible": "rectangle"
 
-    "rectangle": 1,
-    "circle": 2,
-    "parallelogram": 3,
-    "diamond": 0
 };
 
 export class CardObject {
@@ -617,9 +614,9 @@ export class CardsData {
             };
 
             let cardObject = this.get(id);
-            let nextShapeIndex = cardShape[cardObject.shapeClass];
             let oldShape = cardObject.shapeClass;
-            let newShape = cardShape[nextShapeIndex];
+            let newShape = nextCardShape[oldShape];
+            console.log(oldShape, newShape);
             setCardShape(id, oldShape, newShape);
 
             this.undoRedoStack.addUndoCmd({
