@@ -504,8 +504,6 @@ export class CardsData {
 
         }
 
-        cardElem.querySelector('.text').contentEditable = false;
-        window.getSelection().removeAllRanges();
         this.updateCardBounds(id, newPos);
     }
 
@@ -827,6 +825,12 @@ export class CardsData {
                     this.endLink(id);
                 else
                     this.focusCard(id);
+
+                let content = getCardContent(id);
+                if (document.activeElement === content) {
+                    content.contentEditable = false;
+                    content.classList.add('unselectable');
+                }
             };
         };
 
@@ -871,11 +875,12 @@ export class CardsData {
                     that.focusCard(id);
                 }
             };
-
             p.onpointerup = (e) => {
                 if (that.focusCardID != id)
                     return;
 
+                // Require second click on text of the focused card before allowing editing.
+                // Allows card movement without highlighting text/popping up virtual keyboard.
                 if (!focusText) {
                     focusText = true;
                     return;
