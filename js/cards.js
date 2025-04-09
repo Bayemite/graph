@@ -309,6 +309,10 @@ export class CardsData {
     endLink(linkEnd, addUndo = true) {
         if (!this.linkInProgress) return;
 
+        if (linkEnd == null) {
+            this.linkInProgress = false;
+            return;
+        }
         if (this.get(linkEnd) === undefined) {
             console.log(linkEnd + " linkEnd is undefined.");
         }

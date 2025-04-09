@@ -111,6 +111,10 @@ function initListeners(canvas, cardsData, localSaver) {
 
     document.addEventListener('keydown', (event) => {
         switch (event.key) {
+            case 'Escape': {
+                cardsData.endLink(null, false);
+                break;
+            }
             case 'Delete': {
                 let id = cardsData.focusCardID;
                 if (id == -1)
