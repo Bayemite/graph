@@ -881,7 +881,7 @@ export class CardsData {
                 }
 
                 let point = window.camera.globalCoords(util.vec2(e.pageX, e.pageY));
-                if (point.equals(that.mouseDownPos)) {
+                if (that.mouseDownPos && point.equals(that.mouseDownPos)) {
                     p.contentEditable = true;
                     p.classList.remove('unselectable');
                     p.focus();
