@@ -794,3 +794,7 @@ input[type="file"] {
 .circle {
     border-radius: 50%;
 }
+
+.circle>p {
+    padding: 10px;
+}
