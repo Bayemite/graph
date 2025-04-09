@@ -1341,8 +1341,12 @@ export function resizeAnchors(color, tag) {
 export function resizeBounds(anchorIndex, event, tag) {
     let bounds = new Rect();
 
+    let isDiamond = tag.classList.contains('diamond');
+    // tag.classList.remove('diamond');
     let rect = tag.getBoundingClientRect();
     let prev = computedStyleRect(tag);
+    if (isDiamond)
+        tag.classList.add('diamond');
 
     // Delta calculations. Halved? --> half for width/height, half for x/y
     let delX = (x) => { return Math.round((event.pageX - x) / 2); };
