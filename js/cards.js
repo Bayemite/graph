@@ -378,8 +378,8 @@ export class CardsData {
             this.undoRedoStack.addUndoCmd({
                 type: 'delete-card',
                 id: `${id}`,
-                data: { card: this.get(id), links: this.#linksToCard(id) },
-                undo: (data) => this.restoreCard(id, data.card, data.links),
+                data: { card: structuredClone(this.get(id)), links: this.#linksToCard(id) },
+                undo: (data) => this.restoreCard(id, structuredClone(data.card), data.links),
                 redo: () => this.deleteCard(id, false)
             });
         }
