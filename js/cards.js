@@ -242,12 +242,10 @@ export class CardsData {
 
     undo() {
         this.undoRedoStack.undo();
-        this.#updateUndoRedoBtnDisable();
     }
 
     redo() {
         this.undoRedoStack.redo();
-        this.#updateUndoRedoBtnDisable();
     }
 
     #freezeColorUndoCmd() {
@@ -358,9 +356,16 @@ export class CardsData {
 
     // Opp. of deleteCard method
     // linksToCard: array of card ids that link to cardObj.
-    restoreCard(id, cardObj, linksToCard) {
+    restoreCard(id, cardObj, linksToCard = [], adjustOriginCentre = false, addUndo = false) {
         this.set(id, cardObj);
-        this.#addCardHTML(id, false, false);
+        let card = this.#addCardHTML(id, adjustOriginCentre, false, addUndo);
+
+        let imgs = card.getElementsByClassName('card-image');
+        for (let i = 0; i < imgs.length; i++) {
+            let img = imgs[i];
+            let id = img.id.replace("image-", '');
+            img.src = this.images.get(id).url;
+        }
 
         cardObj.connections.forEach(endId => this.addLink(id, endId));
         linksToCard.forEach(startLinkId => this.addLink(startLinkId, id));
@@ -930,6 +935,8 @@ export class CardsData {
                 undo: () => this.deleteCard(cardId, false),
                 redo: (data) => this.restoreCard(cardId, data.card, data.links),
             });
+
+        return cardContainer;
     }
 
     // Updates all img tags with `image-{id}` class with object url of blob
@@ -937,10 +944,10 @@ export class CardsData {
     addImage(id = -1, blob, addUndo = true) {
         if (id === -1)
             id = this.imageIds.getNextId();
-        this.images.set(id, blob);
+        let url = URL.createObjectURL(blob);
+        this.images.set(id, { blob: blob, url: url });
 
         let className = `image-${id}`;
-        let url = URL.createObjectURL(blob);
 
         let imgDiv = document.createElement('div');
         imgDiv.className = 'img-div';
@@ -1021,8 +1028,8 @@ export class CardsData {
         clearHtmlImages();
 
         let loadImgPromises = [];
-        for (const [id, blob] of this.images) {
-            let loadedPromise = this.addImage(id, blob, addUndo);
+        for (const [id, img] of this.images) {
+            let loadedPromise = this.addImage(id, img.blob, addUndo);
             loadImgPromises.push(loadedPromise);
         }
 
@@ -1055,8 +1062,11 @@ export class CardsData {
                     )
                 );
             }
-            for (let imgData of parsedData.images)
-                this.images.set(imgData.id, new Blob([imgData.bytes], { type: imgData.type }));
+
+            for (let imgData of parsedData.images) {
+                let blob = new Blob([imgData.bytes], { type: imgData.type });
+                this.images.set(imgData.id, { blob: blob, url: URL.createObjectURL(blob) });
+            }
 
         } catch (e) {
             let error = new util.Dialog(
@@ -1078,7 +1088,7 @@ export class CardsData {
         };
 
         let imgBufPromises = [];
-        for (let [id, imgBlob] of this.images) {
+        for (let [id, img] of this.images) {
             if (removeUnusedImages && document.getElementsByClassName(`image-${id}`).length == 0) {
                 // TODO: breadcrumb reminder - this WILL intefere with undo serialisation
                 this.images.delete(id);
@@ -1087,10 +1097,10 @@ export class CardsData {
 
             imgBufPromises.push(
                 async function () {
-                    let buf = await imgBlob.arrayBuffer();
+                    let buf = await img.blob.arrayBuffer();
                     return {
                         id: id,
-                        type: imgBlob.type,
+                        type: img.blob.type,
                         bytes: new Uint8Array(buf)
                     };
                 }()
