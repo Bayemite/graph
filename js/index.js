@@ -150,6 +150,34 @@ function initListeners(canvas, cardsData, localSaver) {
             }
         }
     });
+
+    const magicClipboardNum = 'card-clipboard-object-magic-num';
+    document.addEventListener('copy', (event) => {
+        let id = cardsData.focusCardID;
+
+        if (id != -1 && document.activeElement === document.body) {
+            let obj = cardsData.get(id).serialise();
+            obj.magicClipboardNum = magicClipboardNum;
+            event.clipboardData.setData('application/json', JSON.stringify(obj));
+            event.preventDefault();
+        }
+    });
+
+    document.addEventListener('paste', (event) => {
+        if (document.activeElement !== document.body) return;
+
+        let data = event.clipboardData.getData('application/json');
+        let obj = JSON.parse(data);
+        if (!obj || obj.magicClipboardNum !== magicClipboardNum) {
+            return;
+        }
+        obj.magicClipboardNum = undefined;
+
+        let id = cardsData.cardIds.getNextId();
+        obj.pos = window.camera.globalCoords(window.camera.mousePos);
+        cardsData.restoreCard(id, card.CardObject.deserialise(obj), [], true, true);
+    });
+
     let linksSvg = util.getLinksContainer();
     window.touchHandler = new util.TouchHandler();
     let touchHandler = window.touchHandler;

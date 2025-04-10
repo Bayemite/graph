@@ -143,23 +143,23 @@ export function checkArgs(args, paramCount) {
     }
 }
 
-// Events: 'change', whenever addUndoCmd or clear is called
+// Events: 'change', whenever addUndoCmd, undo, redo, or clear is called
 // change event has property .type: String, either 'add' or 'clear'
 export class UndoRedoStack extends EventTarget {
+    #undoStack = [];
+    #redoStack = [];
+
     constructor() {
         super();
-
-        this.undoStack = [];
-        this.redoStack = [];
     }
 
-    hasUndo() { return this.undoStack.length > 0; }
-    hasRedo() { return this.redoStack.length > 0; }
-    nextUndo() { return this.undoStack[this.undoStack.length - 1]; }
+    hasUndo() { return this.#undoStack.length > 0; }
+    hasRedo() { return this.#redoStack.length > 0; }
+    nextUndo() { return this.#undoStack[this.#undoStack.length - 1]; }
 
     clear() {
-        this.undoStack = [];
-        this.redoStack = [];
+        this.#undoStack = [];
+        this.#redoStack = [];
 
         let event = newEvent('change', { type: 'clear' });
         this.dispatchEvent(event);
@@ -187,21 +187,21 @@ export class UndoRedoStack extends EventTarget {
     addUndoCmd(cmd) {
         cmd.isUndo = true;
 
-        this.undoStack.push(cmd);
+        this.#undoStack.push(cmd);
         this.dispatchChange(cmd);
-        // TODO: perhaps clear the redo stack?
+        this.#redoStack = [];
     }
 
     #addRedoCmd(cmd) {
         cmd.isUndo = false;
 
-        this.redoStack.push(cmd);
+        this.#redoStack.push(cmd);
         this.dispatchChange(cmd);
     }
 
     undo() {
-        if (this.undoStack.length > 0) {
-            let cmd = this.undoStack.pop();
+        if (this.#undoStack.length > 0) {
+            let cmd = this.#undoStack.pop();
             cmd.undo(cmd.data);
             this.#addRedoCmd(cmd);
 
@@ -211,8 +211,8 @@ export class UndoRedoStack extends EventTarget {
     }
 
     redo() {
-        if (this.redoStack.length > 0) {
-            let cmd = this.redoStack.pop();
+        if (this.#redoStack.length > 0) {
+            let cmd = this.#redoStack.pop();
             cmd.redo(cmd.data);
             this.addUndoCmd(cmd);
 
@@ -1168,7 +1168,6 @@ class LocalSaver {
         window.addEventListener('beforeunload', (e) => {
             if (this.cardsData.dirty) {
                 let written = false;
-                console.log(this.cardsData.dirty);
                 this.#write().then(() => written = true);
                 // TODO: preventDefault is annoying, is there another way to make sure save is done?
                 if (!written)
