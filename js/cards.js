@@ -287,6 +287,8 @@ export class CardsData {
         document.querySelector(`#link-${start}_${end}`).remove();
         document.querySelector(`#unlink-${start}_${end}`).remove();
 
+        window.camera.updateLink(start);
+
         if (addUndo)
             this.undoRedoStack.addUndoCmd({
                 type: 'delete-link',
@@ -308,14 +310,6 @@ export class CardsData {
         if (!this.linkInProgress) return;
 
         if (linkEnd == null) {
-            this.linkInProgress = false;
-            return;
-        }
-        if (this.get(linkEnd) === undefined) {
-            console.log(linkEnd + " linkEnd is undefined.");
-        }
-        // Disallow reconnection
-        if (this.get(linkEnd).connections.has(this.linkStart)) {
             this.linkInProgress = false;
             return;
         }
@@ -367,8 +361,9 @@ export class CardsData {
             img.src = this.images.get(id).url;
         }
 
-        cardObj.connections.forEach(endId => this.addLink(id, endId));
-        linksToCard.forEach(startLinkId => this.addLink(startLinkId, id));
+        cardObj.connections.forEach(endId => this.addLink(id, endId, false));
+        linksToCard.forEach(startLinkId => this.addLink(startLinkId, id, false));
+        window.camera.updateLinks();
 
         // In case a card was restored after a theme change
         this.updateColors(id);
@@ -384,7 +379,7 @@ export class CardsData {
                 type: 'delete-card',
                 id: `${id}`,
                 data: { card: structuredClone(this.get(id)), links: this.#linksToCard(id) },
-                undo: (data) => this.restoreCard(id, structuredClone(data.card), data.links),
+                undo: (data) => { this.restoreCard(id, structuredClone(data.card), data.links); },
                 redo: () => this.deleteCard(id, false)
             });
         }
@@ -484,7 +479,7 @@ export class CardsData {
                     let deltaX = Math.abs(refP.x - snapP.x);
                     let deltaY = Math.abs(refP.y - snapP.y);
 
-                    const margin = 2;
+                    const margin = 4;
                     if (deltaX < margin && deltaX < closestDelta.x) {
                         // (- i * etc): convert snapP to top-left of card coords
                         newPos.x = snapP.x - i * (refRect.width / 2);
@@ -623,7 +618,6 @@ export class CardsData {
             let cardObject = this.get(id);
             let oldShape = cardObject.shapeClass;
             let newShape = nextCardShape[oldShape];
-            console.log(oldShape, newShape);
             setCardShape(id, oldShape, newShape);
 
             this.undoRedoStack.addUndoCmd({

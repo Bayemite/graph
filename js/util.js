@@ -462,32 +462,43 @@ function closestSideCenter(pos, rect) {
 }
 
 // Arrow at end of link line
-const linkTriangleRadius = 3;
+const linkTriangleRadius = 7;
 function drawLinkTriangle(ctx, pos, angle) {
     drawTriangle(ctx, pos, angle, linkTriangleRadius * window.camera.zoom);
 }
 
-// Example: angle of 90
-// startPos---cp0
-//             |
-//            cp1---endPos
-function controlPoints(angle, startPos, endPos) {
-    let cp0;
-    let cp1;
-    // If left/right side:
-    if (angle === 90 || angle === 270) {
-        const xDiff = endPos.x - startPos.x;
-        const halfWayX = startPos.x + xDiff / 2;
-        cp0 = vec2(halfWayX, startPos.y);
-        cp1 = vec2(halfWayX, endPos.y);
-    }
-    else {
-        const yDiff = endPos.y - startPos.y;
-        const halfWayY = startPos.y + yDiff / 2;
-        cp0 = vec2(startPos.x, halfWayY);
-        cp1 = vec2(endPos.x, halfWayY);
-    }
-    return [cp0, cp1];
+function controlPointsUnidir(angle, startPos, endPos) {
+    let cp = [];
+    const halfWayX = startPos.x / 2 + endPos.x / 2;
+    const halfWayY = startPos.y / 2 + endPos.y / 2;
+    cp[0] = vec2(halfWayX, halfWayY);
+    cp[1] = vec2(halfWayX, halfWayY);
+
+    return cp;
+}
+
+// angle 90:       /-12-\
+//            start      end
+// angle 270:   end      start
+//                 \-21-/
+// In words, bidirectional edges are clockwise
+function controlPointsBidir(angle, startPos, endPos) {
+    let dist = startPos.dist(endPos.x, endPos.y);
+
+    let mat = new Matrix();
+    mat.translate(startPos.x, startPos.y).rotate(angle);
+
+    let cp = [];
+    const offset = -25;
+    cp[0] = vec2(dist / 4, offset);
+    cp[1] = vec2(3 * dist / 4, offset);
+    cp[2] = vec2(dist / 2, offset * 3 / 4);
+    cp = mat.applyToArray(cp);
+    cp[0] = vec2(cp[0].x, cp[0].y);
+    cp[1] = vec2(cp[1].x, cp[1].y);
+    cp[2] = vec2(cp[2].x, cp[2].y);
+
+    return { cp: cp, mid: cp[2] };
 }
 
 // Return client rect with accurate bounds for midpoint of sides
@@ -518,55 +529,24 @@ function drawLinkLine(cardsData, ctx) {
     const endPos = window.camera.mousePos;
     const startBounds = shapeRect(cardsData, cardsData.linkStart);
     const start = closestSideCenter(endPos, startBounds);
-    const cp = controlPoints(start.angle, start.pos, endPos);
+    const cp = controlPointsUnidir(start.angle, start.pos, endPos);
 
     ctx.beginPath();
     ctx.moveTo(start.pos.x, start.pos.y);
     ctx.bezierCurveTo(cp[0].x, cp[0].y, cp[1].x, cp[1].y, endPos.x, endPos.y);
     ctx.stroke();
 
-    drawLinkTriangle(ctx, endPos, start.angle);
+    let angle = radiansToDegrees(Math.atan2(endPos.y - start.pos.y, endPos.x - start.pos.x));
+    drawLinkTriangle(ctx, endPos, angle - 30);
 }
 
 // rootId, endId: card ids
 function drawLink(cardsData, rootId, endId) {
     const inverse = window.camera.matrix.getInverse();
-    const rootTag = getCardTag(rootId);
-    const endTag = getCardTag(endId);
-
-    // Allows links to connect properly to border (bounds of some shapes do not follow borders).
     const rootBounds = rectMatrixed(shapeRect(cardsData, rootId), inverse);
     const endBounds = rectMatrixed(shapeRect(cardsData, endId), inverse);
-
     const endCenter = rectCenter(endBounds);
     const root = closestSideCenter(endCenter, rootBounds);
-    let endPos = endCenter;
-
-    let trianglePos = endPos;
-    // So that pointy end of triangle is not clipped into endBounds.
-    const triOffset = linkTriangleRadius;
-    // Make endPos be on centre of opposite side to startPos.
-    switch (root.angle) {
-        case 0:
-            endPos.y = endBounds.bottom;
-            trianglePos.y += triOffset;
-            break;
-        case 180:
-            endPos.y = endBounds.top;
-            trianglePos.y -= triOffset;
-            break;
-        case 270:
-            endPos.x = endBounds.right;
-            trianglePos.x += triOffset;
-            break;
-        case 90:
-            endPos.x = endBounds.left;
-            trianglePos.x -= triOffset;
-            break;
-    }
-
-    const cp = controlPoints(root.angle, root.pos, endPos);
-    const tri = triPoints(trianglePos, root.angle, linkTriangleRadius);
 
     const linkId = `link-${rootId}_${endId}`;
     let linkG = document.getElementById(linkId);
@@ -588,6 +568,29 @@ function drawLink(cardsData, rootId, endId) {
     linkTri.style.fill = drawClr;
     linkG.style.stroke = drawClr;
 
+    let endPos = endCenter;
+    // Make endPos midpoint of opposite side to startPos.
+    switch (root.angle) {
+        case 270: { endPos.x = endBounds.right; break; }
+        case 0: { endPos.y = endBounds.bottom; break; }
+        case 180: { endPos.y = endBounds.top; break; }
+        case 90: { endPos.x = endBounds.left; break; }
+    };
+
+    let cp, tri, unlinkTagPos;
+    const bidirectional = cardsData.get(endId).connections.has(rootId);
+    const angle = Math.atan2(endPos.y - root.pos.y, endPos.x - root.pos.x);
+    if (bidirectional) {
+        let info = controlPointsBidir(angle, root.pos, endPos);
+        cp = info.cp;
+        unlinkTagPos = info.mid;
+        tri = triPoints(unlinkTagPos, radiansToDegrees(angle) - 30, linkTriangleRadius / window.camera.zoom);
+    }
+    else {
+        cp = controlPointsUnidir(root.angle, root.pos, endPos);
+        unlinkTagPos = cp[0].add(cp[1]).div(2);
+        tri = triPoints(unlinkTagPos, radiansToDegrees(angle) - 30, linkTriangleRadius / window.camera.zoom);
+    }
     linkPath.setAttribute('d', `M${root.pos.x},${root.pos.y} C${cp[0].x},${cp[0].y} ${cp[1].x},${cp[1].y} ${endPos.x},${endPos.y}`);
     linkTri.setAttribute('points', `${tri[0].x} ${tri[0].y}, ${tri[1].x} ${tri[1].y}, ${tri[2].x} ${tri[2].y}`);
 
@@ -595,7 +598,6 @@ function drawLink(cardsData, rootId, endId) {
     const unlinkBounds = rectMatrixed(unlinkTag.getBoundingClientRect(), inverse);
     const unlinkSize = vec2(unlinkBounds.width, unlinkBounds.height);
 
-    let unlinkTagPos = cp[0].add(cp[1]).div(2);
     unlinkTagPos = unlinkTagPos.minus(unlinkSize.div(2)); // Move origin from top-left to centre
     unlinkTag.style.left = unlinkTagPos.x + "px";
     unlinkTag.style.top = unlinkTagPos.y + "px";
@@ -705,12 +707,9 @@ export class Camera {
         for (let endId of this.cardsData.get(id).connections.values())
             drawLink(this.cardsData, id, endId);
 
-        let endId = id;
         for (let [rootId, root] of this.cardsData.cardsData) {
-            if (!root.connections.has(endId))
-                continue;
-
-            drawLink(this.cardsData, rootId, endId);
+            if (root.connections.has(id))
+                drawLink(this.cardsData, rootId, id);
         }
     }
 
@@ -853,7 +852,6 @@ function load(cardsData, saveData) {
         return false;
     }
 
-    console.log("Deserialised save:", parsedData);
     cardsData.loadSave(parsedData);
 
     return true;
