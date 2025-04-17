@@ -242,10 +242,12 @@ export class CardsData {
 
     undo() {
         this.undoRedoStack.undo();
+        this.#updateUndoRedoBtnDisable();
     }
 
     redo() {
         this.undoRedoStack.redo();
+        this.#updateUndoRedoBtnDisable();
     }
 
     #freezeColorUndoCmd() {
@@ -352,7 +354,7 @@ export class CardsData {
     // linksToCard: array of card ids that link to cardObj.
     restoreCard(id, cardObj, linksToCard = [], adjustOriginCentre = false, addUndo = false) {
         this.set(id, cardObj);
-        let card = this.#addCardHTML(id, adjustOriginCentre, false, addUndo);
+        let card = this.#addCardHTML(id, adjustOriginCentre, addUndo);
 
         let imgs = card.getElementsByClassName('card-image');
         for (let i = 0; i < imgs.length; i++) {
