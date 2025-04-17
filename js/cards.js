@@ -322,9 +322,6 @@ export class CardsData {
             return;
         }
 
-        // If click on self just ignore
-        if (this.linkStart == linkEnd) return;
-
         this.linkInProgress = false;
         this.addLink(this.linkStart, linkEnd);
         window.camera.updateCanvas();
@@ -344,7 +341,7 @@ export class CardsData {
     #linksToCard(id) {
         let links = [];
         for (let [cardId, card] of this.cardsData)
-            if (card.connections.has(id))
+            if (cardId != id && card.connections.has(id))
                 links.push(cardId);
 
         return links;

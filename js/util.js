@@ -576,21 +576,36 @@ function drawLink(cardsData, rootId, endId) {
         case 90: { endPos.x = endBounds.left; break; }
     };
 
-    let cp, tri, unlinkTagPos;
-    const bidirectional = cardsData.get(endId).connections.has(rootId);
+    let unlinkTagPos, triangleAngle;
+    const bidirectional = endId != rootId && cardsData.get(endId).connections.has(rootId);
     const angle = Math.atan2(endPos.y - root.pos.y, endPos.x - root.pos.x);
     if (bidirectional) {
         let info = controlPointsBidir(angle, root.pos, endPos);
-        cp = info.cp;
+        let cp = info.cp;
+        linkPath.setAttribute('d', `M${root.pos.x},${root.pos.y} C${cp[0].x},${cp[0].y} ${cp[1].x},${cp[1].y} ${endPos.x},${endPos.y}`);
+
         unlinkTagPos = info.mid;
-        tri = triPoints(unlinkTagPos, radiansToDegrees(angle) - 30, linkTriangleRadius / window.camera.zoom);
+        triangleAngle = 30;
     }
-    else {
-        cp = controlPointsUnidir(root.angle, root.pos, endPos);
+    else if (endId == rootId) {
+        const x1 = endBounds.left + endBounds.width / 2;
+        const y1 = endBounds.top;
+        const circle = cardsData.get(rootId).shapeClass == 'circle';
+        const xAdj = endBounds.width / 2 * (circle ? .6 : 1);
+        const yAdj = endBounds.height / 2 * (circle ? .6 : 1);
+        linkPath.setAttribute('d', `M${x1} ${y1} a${-xAdj} ${-yAdj} 0 1 1 ${xAdj} ${yAdj}`);
+
+        unlinkTagPos = vec2(x1 + xAdj, y1 - yAdj);
+        triangleAngle = 0;
+    } else {
+        let cp = controlPointsUnidir(root.angle, root.pos, endPos);
+        linkPath.setAttribute('d', `M${root.pos.x},${root.pos.y} C${cp[0].x},${cp[0].y} ${cp[1].x},${cp[1].y} ${endPos.x},${endPos.y}`);
+
         unlinkTagPos = cp[0].add(cp[1]).div(2);
-        tri = triPoints(unlinkTagPos, radiansToDegrees(angle) - 30, linkTriangleRadius / window.camera.zoom);
+        triangleAngle = 30;
     }
-    linkPath.setAttribute('d', `M${root.pos.x},${root.pos.y} C${cp[0].x},${cp[0].y} ${cp[1].x},${cp[1].y} ${endPos.x},${endPos.y}`);
+
+    let tri = triPoints(unlinkTagPos, radiansToDegrees(angle) - triangleAngle, linkTriangleRadius / window.camera.zoom);
     linkTri.setAttribute('points', `${tri[0].x} ${tri[0].y}, ${tri[1].x} ${tri[1].y}, ${tri[2].x} ${tri[2].y}`);
 
     let unlinkTag = document.getElementById(`unlink-${rootId}_${endId}`);
