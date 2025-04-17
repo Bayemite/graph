@@ -189,7 +189,6 @@ export class UndoRedoStack extends EventTarget {
 
         this.#undoStack.push(cmd);
         this.dispatchChange(cmd);
-        this.#redoStack = [];
     }
 
     #addRedoCmd(cmd) {
