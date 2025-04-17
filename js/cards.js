@@ -606,7 +606,7 @@ export class CardsData {
         shapeElem.onclick = () => {
 
             let setCardShape = (id, oldShape, shape) => {
-                let card = this.getFocusedCard();
+                let card = getCardTag(id);
                 card.classList.remove(oldShape);
                 card.classList.add(shape);
 
