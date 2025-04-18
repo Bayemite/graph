@@ -184,6 +184,7 @@ input {
     color: var(--text-color);
     text-decoration: underline;
     cursor: text;
+    text-overflow: ellipsis;
 }
 
 #new-doc-title {
