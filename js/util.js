@@ -507,8 +507,8 @@ function shapeRect(cardsData, id) {
     let obj = cardsData.get(id);
 
     let apply = (remove) => {
-        // No change needed for diamond, rectangle, or circle
-        if (obj.shapeClass == 'diamond' || obj.shapeClass == 'rectangle' || obj.shapeClass == 'circle')
+        // No change needed for the following shapes
+        if (obj.shapeClass == 'diamond' || obj.shapeClass == 'rectangle' || obj.shapeClass == 'circle' || obj.shapeClass == 'invisible')
             return;
         if (remove)
             elem.classList.remove(obj.shapeClass);
@@ -1669,7 +1669,7 @@ async function getSettings() {
         settings.animations = true;
     if (settings.defaultShape === undefined)
         settings.defaultShape = "rectangle";
-    if(settings.snapMargin === undefined)
+    if (settings.snapMargin === undefined)
         settings.snapMargin = 3;
 
     return settings;
