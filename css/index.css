@@ -789,15 +789,15 @@ input[type="file"] {
 
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 /* Firefox */
 input[type=number] {
-  -moz-appearance: textfield;
+    -moz-appearance: textfield;
 }
-  
+
 /* Default card shape */
 .rectangle {
     border-radius: 20px;
@@ -833,4 +833,9 @@ input[type=number] {
 .invisible {
     border: none;
     background-color: var(--background-color) !important;
+    padding: 0;
+}
+
+.invisible>p {
+    padding: 0;
 }
