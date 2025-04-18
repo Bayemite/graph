@@ -1662,11 +1662,13 @@ export function addRemoveBtn(tag, onclick = null, awaitOnClick = false) {
 
 async function getSettings() {
     let settings = await localforage.getItem('settings');
-    if (settings === null) {
-        settings = {
-            animations: true
-        };
-    }
+
+    if (settings === null)
+        settings = {};
+    if (settings.animations === undefined)
+        settings.animations = true;
+    if (settings.defaultShape === undefined)
+        settings.defaultShape = "rectangle";
 
     return settings;
 }
@@ -1679,7 +1681,7 @@ async function setSettings(settings) {
 function extractSettings(tag) {
     let settings = {};
     settings.animations = tag.querySelector('#enable-anims').checked;
-
+    settings.defaultShape = tag.querySelector("input[name='default-shape']:checked").value;
     return settings;
 }
 
@@ -1695,6 +1697,7 @@ export async function loadSettings(tag = null) {
 
 
     document.getElementById('animations-stylesheet').disabled = !settings.animations;
+    window.settings = settings;
 }
 
 export async function settingsTag() {
@@ -1703,11 +1706,29 @@ export async function settingsTag() {
     let t = tag(
         'div',
         `
-            <label for="enable-anims">Animations</label>
-            <input id="enable-anims" name="enable-anims" type="checkbox">
+            <fieldset>
+                <legend>Animations</legend>
+                <label for="enable-anims">Enable </label>
+                <input id="enable-anims" name="enable-anims" type="checkbox">
+            </fieldset>
+
+            <fieldset id="default-shape">
+                <legend>Default Shape</legend>
+                <div>
+                <input type="radio" name="default-shape" id="rectangle" value="rectangle">
+                <label for="rectangle">Rectangle</label>
+                <input type="radio" name="default-shape" id="circle" value="circle">
+                <label for="circle">Circle</label>
+                <input type="radio" name="default-shape" id="parallelogram" value="parallelogram">
+                <label for="parallelogram">Parallelogram</label>
+                </div>
+            </fieldset>
         `
     );
     t.id = 'settings';
+
+    let defaultShapeRadio = t.querySelector('#default-shape').querySelector(`#${settings.defaultShape}`);
+    defaultShapeRadio.setAttribute("checked", true);
 
     let anims = t.querySelector('#enable-anims');
     anims.checked = settings.animations;

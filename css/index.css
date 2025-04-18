@@ -761,20 +761,26 @@ input[type="file"] {
     font-size: 14px;
 }
 
-#settings {
-    display: flex;
-    align-items: center;
-}
-
-#settings input {
-    height: 1.5em;
-    width: 1.5em;
-    margin-left: auto;
-}
-
 #peer-cursors {
     z-index: var(--peer-cursors-z);
     position: fixed;
+}
+
+#settings fieldset {
+    border-radius: 20px;
+    line-height: 1.5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+#settings input[type=radio] {
+    margin-left: 1em;
+}
+
+#settings input {
+    transform: scale(1.5);
 }
 
 /* Default card shape */

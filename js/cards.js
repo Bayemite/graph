@@ -999,6 +999,7 @@ export class CardsData {
         addUndo = true
     ) {
         let id = this.#addNewCard(new CardObject(pos));
+        this.get(id).shapeClass = window.settings.defaultShape;
         this.#addCardHTML(id, adjustOriginCentre, addUndo);
         this.updateColors(id);
         return id;
