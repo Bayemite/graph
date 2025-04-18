@@ -1669,6 +1669,8 @@ async function getSettings() {
         settings.animations = true;
     if (settings.defaultShape === undefined)
         settings.defaultShape = "rectangle";
+    if(settings.snapMargin === undefined)
+        settings.snapMargin = 3;
 
     return settings;
 }
@@ -1682,6 +1684,7 @@ function extractSettings(tag) {
     let settings = {};
     settings.animations = tag.querySelector('#enable-anims').checked;
     settings.defaultShape = tag.querySelector("input[name='default-shape']:checked").value;
+    settings.snapMargin = tag.querySelector("#snap-margin").value;
     return settings;
 }
 
@@ -1723,9 +1726,21 @@ export async function settingsTag() {
                 <label for="parallelogram">Parallelogram</label>
                 </div>
             </fieldset>
+
+            <fieldset>
+                <legend>Movement</legend>
+                <label for="snap-margin">Snap Tolerance</label>
+                <div class='right'>
+                <input type="number" id="snap-margin" min="1" max="100">
+                <span>pixels</span>
+                </div>
+            </fieldset>
         `
     );
     t.id = 'settings';
+
+    let snapMargin = t.querySelector("#snap-margin");
+    snapMargin.value = settings.snapMargin;
 
     let defaultShapeRadio = t.querySelector('#default-shape').querySelector(`#${settings.defaultShape}`);
     defaultShapeRadio.setAttribute("checked", true);

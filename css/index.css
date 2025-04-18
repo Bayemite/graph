@@ -773,16 +773,30 @@ input[type="file"] {
     align-items: center;
     justify-content: center;
     gap: 4px;
+    padding: 8px;
+    padding-bottom: 16px;
 }
 
 #settings input[type=radio] {
     margin-left: 1em;
 }
 
-#settings input {
-    transform: scale(1.5);
+#settings #snap-margin {
+    text-align: center;
+    width: 3em;
 }
 
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+  
 /* Default card shape */
 .rectangle {
     border-radius: 20px;

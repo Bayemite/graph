@@ -478,14 +478,14 @@ export class CardsData {
                     let deltaX = Math.abs(refP.x - snapP.x);
                     let deltaY = Math.abs(refP.y - snapP.y);
 
-                    const margin = 4;
-                    if (deltaX < margin && deltaX < closestDelta.x) {
+                    const snapMargin = window.settings.snapMargin;
+                    if (deltaX < snapMargin && deltaX < closestDelta.x) {
                         // (- i * etc): convert snapP to top-left of card coords
                         newPos.x = snapP.x - i * (refRect.width / 2);
                         closestDelta.x = deltaX;
                         this.snapAlignPos.x = snapPos[i].x;
                     }
-                    if (deltaY < margin && deltaY < closestDelta.y) {
+                    if (deltaY < snapMargin && deltaY < closestDelta.y) {
                         newPos.y = snapP.y - i * (refRect.height / 2);
                         closestDelta.y = deltaY;
                         this.snapAlignPos.y = snapPos[i].y;
