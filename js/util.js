@@ -1,10 +1,10 @@
 // Basically a catch-all file dump for extraneous definitions
 
-import { CardObject, CardsData, getCardTag, getCardContent } from './cards.js';
+import { CardObject, CardsData, getCardTag, getCardContent } from "./cards.js";
 
-export const defaultColor = '#C8C8C8';
-export const defaultFontSize = 'initial';
-export const fileSuffix = '.msgpack';
+export const defaultColor = "#C8C8C8";
+export const defaultFontSize = "initial";
+export const fileSuffix = ".msgpack";
 
 export function setCanvasSize(canvas) {
     canvas.width = window.innerWidth;
@@ -16,21 +16,21 @@ export function getTitleTag() {
 }
 
 export function getLinksContainer() {
-    return document.querySelector('#links-svg');
+    return document.querySelector("#links-svg");
 }
 
 export function clearLinksContainer() {
     getLinksContainer().innerHTML = '<g id="links-transform"></g>';
 }
 
-export function tag(type, html = '') {
+export function tag(type, html = "") {
     let t = document.createElement(type);
     t.innerHTML = html;
     return t;
 }
 
 export function tagSVG(type) {
-    return document.createElementNS('http://www.w3.org/2000/svg', type);
+    return document.createElementNS("http://www.w3.org/2000/svg", type);
 }
 
 export function newEvent(type, detail) {
@@ -40,37 +40,34 @@ export function newEvent(type, detail) {
 // get a valid int, fallback if needed
 export function getInt(str, fallback = 0) {
     let n = parseInt(str);
-    if (Number.isNaN(n))
-        n = fallback;
+    if (Number.isNaN(n)) n = fallback;
     return n;
 }
 
 // get a valid float, fallback if needed
 export function getFloat(str, fallback = 0.0) {
     let n = parseFloat(str);
-    if (Number.isNaN(n))
-        n = fallback;
+    if (Number.isNaN(n)) n = fallback;
     return n;
 }
 
 // get a valid CSS color string, fallback if needed
 export function getColor(str, fallback = defaultColor) {
-    if (CSS.supports('color', str))
-        return str;
+    if (CSS.supports("color", str)) return str;
     return fallback;
 }
 
 export class Rainbow {
     constructor() {
         this.colors = [
-            '#ff0000', // red
-            '#ff7c00', // orange
-            '#ffbf01', // yellow
-            '#00ff00', // green bright
-            '#00b222', // green dim
-            '#0081fe', // blue
-            '#ab20fd', // purple
-            '#ff00ff'  // pink
+            "#ff0000", // red
+            "#ff7c00", // orange
+            "#ffbf01", // yellow
+            "#00ff00", // green bright
+            "#00b222", // green dim
+            "#0081fe", // blue
+            "#ab20fd", // purple
+            "#ff00ff", // pink
         ];
         this.i = 0;
     }
@@ -85,44 +82,51 @@ export class Rainbow {
 
 // get a valid CSS fontSize string
 export function getFontSize(str, fallback = defaultFontSize) {
-    if (CSS.supports('font-size', str))
-        return str;
+    if (CSS.supports("font-size", str)) return str;
     return fallback;
 }
 
 // return array of [r,g,b,a] from any valid color. if failed returns undefined
 // https://stackoverflow.com/questions/34980574/how-to-extract-color-values-from-rgb-string-in-javascript
 export function colorValues(color) {
-    if (color === '')
-        return;
-    if (color.toLowerCase() === 'transparent')
-        return [0, 0, 0, 0];
-    if (color[0] === '#') {
+    if (color === "") return;
+    if (color.toLowerCase() === "transparent") return [0, 0, 0, 0];
+    if (color[0] === "#") {
         if (color.length < 7) {
             // convert #RGB and #RGBA to #RRGGBB and #RRGGBBAA
-            color = '#' + color[1] + color[1] + color[2] + color[2] + color[3] + color[3] + (color.length > 4 ? color[4] + color[4] : '');
+            color =
+                "#" +
+                color[1] +
+                color[1] +
+                color[2] +
+                color[2] +
+                color[3] +
+                color[3] +
+                (color.length > 4 ? color[4] + color[4] : "");
         }
-        return [parseInt(color.substr(1, 2), 16),
-        parseInt(color.substr(3, 2), 16),
-        parseInt(color.substr(5, 2), 16),
-        color.length > 7 ? parseInt(color.substr(7, 2), 16) / 255 : 1];
+        return [
+            parseInt(color.substr(1, 2), 16),
+            parseInt(color.substr(3, 2), 16),
+            parseInt(color.substr(5, 2), 16),
+            color.length > 7 ? parseInt(color.substr(7, 2), 16) / 255 : 1,
+        ];
     }
-    if (color.indexOf('rgb') === -1) {
+    if (color.indexOf("rgb") === -1) {
         // convert named colors
-        var temp_elem = document.body.appendChild(document.createElement('fictum')); // intentionally use unknown tag to lower chances of css rule override with !important
-        var flag = 'rgb(1, 2, 3)'; // this flag tested on chrome 59, ff 53, ie9, ie10, ie11, edge 14
+        var temp_elem = document.body.appendChild(
+            document.createElement("fictum"),
+        ); // intentionally use unknown tag to lower chances of css rule override with !important
+        var flag = "rgb(1, 2, 3)"; // this flag tested on chrome 59, ff 53, ie9, ie10, ie11, edge 14
         temp_elem.style.color = flag;
-        if (temp_elem.style.color !== flag)
-            return; // color set failed - some monstrous css rule is probably taking over the color of our object
+        if (temp_elem.style.color !== flag) return; // color set failed - some monstrous css rule is probably taking over the color of our object
         temp_elem.style.color = color;
-        if (temp_elem.style.color === flag || temp_elem.style.color === '')
+        if (temp_elem.style.color === flag || temp_elem.style.color === "")
             return; // color parse failed
         color = getComputedStyle(temp_elem).color;
         document.body.removeChild(temp_elem);
     }
-    if (color.indexOf('rgb') === 0) {
-        if (color.indexOf('rgba') === -1)
-            color += ',1'; // convert 'rgb(R,G,B)' to 'rgb(R,G,B)A' which looks awful but will pass the regxep below
+    if (color.indexOf("rgb") === 0) {
+        if (color.indexOf("rgba") === -1) color += ",1"; // convert 'rgb(R,G,B)' to 'rgb(R,G,B)A' which looks awful but will pass the regxep below
         return color.match(/[\.\d]+/g).map(function (a) {
             return +a;
         });
@@ -130,9 +134,15 @@ export function colorValues(color) {
 }
 
 export function checkArgs(args, paramCount) {
-    if (args === null || args === undefined) { console.error("Call checkArgs with arguments object and arg count"); return; }
+    if (args === null || args === undefined) {
+        console.error("Call checkArgs with arguments object and arg count");
+        return;
+    }
     if (args.length != paramCount) {
-        console.error(`Arg count does not match param count of ${paramCount}:`, args);
+        console.error(
+            `Arg count does not match param count of ${paramCount}:`,
+            args,
+        );
         return;
     }
     for (let i = 0; i < args.length; i++) {
@@ -153,28 +163,34 @@ export class UndoRedoStack extends EventTarget {
         super();
     }
 
-    hasUndo() { return this.#undoStack.length > 0; }
-    hasRedo() { return this.#redoStack.length > 0; }
-    nextUndo() { return this.#undoStack[this.#undoStack.length - 1]; }
+    hasUndo() {
+        return this.#undoStack.length > 0;
+    }
+    hasRedo() {
+        return this.#redoStack.length > 0;
+    }
+    nextUndo() {
+        return this.#undoStack[this.#undoStack.length - 1];
+    }
 
     clear() {
         this.#undoStack = [];
         this.#redoStack = [];
 
-        let event = newEvent('change', { type: 'clear' });
+        let event = newEvent("change", { type: "clear" });
         this.dispatchEvent(event);
     }
 
     dispatchChange(cmd) {
-        let event = newEvent('change', {
-            type: 'add',
-            cmd: cmd
+        let event = newEvent("change", {
+            type: "add",
+            cmd: cmd,
         });
         this.dispatchEvent(event);
     }
 
     // cmd is {
-    // undo: Function, redo: Function, 
+    // undo: Function, redo: Function,
     //
     // Metadata
     // data: passed to functions,
@@ -236,7 +252,6 @@ export class rgb {
     }
 }
 
-
 export class Vec2 {
     constructor(x = 0, y = 0) {
         this.x = x;
@@ -244,24 +259,15 @@ export class Vec2 {
     }
 
     add(vecAdd) {
-        return vec2(
-            this.x + vecAdd.x,
-            this.y + vecAdd.y
-        );
+        return vec2(this.x + vecAdd.x, this.y + vecAdd.y);
     }
 
     minus(vecMinus) {
-        return vec2(
-            this.x - vecMinus.x,
-            this.y - vecMinus.y
-        );
+        return vec2(this.x - vecMinus.x, this.y - vecMinus.y);
     }
 
     div(scalarDiv) {
-        return vec2(
-            this.x / scalarDiv,
-            this.y / scalarDiv
-        );
+        return vec2(this.x / scalarDiv, this.y / scalarDiv);
     }
 
     dist(x, y) {
@@ -296,20 +302,25 @@ export function radiansToDegrees(radians) {
 
 export class Dialog {
     // bodyTag : array or single tag for dialog content
-    // btns: String label for close button (default is 'Ok') OR 
+    // btns: String label for close button (default is 'Ok') OR
     // an array of {
-    //   label: String, 
+    //   label: String,
     //   onclick : callback (undefined defaults to closing dialog, return false to keep dialog open),
     //   id: optional String (html id)
     // }
-    constructor(title, bodyTag, btns, callbacks = { onshow: null, onclose: null }) {
+    constructor(
+        title,
+        bodyTag,
+        btns,
+        callbacks = { onshow: null, onclose: null },
+    ) {
         this.title = title;
         this.bodyTag = bodyTag;
         this.btns = btns;
         this.callbacks = callbacks;
 
-        this.dialog = document.createElement('dialog');
-        this.dialog.className = 'dialog';
+        this.dialog = document.createElement("dialog");
+        this.dialog.className = "dialog";
         this.id = `dialog-${this.title}`;
         this.dialog.innerHTML = `
             <h4 class="dialog-header">${this.title}</h4>
@@ -317,45 +328,39 @@ export class Dialog {
             <div class="dialog-button-container"></div>
         `;
 
-        let content = this.dialog.getElementsByClassName('dialog-content')[0];
+        let content = this.dialog.getElementsByClassName("dialog-content")[0];
         if (bodyTag instanceof Array) {
-            for (let t of bodyTag)
-                content.appendChild(t);
-        } else
-            content.appendChild(bodyTag);
+            for (let t of bodyTag) content.appendChild(t);
+        } else content.appendChild(bodyTag);
 
         this.dialog.onclose = () => {
-            if (this.callbacks.onclose)
-                this.callbacks.onclose();
+            if (this.callbacks.onclose) this.callbacks.onclose();
             this.close();
         };
 
-        let btnContainer = this.dialog.getElementsByClassName('dialog-button-container')[0];
+        let btnContainer = this.dialog.getElementsByClassName(
+            "dialog-button-container",
+        )[0];
         let addBtn = (label, onclick, id) => {
-            let btn = document.createElement('button');
-            btn.className = 'dialog-button';
-            btn.innerText = label ? label : 'Ok';
-            if (id)
-                btn.id = id;
+            let btn = document.createElement("button");
+            btn.className = "dialog-button";
+            btn.innerText = label ? label : "Ok";
+            if (id) btn.id = id;
             btn.tabIndex = 0;
 
             btn.onclick = () => this.close();
             if (onclick)
                 btn.onclick = () => {
                     let ret = onclick();
-                    if (ret !== false)
-                        this.close();
+                    if (ret !== false) this.close();
                 };
 
             btnContainer.appendChild(btn);
         };
 
         if (btns instanceof Array) {
-            for (let el of btns)
-                addBtn(el.label, el.onclick, el.id);
-        }
-        else
-            addBtn(btns);
+            for (let el of btns) addBtn(el.label, el.onclick, el.id);
+        } else addBtn(btns);
     }
 
     show() {
@@ -363,8 +368,7 @@ export class Dialog {
         this.dialog.focus();
         this.dialog.showModal();
 
-        if (this.callbacks.onshow)
-            this.callbacks.onshow();
+        if (this.callbacks.onshow) this.callbacks.onshow();
     }
 
     close() {
@@ -412,11 +416,18 @@ function rectCenter(rect) {
 
 function rectMatrixed(rect, mat) {
     let a = mat.applyToArray([rect.left, rect.top, rect.right, rect.bottom]);
-    return DOMRect.fromRect({ x: a[0], y: a[1], width: a[2] - a[0], height: a[3] - a[1] });
+    return DOMRect.fromRect({
+        x: a[0],
+        y: a[1],
+        width: a[2] - a[0],
+        height: a[3] - a[1],
+    });
 }
 
 // For relative distance comparison.
-function squares(p0, p1) { return (p1.x - p0.x) ** 2 + (p1.y - p0.y) ** 2; };
+function squares(p0, p1) {
+    return (p1.x - p0.x) ** 2 + (p1.y - p0.y) ** 2;
+}
 
 // Returns the midpoint of a side of `rect` that is closest to `pos`.
 // Returns {pos: vec2, angle: number},
@@ -429,23 +440,19 @@ function closestSideCenter(pos, rect) {
     let yDiff = pos.y - center.y;
     // If distance horizontally is further: Choose left/right side.
     if (Math.abs(xDiff) > Math.abs(yDiff)) {
-        if (xDiff > 0)
-            return { pos: vec2(rect.right, center.y), angle: 90 };
-        else
-            return { pos: vec2(rect.left, center.y), angle: 270 };
-    }
-    else {
-        if (yDiff > 0)
-            return { pos: vec2(center.x, rect.bottom), angle: 180 };
-        else
-            return { pos: vec2(center.x, rect.top), angle: 0 };
+        if (xDiff > 0) return { pos: vec2(rect.right, center.y), angle: 90 };
+        else return { pos: vec2(rect.left, center.y), angle: 270 };
+    } else {
+        if (yDiff > 0) return { pos: vec2(center.x, rect.bottom), angle: 180 };
+        else return { pos: vec2(center.x, rect.top), angle: 0 };
     }
 
-    let sides = [ // top, right, bottom, left
+    let sides = [
+        // top, right, bottom, left
         vec2(center.x, rect.top),
         vec2(rect.right, center.y),
         vec2(center.x, rect.bottom),
-        vec2(rect.left, center.y)
+        vec2(rect.left, center.y),
     ];
 
     let minDist = squares(pos, sides[0]);
@@ -453,9 +460,17 @@ function closestSideCenter(pos, rect) {
     const bDist = squares(pos, sides[2]);
     const lDist = squares(pos, sides[3]);
     let i = 0;
-    if (rDist < minDist) { minDist = rDist; i = 1; }
-    if (bDist < minDist) { minDist = bDist; i = 2; }
-    if (lDist < minDist) { i = 3; }
+    if (rDist < minDist) {
+        minDist = rDist;
+        i = 1;
+    }
+    if (bDist < minDist) {
+        minDist = bDist;
+        i = 2;
+    }
+    if (lDist < minDist) {
+        i = 3;
+    }
 
     return { pos: sides[i], angle: i * 90 };
 }
@@ -490,8 +505,8 @@ function controlPointsBidir(angle, startPos, endPos) {
     let cp = [];
     const offset = -25;
     cp[0] = vec2(dist / 4, offset);
-    cp[1] = vec2(3 * dist / 4, offset);
-    cp[2] = vec2(dist / 2, offset * 3 / 4);
+    cp[1] = vec2((3 * dist) / 4, offset);
+    cp[2] = vec2(dist / 2, (offset * 3) / 4);
     cp = mat.applyToArray(cp);
     cp[0] = vec2(cp[0].x, cp[0].y);
     cp[1] = vec2(cp[1].x, cp[1].y);
@@ -508,12 +523,15 @@ function shapeRect(cardsData, id) {
 
     let apply = (remove) => {
         // No change needed for the following shapes
-        if (obj.shapeClass == 'diamond' || obj.shapeClass == 'rectangle' || obj.shapeClass == 'circle' || obj.shapeClass == 'invisible')
+        if (
+            obj.shapeClass == "diamond" ||
+            obj.shapeClass == "rectangle" ||
+            obj.shapeClass == "circle" ||
+            obj.shapeClass == "invisible"
+        )
             return;
-        if (remove)
-            elem.classList.remove(obj.shapeClass);
-        else
-            elem.classList.add(obj.shapeClass);
+        if (remove) elem.classList.remove(obj.shapeClass);
+        else elem.classList.add(obj.shapeClass);
     };
 
     apply(true);
@@ -535,7 +553,9 @@ function drawLinkLine(cardsData, ctx) {
     ctx.bezierCurveTo(cp[0].x, cp[0].y, cp[1].x, cp[1].y, endPos.x, endPos.y);
     ctx.stroke();
 
-    let angle = radiansToDegrees(Math.atan2(endPos.y - start.pos.y, endPos.x - start.pos.x));
+    let angle = radiansToDegrees(
+        Math.atan2(endPos.y - start.pos.y, endPos.x - start.pos.x),
+    );
     drawLinkTriangle(ctx, endPos, angle - 30);
 }
 
@@ -551,65 +571,98 @@ function drawLink(cardsData, rootId, endId) {
     let linkG = document.getElementById(linkId);
     let linkPath, linkTri;
     if (linkG === null) {
-        linkG = document.getElementById('links-transform').appendChild(tagSVG('g'));
+        linkG = document
+            .getElementById("links-transform")
+            .appendChild(tagSVG("g"));
         linkG.id = linkId;
 
-        linkPath = linkG.appendChild(tagSVG('path'));
-        linkPath.style.strokeWidth = '2px';
-        linkPath.style.fill = 'none';
+        linkPath = linkG.appendChild(tagSVG("path"));
+        linkPath.style.strokeWidth = "2px";
+        linkPath.style.fill = "none";
 
-        linkTri = linkG.appendChild(tagSVG('polygon'));
+        linkTri = linkG.appendChild(tagSVG("polygon"));
     }
-    linkPath = linkG.querySelector('path');
-    linkTri = linkG.querySelector('polygon');
+    linkPath = linkG.querySelector("path");
+    linkTri = linkG.querySelector("polygon");
 
-    let drawClr = getTheme() == 'dark' ? 'white' : 'black';
+    let drawClr = getTheme() == "dark" ? "white" : "black";
     linkTri.style.fill = drawClr;
     linkG.style.stroke = drawClr;
 
     let endPos = endCenter;
     // Make endPos midpoint of opposite side to startPos.
     switch (root.angle) {
-        case 270: { endPos.x = endBounds.right; break; }
-        case 0: { endPos.y = endBounds.bottom; break; }
-        case 180: { endPos.y = endBounds.top; break; }
-        case 90: { endPos.x = endBounds.left; break; }
-    };
+        case 270: {
+            endPos.x = endBounds.right;
+            break;
+        }
+        case 0: {
+            endPos.y = endBounds.bottom;
+            break;
+        }
+        case 180: {
+            endPos.y = endBounds.top;
+            break;
+        }
+        case 90: {
+            endPos.x = endBounds.left;
+            break;
+        }
+    }
 
     let unlinkTagPos, triangleAngle;
-    const bidirectional = endId != rootId && cardsData.get(endId).connections.has(rootId);
+    const bidirectional =
+        endId != rootId && cardsData.get(endId).connections.has(rootId);
     const angle = Math.atan2(endPos.y - root.pos.y, endPos.x - root.pos.x);
     if (bidirectional) {
         let info = controlPointsBidir(angle, root.pos, endPos);
         let cp = info.cp;
-        linkPath.setAttribute('d', `M${root.pos.x},${root.pos.y} C${cp[0].x},${cp[0].y} ${cp[1].x},${cp[1].y} ${endPos.x},${endPos.y}`);
+        linkPath.setAttribute(
+            "d",
+            `M${root.pos.x},${root.pos.y} C${cp[0].x},${cp[0].y} ${cp[1].x},${cp[1].y} ${endPos.x},${endPos.y}`,
+        );
 
         unlinkTagPos = info.mid;
         triangleAngle = 30;
-    }
-    else if (endId == rootId) {
+    } else if (endId == rootId) {
         const x1 = endBounds.left + endBounds.width / 2;
         const y1 = endBounds.top;
-        const circle = cardsData.get(rootId).shapeClass == 'circle';
-        const xAdj = endBounds.width / 2 * (circle ? .6 : 1);
-        const yAdj = endBounds.height / 2 * (circle ? .6 : 1);
-        linkPath.setAttribute('d', `M${x1} ${y1} a${-xAdj} ${-yAdj} 0 1 1 ${xAdj} ${yAdj}`);
+        const circle = cardsData.get(rootId).shapeClass == "circle";
+        const xAdj = (endBounds.width / 2) * (circle ? 0.6 : 1);
+        const yAdj = (endBounds.height / 2) * (circle ? 0.6 : 1);
+        linkPath.setAttribute(
+            "d",
+            `M${x1} ${y1} a${-xAdj} ${-yAdj} 0 1 1 ${xAdj} ${yAdj}`,
+        );
 
         unlinkTagPos = vec2(x1 + xAdj, y1 - yAdj);
         triangleAngle = 0;
     } else {
         let cp = controlPointsUnidir(root.angle, root.pos, endPos);
-        linkPath.setAttribute('d', `M${root.pos.x},${root.pos.y} C${cp[0].x},${cp[0].y} ${cp[1].x},${cp[1].y} ${endPos.x},${endPos.y}`);
+        linkPath.setAttribute(
+            "d",
+            `M${root.pos.x},${root.pos.y} C${cp[0].x},${cp[0].y} ${cp[1].x},${cp[1].y} ${endPos.x},${endPos.y}`,
+        );
 
         unlinkTagPos = cp[0].add(cp[1]).div(2);
         triangleAngle = 30;
     }
 
-    let tri = triPoints(unlinkTagPos, radiansToDegrees(angle) - triangleAngle, linkTriangleRadius / window.camera.zoom);
-    linkTri.setAttribute('points', `${tri[0].x} ${tri[0].y}, ${tri[1].x} ${tri[1].y}, ${tri[2].x} ${tri[2].y}`);
+    let tri = triPoints(
+        unlinkTagPos,
+        radiansToDegrees(angle) - triangleAngle,
+        linkTriangleRadius / window.camera.zoom,
+    );
+    linkTri.setAttribute(
+        "points",
+        `${tri[0].x} ${tri[0].y}, ${tri[1].x} ${tri[1].y}, ${tri[2].x} ${tri[2].y}`,
+    );
 
     let unlinkTag = document.getElementById(`unlink-${rootId}_${endId}`);
-    const unlinkBounds = rectMatrixed(unlinkTag.getBoundingClientRect(), inverse);
+    const unlinkBounds = rectMatrixed(
+        unlinkTag.getBoundingClientRect(),
+        inverse,
+    );
     const unlinkSize = vec2(unlinkBounds.width, unlinkBounds.height);
 
     unlinkTagPos = unlinkTagPos.minus(unlinkSize.div(2)); // Move origin from top-left to centre
@@ -620,8 +673,7 @@ function drawLink(cardsData, rootId, endId) {
 // Draws all existing links
 function drawLinks(cardsData) {
     for (let [rootId, root] of cardsData.cardsData) {
-        if (root.connections.size == 0)
-            continue;
+        if (root.connections.size == 0) continue;
 
         for (let endId of root.connections.values())
             drawLink(cardsData, rootId, endId);
@@ -638,7 +690,7 @@ function drawSnapOverlay(ctx, cardsData) {
     };
 
     if (cardsData.snapAlign) {
-        ctx.strokeStyle = 'magenta';
+        ctx.strokeStyle = "magenta";
 
         if (cardsData.snapAlignPos.y != null)
             draw(() => {
@@ -653,12 +705,12 @@ function drawSnapOverlay(ctx, cardsData) {
     }
 
     if (cardsData.snapAxis) {
-        ctx.strokeStyle = 'lightgrey';
+        ctx.strokeStyle = "lightgrey";
 
         let bounds = cardsData.getFocusedCard()?.getBoundingClientRect();
         if (!bounds) return;
 
-        if (cardsData.snapAxis == 'x') {
+        if (cardsData.snapAxis == "x") {
             draw(() => {
                 ctx.moveTo(0, bounds.top);
                 ctx.lineTo(window.innerWidth, bounds.top);
@@ -667,7 +719,7 @@ function drawSnapOverlay(ctx, cardsData) {
                 ctx.moveTo(0, bounds.bottom);
                 ctx.lineTo(window.innerWidth, bounds.bottom);
             });
-        } else if (cardsData.snapAxis == 'y') {
+        } else if (cardsData.snapAxis == "y") {
             draw(() => {
                 ctx.moveTo(bounds.left, 0);
                 ctx.lineTo(bounds.left, window.innerHeight);
@@ -714,7 +766,7 @@ export class Camera {
     }
 
     getTransformNode() {
-        return document.getElementById('translate');
+        return document.getElementById("translate");
     }
 
     updateLink(id) {
@@ -722,8 +774,7 @@ export class Camera {
             drawLink(this.cardsData, id, endId);
 
         for (let [rootId, root] of this.cardsData.cardsData) {
-            if (root.connections.has(id))
-                drawLink(this.cardsData, rootId, id);
+            if (root.connections.has(id)) drawLink(this.cardsData, rootId, id);
         }
     }
 
@@ -732,22 +783,21 @@ export class Camera {
     }
 
     updateCanvas() {
-        let canvas = document.getElementById('canvas');
-        let ctx = canvas.getContext('2d');
+        let canvas = document.getElementById("canvas");
+        let ctx = canvas.getContext("2d");
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        ctx.fillStyle = getStyle('--background-color');
+        ctx.fillStyle = getStyle("--background-color");
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         let theme = getTheme();
-        if (theme == 'dark') {
-            ctx.fillStyle = 'white';
-            ctx.strokeStyle = 'white';
-        }
-        else {
-            ctx.fillStyle = 'black';
-            ctx.strokeStyle = 'black';
+        if (theme == "dark") {
+            ctx.fillStyle = "white";
+            ctx.strokeStyle = "white";
+        } else {
+            ctx.fillStyle = "black";
+            ctx.strokeStyle = "black";
         }
 
         ctx.lineWidth = 2 * window.camera.zoom;
@@ -761,10 +811,7 @@ export class Camera {
     update() {
         // Zoom to center
         this.matrix.reset();
-        this.matrix.translate(
-            window.innerWidth / 2,
-            window.innerHeight / 2
-        );
+        this.matrix.translate(window.innerWidth / 2, window.innerHeight / 2);
         this.matrix.scale(this.#zoom, this.#zoom);
         this.matrix.translate(this.pos.x, this.pos.y);
 
@@ -772,12 +819,15 @@ export class Camera {
         let transformNode = this.getTransformNode();
         transformNode.style.transform = `matrix(${m.a},${m.b},${m.c},${m.d},${m.e},${m.f})`;
 
-        document.querySelector('#links-transform').setAttribute('transform',
-            `matrix(${m.a},${m.b},${m.c},${m.d},${m.e},${m.f})`
-        );
+        document
+            .querySelector("#links-transform")
+            .setAttribute(
+                "transform",
+                `matrix(${m.a},${m.b},${m.c},${m.d},${m.e},${m.f})`,
+            );
 
         this.updateCanvas();
-    };
+    }
 
     onPointerMove(mousePos) {
         this.mousePos.x = mousePos.x;
@@ -830,9 +880,11 @@ export class Camera {
 // https://stackoverflow.com/questions/13405129/create-and-save-a-file-with-javascript
 function download(data, filename, type) {
     var file = new Blob([data], { type: type });
-    if (window.navigator.msSaveOrOpenBlob) // IE10+
+    if (window.navigator.msSaveOrOpenBlob)
+        // IE10+
         window.navigator.msSaveOrOpenBlob(file, filename);
-    else { // Others
+    else {
+        // Others
         var a = document.createElement("a"),
             url = URL.createObjectURL(file);
         a.href = url;
@@ -854,14 +906,12 @@ async function save(cardsData, removeUnusedImages = true) {
 
 // cardsData: CardsData object, saveData: ArrayBuffer
 function load(cardsData, saveData) {
-    if (saveData.size == 0)
-        return false;
+    if (saveData.size == 0) return false;
 
     let parsedData;
     try {
         parsedData = msgpack.decode(new Uint8Array(saveData));
-    }
-    catch (e) {
+    } catch (e) {
         console.error(e);
         return false;
     }
@@ -872,8 +922,8 @@ function load(cardsData, saveData) {
 }
 
 export function addExternSaveFileListeners(cardsData, localSaver) {
-    const openFileElem = document.getElementById('import');
-    const downloadFileElem = document.getElementById('export');
+    const openFileElem = document.getElementById("import");
+    const downloadFileElem = document.getElementById("export");
 
     openFileElem.oninput = async () => {
         let file = openFileElem.files[0];
@@ -885,18 +935,16 @@ export function addExternSaveFileListeners(cardsData, localSaver) {
             window.open(`index.html?id=${id}`);
         }
 
-        openFileElem.value = '';
+        openFileElem.value = "";
     };
-    let openBtn = document.getElementById('open');
+    let openBtn = document.getElementById("open");
     openBtn.onclick = () => openFileElem.click();
-
 
     downloadFileElem.onclick = async () => {
         let saveData = await save(cardsData);
 
         let title = saveData.title;
-        if (title == '')
-            title = 'Untitled';
+        if (title == "") title = "Untitled";
 
         download(saveData.bytes, title + fileSuffix, "application/msgpack");
     };
@@ -915,26 +963,25 @@ class LocalSaver {
         this.cardsData = cardsData;
         this.id = await this.#validSearchParamId();
 
-        this.statusTag = document.getElementById('save-status');
+        this.statusTag = document.getElementById("save-status");
         this.saveDebounce = null;
 
         this.dashboardTag = dashboardTag;
-        this.snapshotsUpdated = new BroadcastChannel('snapshots-updated');
+        this.snapshotsUpdated = new BroadcastChannel("snapshots-updated");
     }
 
     async #getSnapshots() {
-        const key = 'dashboard-data';
+        const key = "dashboard-data";
 
         let shots = await localforage.getItem(key);
-        if (shots === null)
-            shots = {};
+        if (shots === null) shots = {};
 
         return shots;
     }
 
     async #updateSnapshots(snapshots) {
-        const key = 'dashboard-data';
-        this.snapshotsUpdated.postMessage('updated');
+        const key = "dashboard-data";
+        this.snapshotsUpdated.postMessage("updated");
 
         // ! await ordering
         await localforage.setItem(key, snapshots);
@@ -954,32 +1001,31 @@ class LocalSaver {
         let shots = await this.#getSnapshots();
         let shot = shots[id];
 
-        if (id === null)
-            id = this.id;
-        if (title === null)
-            title = getTitleTag().value;
-        if (snapshot === null)
-            snapshot = shot?.snapshot;
+        if (id === null) id = this.id;
+        if (title === null) title = getTitleTag().value;
+        if (snapshot === null) snapshot = shot?.snapshot;
 
         shots[id] = {
             title: title,
-            snapshot: snapshot
+            snapshot: snapshot,
         };
 
         await this.#updateSnapshots(shots);
     }
 
     async takeSnapshot() {
-        let snapshotImg = document.querySelector('#snapshot-img');
-        let linksSvg = document.querySelector('#links-svg');
+        let snapshotImg = document.querySelector("#snapshot-img");
+        let linksSvg = document.querySelector("#links-svg");
         let xml = new XMLSerializer().serializeToString(linksSvg);
-        snapshotImg.src = 'data:image/svg+xml;base64,' + btoa(xml);
+        snapshotImg.src = "data:image/svg+xml;base64," + btoa(xml);
 
-        await new Promise(resolve => snapshotImg.onload = () => resolve());
+        await new Promise((resolve) => (snapshotImg.onload = () => resolve()));
 
-        let canvas = document.querySelector('#snapshot-canvas');
+        let canvas = document.querySelector("#snapshot-canvas");
         setCanvasSize(canvas);
-        canvas.getContext('2d', { willReadFrequently: true }).drawImage(snapshotImg, 0, 0);
+        canvas
+            .getContext("2d", { willReadFrequently: true })
+            .drawImage(snapshotImg, 0, 0);
 
         let options = {
             canvas: canvas,
@@ -989,36 +1035,38 @@ class LocalSaver {
             y: window.camera.pos.y,
             scale: window.camera.zoom,
 
-            ignoreElements: elem => elem.classList.contains('no-print'),
+            ignoreElements: (elem) => elem.classList.contains("no-print"),
             onclone: (doc) => {
-                let content = doc.querySelector('#content');
+                let content = doc.querySelector("#content");
                 let cStyle = content.style;
-                cStyle.width = '100%';
-                cStyle.height = '100%';
-            }
+                cStyle.width = "100%";
+                cStyle.height = "100%";
+            },
         };
-        let snapshot = await html2canvas(document.querySelector('#content'), options);
-        let blob = await new Promise(resolve => snapshot.toBlob(resolve));
+        let snapshot = await html2canvas(
+            document.querySelector("#content"),
+            options,
+        );
+        let blob = await new Promise((resolve) => snapshot.toBlob(resolve));
         return blob;
     }
 
     async #updateDash() {
         let shots = await this.#getSnapshots();
-        if (shots === null)
-            return;
+        if (shots === null) return;
 
-        this.dashboardTag.innerHTML = '';
+        this.dashboardTag.innerHTML = "";
 
         for (let [id, snapshot] of Object.entries(shots)) {
-            let imgSrc = '';
+            let imgSrc = "";
             if (snapshot.snapshot)
                 imgSrc = URL.createObjectURL(snapshot.snapshot);
 
             snapshot.title = snapshot.title?.trim();
-            if (!snapshot.title || snapshot.title == '')
-                snapshot.title = 'Untitled';
+            if (!snapshot.title || snapshot.title == "")
+                snapshot.title = "Untitled";
 
-            let snapshotTag = document.createElement('a');
+            let snapshotTag = document.createElement("a");
             snapshotTag.href = `index.html?id=${id}`;
             snapshotTag.innerHTML = `
                 <img class="file-desc-img" src="${imgSrc}">
@@ -1031,25 +1079,25 @@ class LocalSaver {
             let ondelete = (e) => {
                 e.preventDefault();
 
-                let onresolve = resolve => {
+                let onresolve = (resolve) => {
                     const btns = [
                         {
-                            label: 'No',
-                            onclick: () => resolve(false)
+                            label: "No",
+                            onclick: () => resolve(false),
                         },
                         {
-                            label: 'Yes',
+                            label: "Yes",
                             onclick: () => {
                                 resolve(true);
                                 this.#delete(id);
-                            }
-                        }
+                            },
+                        },
                     ];
 
                     let confirmDelete = new Dialog(
-                        'Delete Map?',
-                        tag('p', 'This is permanent.'),
-                        btns
+                        "Delete Map?",
+                        tag("p", "This is permanent."),
+                        btns,
                     );
                     confirmDelete.show();
                 };
@@ -1072,12 +1120,12 @@ class LocalSaver {
     async #validSearchParamId() {
         let params = new URLSearchParams(window.location.search);
 
-        let id = params.get('id');
-        let nextId = await localforage.getItem('next-save-id');
+        let id = params.get("id");
+        let nextId = await localforage.getItem("next-save-id");
 
         // avoid future overwriting
         if (id < 0 || id > Number(nextId)) {
-            history.replaceState(null, '', 'index.html');
+            history.replaceState(null, "", "index.html");
             id = null;
         }
 
@@ -1085,32 +1133,31 @@ class LocalSaver {
     }
 
     async #nextId() {
-        let id = await localforage.getItem('next-save-id');
-        if (id === null)
-            id = 0;
-        await localforage.setItem('next-save-id', Number(id) + 1);
+        let id = await localforage.getItem("next-save-id");
+        if (id === null) id = 0;
+        await localforage.setItem("next-save-id", Number(id) + 1);
         return id;
     }
 
-    async #write(id = null, cardsData = null, statusTag = this.statusTag, removeUnusedImages = true) {
-        if (id === null)
-            id = this.id;
-        if (id === null)
-            return;
+    async #write(
+        id = null,
+        cardsData = null,
+        statusTag = this.statusTag,
+        removeUnusedImages = true,
+    ) {
+        if (id === null) id = this.id;
+        if (id === null) return;
 
-        if (cardsData === null)
-            cardsData = this.cardsData;
+        if (cardsData === null) cardsData = this.cardsData;
 
-        if (statusTag)
-            statusTag.innerText = 'Saving...';
+        if (statusTag) statusTag.innerText = "Saving...";
 
         let saveData = await save(cardsData, removeUnusedImages);
         localforage.setItem(id.toString(), saveData.bytes).then(() => {
             cardsData.dirty = false;
-            if (statusTag)
-                statusTag.innerText = 'Saved';
+            if (statusTag) statusTag.innerText = "Saved";
         });
-    };
+    }
 
     async #delete(id) {
         await localforage.removeItem(id);
@@ -1127,9 +1174,8 @@ class LocalSaver {
         // Initialise if this is first change
         // INVARIANT: 'avoid future overwriting'
         // this.id >= 0 and < localStorage 'next-save-id'
-        if (this.id === null)
-            this.id = await this.#nextId();
-        history.replaceState(null, '', 'index.html?id=' + this.id);
+        if (this.id === null) this.id = await this.#nextId();
+        history.replaceState(null, "", "index.html?id=" + this.id);
 
         let snapshot = await this.takeSnapshot();
         await this.updateSnapshot(null, null, snapshot);
@@ -1139,8 +1185,7 @@ class LocalSaver {
 
     // Will debounce until 500ms delay
     #autosave() {
-        if (!this.cardsData.dirty)
-            return;
+        if (!this.cardsData.dirty) return;
 
         const debounce = 500;
         clearTimeout(this.saveDebounce);
@@ -1148,7 +1193,7 @@ class LocalSaver {
         this.saveDebounce = setTimeout(async () => {
             await this.save();
         }, debounce);
-    };
+    }
 
     async createNewSave(data = new CardsData()) {
         let id = await this.#nextId();
@@ -1157,53 +1202,52 @@ class LocalSaver {
         await this.#write(id, data, null, removeUnusedImages);
 
         let snapshot = await this.takeSnapshot();
-        this.updateSnapshot(id, 'Untitled', snapshot);
+        this.updateSnapshot(id, "Untitled", snapshot);
 
         return id;
     }
 
     // load an existing save
     async loadLocalSave() {
-        if (this.id === null)
-            return;
+        if (this.id === null) return;
 
         const savedata = await localforage.getItem(this.id);
-        if (savedata === null)
-            return;
+        if (savedata === null) return;
 
-        if (load(this.cardsData, savedata))
-            this.statusTag.innerText = 'Saved';
+        if (load(this.cardsData, savedata)) this.statusTag.innerText = "Saved";
     }
 
     // Save beforeunload, and after changes (calls save())
     addLocalSaveListeners() {
-        window.addEventListener('beforeunload', (e) => {
+        window.addEventListener("beforeunload", (e) => {
             if (this.cardsData.dirty) {
                 let written = false;
-                this.#write().then(() => written = true);
+                this.#write().then(() => (written = true));
                 // TODO: preventDefault is annoying, is there another way to make sure save is done?
-                if (!written)
-                    e.preventDefault();
+                if (!written) e.preventDefault();
             }
         });
 
-        this.cardsData.undoRedoStack.addEventListener('change', (e) => {
-            this.statusTag.innerText = 'Unsaved';
-            if (e.detail.type == 'add')
-                this.#autosave();
+        this.cardsData.undoRedoStack.addEventListener("change", (e) => {
+            this.statusTag.innerText = "Unsaved";
+            if (e.detail.type == "add") this.#autosave();
         });
     }
 }
 
-export function getTheme() { return window.localStorage.getItem('theme'); }
-export function setTheme(theme) { window.localStorage.setItem('theme', theme); }
+export function getTheme() {
+    return window.localStorage.getItem("theme");
+}
+export function setTheme(theme) {
+    window.localStorage.setItem("theme", theme);
+}
 
 export function setStyle(key, val) {
     let e = document.documentElement;
-    if (val.startsWith('--'))
+    if (val.startsWith("--"))
         val = window.getComputedStyle(e).getPropertyValue(val);
     e.style.setProperty(key, val);
-};
+}
 export function getStyle(key) {
     let e = document.documentElement;
     return window.getComputedStyle(e).getPropertyValue(key);
@@ -1213,26 +1257,29 @@ export function updateTheme(cardsData) {
     // Edits css :root css variables
 
     let theme = getTheme();
-    if (theme == null) { theme = 'dark'; setTheme(theme); }
+    if (theme == null) {
+        theme = "dark";
+        setTheme(theme);
+    }
 
-    setStyle('--background-color', `--${theme}-background-color`);
-    setStyle('--text-color', `--${theme}-text-color`);
-    setStyle('--transparent-color', `--${theme}-transparent-color`);
-    setStyle('--border-color', `--${theme}-border-color`);
-    setStyle('--sidebar-color', `--${theme}-sidebar-color`);
+    setStyle("--background-color", `--${theme}-background-color`);
+    setStyle("--text-color", `--${theme}-text-color`);
+    setStyle("--transparent-color", `--${theme}-transparent-color`);
+    setStyle("--border-color", `--${theme}-border-color`);
+    setStyle("--sidebar-color", `--${theme}-sidebar-color`);
 
     cardsData.updateColors();
     window.camera.updateLinks();
     window.camera.updateCanvas();
 
     Coloris({
-        themeMode: theme
+        themeMode: theme,
     });
 }
 
 export function minSize(elem) {
-    elem.style.minWidth = 'min-content';
-    elem.style.minHeight = 'min-content';
+    elem.style.minWidth = "min-content";
+    elem.style.minHeight = "min-content";
 
     let minStyle = window.getComputedStyle(elem);
     let minW = parseInt(minStyle.width);
@@ -1284,7 +1331,7 @@ class ResizeAnchors extends EventTarget {
         super();
 
         this.parent = parentTag;
-        this.tag = tag('div');
+        this.tag = tag("div");
         this.current = -1;
 
         this.tag.append(NW, NE, SE, SW);
@@ -1297,31 +1344,30 @@ class ResizeAnchors extends EventTarget {
                 e.stopPropagation();
                 this.current = i;
 
-                let event = newEvent('pointerdown', { index: i });
+                let event = newEvent("pointerdown", { index: i });
                 this.dispatchEvent(event);
             };
         }
 
         this.onpointermove = (e) => {
-            if (this.current == -1)
-                return;
+            if (this.current == -1) return;
 
-            let event = newEvent('resize',
-                { bounds: resizeBounds(this.current, e, this.parent) }
-            );
+            let event = newEvent("resize", {
+                bounds: resizeBounds(this.current, e, this.parent),
+            });
             this.dispatchEvent(event);
         };
-        this.onpointerup = () => this.current = -1;
-        document.addEventListener('pointerup', this.onpointerup);
-        document.addEventListener('pointermove', this.onpointermove);
+        this.onpointerup = () => (this.current = -1);
+        document.addEventListener("pointerup", this.onpointerup);
+        document.addEventListener("pointermove", this.onpointermove);
     }
 }
 
 export function resizeAnchors(color, tag) {
-    let NW = document.createElement('span');
-    NW.classList.add('unselectable');
-    NW.classList.add('resize-anchor');
-    NW.innerText = '◤';
+    let NW = document.createElement("span");
+    NW.classList.add("unselectable");
+    NW.classList.add("resize-anchor");
+    NW.innerText = "◤";
     NW.style = `
         color: ${color};
         cursor: nwse-resize;
@@ -1331,20 +1377,20 @@ export function resizeAnchors(color, tag) {
     `;
 
     let SE = NW.cloneNode();
-    SE.innerText = '◢';
-    SE.style.inset = 'auto 0 0 auto';
-    SE.style.transform = 'translate(50%, 50%)';
+    SE.innerText = "◢";
+    SE.style.inset = "auto 0 0 auto";
+    SE.style.transform = "translate(50%, 50%)";
 
     let NE = NW.cloneNode();
-    NE.innerText = '◥';
-    NE.style.cursor = 'nesw-resize';
-    NE.style.inset = '0 0 auto auto';
-    NE.style.transform = 'translate(50%, -50%)';
+    NE.innerText = "◥";
+    NE.style.cursor = "nesw-resize";
+    NE.style.inset = "0 0 auto auto";
+    NE.style.transform = "translate(50%, -50%)";
 
     let SW = NE.cloneNode();
-    SW.innerText = '◣';
-    SW.style.inset = 'auto auto 0 0';
-    SW.style.transform = 'translate(-50%, 50%)';
+    SW.innerText = "◣";
+    SW.style.inset = "auto auto 0 0";
+    SW.style.transform = "translate(-50%, 50%)";
 
     return new ResizeAnchors(NW, NE, SE, SW, tag);
 }
@@ -1352,16 +1398,19 @@ export function resizeAnchors(color, tag) {
 export function resizeBounds(anchorIndex, event, tag) {
     let bounds = new Rect();
 
-    let isDiamond = tag.classList.contains('diamond');
+    let isDiamond = tag.classList.contains("diamond");
     // tag.classList.remove('diamond');
     let rect = tag.getBoundingClientRect();
     let prev = computedStyleRect(tag);
-    if (isDiamond)
-        tag.classList.add('diamond');
+    if (isDiamond) tag.classList.add("diamond");
 
     // Delta calculations. Halved? --> half for width/height, half for x/y
-    let delX = (x) => { return Math.round((event.pageX - x) / 2); };
-    let delY = (y) => { return Math.round((event.pageY - y) / 2); };
+    let delX = (x) => {
+        return Math.round((event.pageX - x) / 2);
+    };
+    let delY = (y) => {
+        return Math.round((event.pageY - y) / 2);
+    };
     let dX = delX(rect.left);
     let dY = delY(rect.top);
 
@@ -1370,15 +1419,13 @@ export function resizeBounds(anchorIndex, event, tag) {
         bounds.y = prev.y + dY;
         bounds.width = prev.width - dX;
         bounds.height = prev.height - dY;
-    }
-    else if (anchorIndex == 1) {
+    } else if (anchorIndex == 1) {
         dX = delX(rect.right);
         bounds.x = prev.x;
         bounds.y = prev.y + dY;
         bounds.width = prev.width + dX;
         bounds.height = prev.height - dY;
-    }
-    else {
+    } else {
         dY = delY(rect.bottom);
         if (anchorIndex == 2) {
             dX = delX(rect.right);
@@ -1386,8 +1433,7 @@ export function resizeBounds(anchorIndex, event, tag) {
             bounds.y = prev.y;
             bounds.width = prev.width + dX;
             bounds.height = prev.height + dY;
-        }
-        else if (anchorIndex == 3) {
+        } else if (anchorIndex == 3) {
             dX = delX(rect.left);
             bounds.x = prev.x + dX;
             bounds.y = prev.y;
@@ -1429,7 +1475,7 @@ export class CaretPos {
             otherCaretPos.offset == this.offset
         );
     }
-};
+}
 
 export function getCaretPos() {
     let selection = window.getSelection();
@@ -1445,21 +1491,20 @@ export function getCaretPos() {
 //  id: string to pass to undo command
 // }
 // returns {
-//  hide(callback): function, calls callback without undo handler observing, 
+//  hide(callback): function, calls callback without undo handler observing,
 //  stop(): function, stop undo handling
 // }
 export function addUndoHandler(undoStack, elem, data, options = {}) {
     data.text = elem.innerHTML;
     let updateData = () => {
         data.text = elem.innerHTML;
-        if (options.onupdate)
-            options.onupdate();
+        if (options.onupdate) options.onupdate();
     };
 
     data.start = new CaretPos();
     let start = data.start;
 
-    elem.addEventListener('beforeinput', () => start = getCaretPos());
+    elem.addEventListener("beforeinput", () => (start = getCaretPos()));
 
     let observeEdits = (o) => {
         o.observe(elem, {
@@ -1486,7 +1531,7 @@ export function addUndoHandler(undoStack, elem, data, options = {}) {
 
         if (end.node) {
             hideFromObserver(() => {
-                for (let e of elem.getElementsByClassName('caret-anchor'))
+                for (let e of elem.getElementsByClassName("caret-anchor"))
                     e.remove();
 
                 // don't add caret-anchor if empty
@@ -1494,8 +1539,8 @@ export function addUndoHandler(undoStack, elem, data, options = {}) {
                     let r = new Range();
                     r.setStart(end.node, end.offset);
 
-                    let c = document.createElement('span');
-                    c.className = 'caret-anchor';
+                    let c = document.createElement("span");
+                    c.className = "caret-anchor";
 
                     r.insertNode(c);
                 }
@@ -1503,7 +1548,7 @@ export function addUndoHandler(undoStack, elem, data, options = {}) {
         }
 
         let restoreCaret = () => {
-            let anchor = elem.getElementsByClassName('caret-anchor')[0];
+            let anchor = elem.getElementsByClassName("caret-anchor")[0];
             document.getSelection().setPosition(anchor, 0);
         };
 
@@ -1511,7 +1556,7 @@ export function addUndoHandler(undoStack, elem, data, options = {}) {
 
         let undo = undoStack.nextUndo();
         let addUndo = true;
-        if (undo?.type === 'html-edit') {
+        if (undo?.type === "html-edit") {
             // merge consecutive character inserts
             let charCount = end.offset - start.offset;
             let extendsEnd = start.equals(undo.data.end);
@@ -1527,7 +1572,7 @@ export function addUndoHandler(undoStack, elem, data, options = {}) {
         if (addUndo) {
             // TODO: merge oldText with newTexts
             undoStack.addUndoCmd({
-                type: 'html-edit',
+                type: "html-edit",
                 id: options.id,
                 data: {
                     start: start,
@@ -1548,14 +1593,13 @@ export function addUndoHandler(undoStack, elem, data, options = {}) {
                         updateData();
                         restoreCaret();
                     });
-                }
+                },
             });
         }
-
     };
 
-    let o = new MutationObserver(
-        (mList, o) => mList.forEach(mut => handleMutation(mut, o))
+    let o = new MutationObserver((mList, o) =>
+        mList.forEach((mut) => handleMutation(mut, o)),
     );
     observeEdits(o);
 
@@ -1567,7 +1611,7 @@ export function addUndoHandler(undoStack, elem, data, options = {}) {
 const sidebarMap = {
     "file-sidebar": "menu",
     "image-sidebar": "image-button",
-    "peer-sidebar": "peer-button"
+    "peer-sidebar": "peer-button",
 };
 
 export class sidebar {
@@ -1577,21 +1621,20 @@ export class sidebar {
         this.closeAll();
 
         this.sidebars.set(id, true);
-        document.getElementById(id).classList.add('visible');
-        document.getElementById(buttonId).classList.add('visible-button');
+        document.getElementById(id).classList.add("visible");
+        document.getElementById(buttonId).classList.add("visible-button");
     }
 
     static closeAll() {
         for (let [sidebarId, isOpen] of this.sidebars) {
-            if (isOpen)
-                this.close(sidebarId, sidebarMap[sidebarId]);
+            if (isOpen) this.close(sidebarId, sidebarMap[sidebarId]);
         }
     }
 
     static close(id, buttonId) {
         this.sidebars.set(id, false);
-        document.getElementById(id).classList.remove('visible');
-        document.getElementById(buttonId).classList.remove('visible-button');
+        document.getElementById(id).classList.remove("visible");
+        document.getElementById(buttonId).classList.remove("visible-button");
     }
 
     static toggle(id) {
@@ -1608,24 +1651,22 @@ export class sidebar {
     }
 }
 
-
 export function addImageListeners(cardsData) {
-    let openImgBtn = document.getElementById('load-img-button');
+    let openImgBtn = document.getElementById("load-img-button");
     openImgBtn.onclick = () => {
         const input = document.createElement("input");
         input.type = "file";
         input.accept = "image/*";
-        input.setAttribute('multiple', 'true');
+        input.setAttribute("multiple", "true");
 
         input.onchange = () => {
-            for (let file of input.files)
-                cardsData.addImage(-1, file);
+            for (let file of input.files) cardsData.addImage(-1, file);
         };
         input.click();
     };
 
-    let imgBtn = document.getElementById('image-button');
-    imgBtn.onclick = () => sidebar.toggle('image-sidebar');
+    let imgBtn = document.getElementById("image-button");
+    imgBtn.onclick = () => sidebar.toggle("image-sidebar");
 }
 
 // Add an x remove btn
@@ -1633,10 +1674,10 @@ export function addImageListeners(cardsData) {
 // onclick: callback before delete (return false to cancel delete)
 // awaitOnClick: true if should await the onclick callback
 export function addRemoveBtn(tag, onclick = null, awaitOnClick = false) {
-    tag.classList.add('delete-btn-parent');
+    tag.classList.add("delete-btn-parent");
 
-    let deleteBtn = document.createElement('button');
-    deleteBtn.className = 'delete-btn';
+    let deleteBtn = document.createElement("button");
+    deleteBtn.className = "delete-btn";
     deleteBtn.innerHTML = `
             <span class="material-symbols-outlined">
                 close
@@ -1646,13 +1687,10 @@ export function addRemoveBtn(tag, onclick = null, awaitOnClick = false) {
     deleteBtn.onclick = async (e) => {
         if (onclick) {
             let proceed;
-            if (awaitOnClick)
-                proceed = await onclick(e);
-            else
-                proceed = onclick(e);
+            if (awaitOnClick) proceed = await onclick(e);
+            else proceed = onclick(e);
 
-            if (proceed === false)
-                return;
+            if (proceed === false) return;
         }
         tag.remove();
     };
@@ -1661,29 +1699,28 @@ export function addRemoveBtn(tag, onclick = null, awaitOnClick = false) {
 }
 
 async function getSettings() {
-    let settings = await localforage.getItem('settings');
+    let settings = await localforage.getItem("settings");
 
-    if (settings === null)
-        settings = {};
-    if (settings.animations === undefined)
-        settings.animations = true;
+    if (settings === null) settings = {};
+    if (settings.animations === undefined) settings.animations = true;
     if (settings.defaultShape === undefined)
         settings.defaultShape = "rectangle";
-    if (settings.snapMargin === undefined)
-        settings.snapMargin = 3;
+    if (settings.snapMargin === undefined) settings.snapMargin = 3;
 
     return settings;
 }
 
 async function setSettings(settings) {
-    await localforage.setItem('settings', settings);
+    await localforage.setItem("settings", settings);
 }
 
 // tag: from settingsTag(), extract the JS object representation
 function extractSettings(tag) {
     let settings = {};
-    settings.animations = tag.querySelector('#enable-anims').checked;
-    settings.defaultShape = tag.querySelector("input[name='default-shape']:checked").value;
+    settings.animations = tag.querySelector("#enable-anims").checked;
+    settings.defaultShape = tag.querySelector(
+        "input[name='default-shape']:checked",
+    ).value;
     settings.snapMargin = tag.querySelector("#snap-margin").value;
     return settings;
 }
@@ -1694,12 +1731,10 @@ export async function loadSettings(tag = null) {
     if (tag) {
         settings = extractSettings(tag);
         await setSettings(settings);
-    }
-    else
-        settings = await getSettings();
+    } else settings = await getSettings();
 
-
-    document.getElementById('animations-stylesheet').disabled = !settings.animations;
+    document.getElementById("animations-stylesheet").disabled =
+        !settings.animations;
     window.settings = settings;
 }
 
@@ -1707,7 +1742,7 @@ export async function settingsTag() {
     let settings = await getSettings();
 
     let t = tag(
-        'div',
+        "div",
         `
             <fieldset>
                 <legend>Animations</legend>
@@ -1735,17 +1770,19 @@ export async function settingsTag() {
                 <span>pixels</span>
                 </div>
             </fieldset>
-        `
+        `,
     );
-    t.id = 'settings';
+    t.id = "settings";
 
     let snapMargin = t.querySelector("#snap-margin");
     snapMargin.value = settings.snapMargin;
 
-    let defaultShapeRadio = t.querySelector('#default-shape').querySelector(`#${settings.defaultShape}`);
+    let defaultShapeRadio = t
+        .querySelector("#default-shape")
+        .querySelector(`#${settings.defaultShape}`);
     defaultShapeRadio.setAttribute("checked", true);
 
-    let anims = t.querySelector('#enable-anims');
+    let anims = t.querySelector("#enable-anims");
     anims.checked = settings.animations;
 
     return t;
@@ -1753,9 +1790,9 @@ export async function settingsTag() {
 
 export class PeerManager {
     #makePeer() {
-        return new Peer('', {
+        return new Peer("", {
             secure: true,
-            debug: 1
+            debug: 1,
         });
     }
 
@@ -1763,15 +1800,15 @@ export class PeerManager {
         this.cardsData = cardsData;
         this.localSaver = localSaver;
 
-        this.collabTag = document.querySelector('#collab-link');
-        this.hostBtn = document.querySelector('#host-button');
-        this.peerList = document.querySelector('#peer-list');
-        this.peerCursors = document.querySelector('#peer-cursors');
+        this.collabTag = document.querySelector("#collab-link");
+        this.hostBtn = document.querySelector("#host-button");
+        this.peerList = document.querySelector("#peer-list");
+        this.peerCursors = document.querySelector("#peer-cursors");
         this.peerCursorColor = null;
 
         this.isLocalClose = false;
         this.localPeer = null;
-        this.peerName = '';
+        this.peerName = "";
 
         this.hosting = false;
         this.connected = false;
@@ -1781,40 +1818,43 @@ export class PeerManager {
         this.peerColors = new Map();
 
         let params = {};
-        let regex = /([^&=]+)=([^&]*)/g, m; // Check hash for query style key=val&key1=val1
+        let regex = /([^&=]+)=([^&]*)/g,
+            m; // Check hash for query style key=val&key1=val1
         let fragmentString = location.hash.substring(1);
-        while (m = regex.exec(fragmentString))
+        while ((m = regex.exec(fragmentString)))
             params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
 
-        this.hostId = params['hostId'];
+        this.hostId = params["hostId"];
         this.hostConn = null;
 
         if (this.hostId) {
             this.localPeer = this.#makePeer();
 
             let askUsername = async () => {
-                let onresolve = resolve => {
-                    let usernameInput = tag('input', '');
-                    usernameInput.placeholder = 'Username';
+                let onresolve = (resolve) => {
+                    let usernameInput = tag("input", "");
+                    usernameInput.placeholder = "Username";
                     usernameInput.onkeydown = (e) => {
                         if (e.key === "Enter")
-                            document.querySelector('#ok-peer-username').click();
+                            document.querySelector("#ok-peer-username").click();
                     };
 
-                    const btns = [{
-                        label: 'Ok',
-                        onclick: () => resolve(usernameInput.value),
-                        id: 'ok-peer-username'
-                    }];
+                    const btns = [
+                        {
+                            label: "Ok",
+                            onclick: () => resolve(usernameInput.value),
+                            id: "ok-peer-username",
+                        },
+                    ];
 
                     let peerNameDialog = new Dialog(
-                        'Collaboration',
-                        [tag('p', 'Choose a peer username.'), usernameInput],
+                        "Collaboration",
+                        [tag("p", "Choose a peer username."), usernameInput],
                         btns,
                         {
                             onshow: () => usernameInput.focus(),
-                            onclose: () => resolve(usernameInput.value)
-                        }
+                            onclose: () => resolve(usernameInput.value),
+                        },
                     );
                     peerNameDialog.show();
                 };
@@ -1822,24 +1862,25 @@ export class PeerManager {
                 return new Promise(onresolve);
             };
 
-            this.localPeer.on('open', async () => {
+            this.localPeer.on("open", async () => {
                 this.peerName = await askUsername();
-                this.hostConn = this.localPeer.connect(
-                    this.hostId, { label: this.peerName, reliable: true }
-                );
+                this.hostConn = this.localPeer.connect(this.hostId, {
+                    label: this.peerName,
+                    reliable: true,
+                });
 
-                this.hostConn.on('open', () => this.onHostOpen());
-                this.hostConn.on('data', (data) => this.onHostData(data));
+                this.hostConn.on("open", () => this.onHostOpen());
+                this.hostConn.on("data", (data) => this.onHostData(data));
             });
         }
     }
 
     resetUI() {
-        this.hostBtn.innerText = 'Host';
-        this.peerList.innerHTML = '';
-        this.collabTag.value = '';
-        document.querySelector('#local-peername').innerHTML = '';
-    };
+        this.hostBtn.innerText = "Host";
+        this.peerList.innerHTML = "";
+        this.collabTag.value = "";
+        document.querySelector("#local-peername").innerHTML = "";
+    }
 
     initListeners() {
         this.collabTag.onpointerdown = () => {
@@ -1852,146 +1893,144 @@ export class PeerManager {
             if (this.hosting) {
                 this.closeHost();
                 this.resetUI();
-            }
-            else if (this.connected) {
+            } else if (this.connected) {
                 this.isLocalClose = true;
                 this.connected = false;
                 this.hostConn.close();
                 this.resetUI();
-            }
-            else
-                this.host();
+            } else this.host();
         };
     }
 
     onUpdate(msgHandler) {
         let onchange = async (e) => {
-            if (e.detail.type != 'add')
-                return;
+            if (e.detail.type != "add") return;
 
             let cmd = e.detail.cmd;
             let isUndo = cmd.isUndo;
             let data = cmd.data;
             switch (cmd.type) {
-                case 'add-image': {
+                case "add-image": {
                     cmd = {
                         id: cmd.id,
                         type: cmd.type,
-                        arrBuff: await cmd.data.blob.arrayBuffer()
+                        arrBuff: await cmd.data.blob.arrayBuffer(),
                     };
                     break;
                 }
-                case 'add-card': {
+                case "add-card": {
                     cmd = {
                         id: cmd.id,
-                        type: isUndo ? cmd.type : 'delete-card',
+                        type: isUndo ? cmd.type : "delete-card",
                         card: isUndo ? cmd.data.card.serialise() : undefined,
-                        links: isUndo ? cmd.data.links : undefined
+                        links: isUndo ? cmd.data.links : undefined,
                     };
                     break;
                 }
-                case 'delete-card': {
+                case "delete-card": {
                     cmd = {
                         id: cmd.id,
-                        type: isUndo ? cmd.type : 'add-card',
+                        type: isUndo ? cmd.type : "add-card",
                         card: isUndo ? undefined : cmd.data.card.serialise(),
-                        links: isUndo ? undefined : cmd.data.links
+                        links: isUndo ? undefined : cmd.data.links,
                     };
                     break;
                 }
-                case 'card-bounds': {
+                case "card-bounds": {
                     cmd = {
                         id: cmd.id,
                         type: cmd.type,
-                        bounds: isUndo ? data.newBounds : data.oldBounds
+                        bounds: isUndo ? data.newBounds : data.oldBounds,
                     };
                     break;
                 }
-                case 'card-color': {
+                case "card-color": {
                     cmd = {
                         id: cmd.id,
                         type: cmd.type,
-                        color: isUndo ? data.newColor : data.oldColor
+                        color: isUndo ? data.newColor : data.oldColor,
                     };
                     break;
                 }
-                case 'add-link': {
+                case "add-link": {
                     cmd = {
-                        type: isUndo ? 'add-link' : 'delete-link',
-                        id: cmd.id
+                        type: isUndo ? "add-link" : "delete-link",
+                        id: cmd.id,
                     };
                     break;
                 }
-                case 'delete-link': {
+                case "delete-link": {
                     cmd = {
-                        type: isUndo ? 'delete-link' : 'add-link',
-                        id: cmd.id
+                        type: isUndo ? "delete-link" : "add-link",
+                        id: cmd.id,
                     };
                     break;
                 }
-                case 'html-edit': {
+                case "html-edit": {
                     cmd = {
                         id: cmd.id,
                         type: cmd.type,
-                        text: isUndo ? data.text : data.oldText
+                        text: isUndo ? data.text : data.oldText,
                     };
                     break;
                 }
             }
 
             msgHandler({
-                type: 'edit-update',
-                cmd: cmd
+                type: "edit-update",
+                cmd: cmd,
             });
         };
         let onCursorPos = () => {
             const pos = window.camera.globalCoords(window.camera.mousePos);
-            msgHandler({ type: 'mouse', data: { id: this.localPeer.id, pos: pos } });
+            msgHandler({
+                type: "mouse",
+                data: { id: this.localPeer.id, pos: pos },
+            });
         };
 
-        document.addEventListener('pointermove', onCursorPos);
-        this.cardsData.undoRedoStack.addEventListener('change', onchange);
+        document.addEventListener("pointermove", onCursorPos);
+        this.cardsData.undoRedoStack.addEventListener("change", onchange);
     }
 
     handleEditMsg(data) {
         let cmd = data.cmd;
         switch (cmd.type) {
-            case 'add-image': {
+            case "add-image": {
                 let img = new Blob([cmd.arrBuff]);
                 this.cardsData.addImage(cmd.id, img, false);
                 break;
             }
-            case 'add-card': {
+            case "add-card": {
                 let card = CardObject.deserialise(cmd.card);
                 this.cardsData.restoreCard(cmd.id, card, cmd.links);
                 break;
             }
-            case 'delete-card': {
+            case "delete-card": {
                 this.cardsData.deleteCard(cmd.id, false);
                 break;
             }
-            case 'card-bounds': {
+            case "card-bounds": {
                 this.cardsData.updateCardBounds(cmd.id, cmd.bounds);
                 break;
             }
-            case 'card-color': {
+            case "card-color": {
                 this.cardsData.setCardColor(cmd.id, cmd.color);
                 break;
             }
-            case 'add-link':
-            case 'delete-link': {
-                let delim = cmd.id.indexOf('_');
+            case "add-link":
+            case "delete-link": {
+                let delim = cmd.id.indexOf("_");
                 let start = cmd.id.substring(0, delim);
                 let end = cmd.id.substring(delim + 1);
 
-                if (cmd.type.startsWith('add'))
+                if (cmd.type.startsWith("add"))
                     this.cardsData.addLink(start, end);
-                else
-                    this.cardsData.deleteLink(start, end, false);
+                else this.cardsData.deleteLink(start, end, false);
 
                 break;
             }
-            case 'html-edit': {
+            case "html-edit": {
                 // Assume card-{id}
                 let id = cmd.id.substring(5);
 
@@ -2003,11 +2042,13 @@ export class PeerManager {
                     let content = getCardContent(id);
                     content.innerHTML = html;
 
-                    for (let img of content.getElementsByClassName('card-image')) {
+                    for (let img of content.getElementsByClassName(
+                        "card-image",
+                    )) {
                         let imageId = null;
 
                         for (let name of img.classList) {
-                            if (name.startsWith('image-')) {
+                            if (name.startsWith("image-")) {
                                 imageId = name;
                                 break;
                             }
@@ -2032,12 +2073,15 @@ export class PeerManager {
     }
 
     addPeerCursor(label, peerId, color) {
-        const mouseContainer = tag('div', `
+        const mouseContainer = tag(
+            "div",
+            `
         <div class="peer-cursor-label">${label}</div>
         <div class="peer-cursor" style="background-color: ${color}"></div>
-    `);
+    `,
+        );
         mouseContainer.id = `cursor-${peerId}`;
-        mouseContainer.className = 'cursor-con';
+        mouseContainer.className = "cursor-con";
 
         this.peerCursors.appendChild(mouseContainer);
     }
@@ -2052,12 +2096,11 @@ export class PeerManager {
         this.addPeerCursor(peerDesc.label, peerDesc.id, peerDesc.color);
         let listId = `peer-${peerDesc.id}`;
 
-        let list = tag('li', '');
+        let list = tag("li", "");
         list.id = listId;
         list.style.color = peerDesc.color;
         list.innerText = peerDesc.label;
-        if (peerDesc.id === this.hostId)
-            list.style.fontStyle = 'italic';
+        if (peerDesc.id === this.hostId) list.style.fontStyle = "italic";
         this.peerList.appendChild(list);
     }
 
@@ -2074,35 +2117,36 @@ export class PeerManager {
         this.peerCursorColor = new Rainbow();
 
         this.hosting = true;
-        this.hostBtn.innerText = 'Stop Hosting';
+        this.hostBtn.innerText = "Stop Hosting";
 
-        this.localPeer.on('open', () => {
-            this.collabTag.value = window.location.origin + window.location.pathname + `#hostId=${this.localPeer.id}`;
-            this.onUpdate(msg => {
-                for (let conn of this.connections.values())
-                    conn.send(msg);
+        this.localPeer.on("open", () => {
+            this.collabTag.value =
+                window.location.origin +
+                window.location.pathname +
+                `#hostId=${this.localPeer.id}`;
+            this.onUpdate((msg) => {
+                for (let conn of this.connections.values()) conn.send(msg);
             });
         });
 
-        this.localPeer.on('connection', (conn) => this.onNewPeer(conn));
-        window.addEventListener('beforeunload', () => this.localPeer.destroy());
+        this.localPeer.on("connection", (conn) => this.onNewPeer(conn));
+        window.addEventListener("beforeunload", () => this.localPeer.destroy());
     }
 
     onPeerData(data, senderId) {
         switch (data.type) {
-            case 'edit-update': {
+            case "edit-update": {
                 this.handleEditMsg(data);
                 break;
             }
-            case 'mouse': {
+            case "mouse": {
                 this.handleMouse(data);
                 break;
             }
         }
 
         for (let conn of this.connections.values()) {
-            if (conn.peer == senderId)
-                continue;
+            if (conn.peer == senderId) continue;
 
             conn.send(data);
         }
@@ -2116,10 +2160,14 @@ export class PeerManager {
         let data = { id: id, label: label, color: color };
         this.addPeer(data);
 
-        let peers = [{ id: this.localPeer.id, label: 'Host', color: 'gray' }];
+        let peers = [{ id: this.localPeer.id, label: "Host", color: "gray" }];
         for (let [id, conn] of this.connections.entries()) {
-            conn.send({ type: 'new-peer', data: data });
-            peers.push({ id: conn.peer, label: conn.label, color: this.peerColors.get(id) });
+            conn.send({ type: "new-peer", data: data });
+            peers.push({
+                id: conn.peer,
+                label: conn.label,
+                color: this.peerColors.get(id),
+            });
         }
 
         this.connections.set(id, newConn);
@@ -2127,31 +2175,30 @@ export class PeerManager {
 
         let removeConn = () => {
             for (let conn of this.connections.values())
-                conn.send({ type: 'delete-peer', data: data });
+                conn.send({ type: "delete-peer", data: data });
 
             this.connections.delete(id);
             this.removePeer(id);
         };
-        newConn.on('disconnected', () => removeConn());
-        newConn.on('close', () => removeConn());
+        newConn.on("disconnected", () => removeConn());
+        newConn.on("close", () => removeConn());
 
-        newConn.on('open', async () => {
+        newConn.on("open", async () => {
             newConn.send({
-                type: 'init-cards-data',
-                data: await this.cardsData.genSave()
+                type: "init-cards-data",
+                data: await this.cardsData.genSave(),
             });
-            newConn.send({ type: 'new-peers', data: peers });
-            newConn.send({ type: 'your-color', data: color });
+            newConn.send({ type: "new-peers", data: peers });
+            newConn.send({ type: "your-color", data: color });
         });
 
-        newConn.on('data', data => this.onPeerData(data, id));
+        newConn.on("data", (data) => this.onPeerData(data, id));
     }
 
     closeHost() {
         this.hosting = false;
 
-        for (let dataConn of this.connections.values())
-            dataConn.close();
+        for (let dataConn of this.connections.values()) dataConn.close();
 
         this.localPeer.destroy();
     }
@@ -2164,68 +2211,71 @@ export class PeerManager {
         this.collabTag.value = window.location;
 
         let hostCloseDialog = new Dialog(
-            'Host Closed', tag('p', `
+            "Host Closed",
+            tag(
+                "p",
+                `
              The host has closed the collaboration session.<br>
              You can continue working on your local copy.
-            `)
+            `,
+            ),
         );
-        this.hostConn.on('disconnected', () => {
+        this.hostConn.on("disconnected", () => {
             this.removePeer(this.hostId);
-            if (!this.isLocalClose)
-                hostCloseDialog.show();
+            if (!this.isLocalClose) hostCloseDialog.show();
 
             this.connected = false;
             this.resetUI();
         });
-        this.hostConn.on('close', () => {
+        this.hostConn.on("close", () => {
             this.removePeer(this.hostId);
-            if (!this.isLocalClose)
-                hostCloseDialog.show();
+            if (!this.isLocalClose) hostCloseDialog.show();
 
             this.connected = false;
             this.resetUI();
         });
 
-        this.onUpdate(msg => this.hostConn.send(msg));
+        this.onUpdate((msg) => this.hostConn.send(msg));
 
-        window.addEventListener('beforeunload', () => this.localPeer.destroy());
-        let localName = document.querySelector('#local-peername');
+        window.addEventListener("beforeunload", () => this.localPeer.destroy());
+        let localName = document.querySelector("#local-peername");
         localName.innerHTML = `Username: <span></span>`;
-        localName.querySelector('i').innerText = this.peerName;
+        localName.querySelector("i").innerText = this.peerName;
     }
 
     async onHostData(data) {
         let d = data.data;
         switch (data.type) {
-            case 'edit-update': {
+            case "edit-update": {
                 this.handleEditMsg(data);
                 break;
             }
-            case 'mouse': {
+            case "mouse": {
                 this.handleMouse(data);
                 break;
             }
-            case 'init-cards-data': {
+            case "init-cards-data": {
                 this.cardsData.loadSave(d);
                 this.cardsData.updateHTML(false);
                 await this.localSaver.save();
                 break;
             }
-            case 'new-peers': {
-                for (let desc of d)
-                    this.addPeer(desc);
+            case "new-peers": {
+                for (let desc of d) this.addPeer(desc);
                 break;
             }
-            case 'new-peer': {
+            case "new-peer": {
                 this.addPeer(d);
                 break;
             }
-            case 'delete-peer': {
+            case "delete-peer": {
                 this.removePeer(d.id);
                 break;
             }
-            case 'your-color': {
-                document.querySelector('#local-peername').querySelector('span').style.color = d;
+            case "your-color": {
+                document
+                    .querySelector("#local-peername")
+                    .querySelector("span").style.color = d;
                 break;
             }
         }
@@ -2254,13 +2304,14 @@ export class TouchHandler extends EventTarget {
         }
 
         if (this.evCache.length === 2) {
-            let e1 = this.evCache[0], e2 = this.evCache[1];
+            let e1 = this.evCache[0],
+                e2 = this.evCache[1];
             let p = vec2(e1.clientX, e1.clientY);
             let dist = p.dist(e2.clientX, e2.clientY);
             if (this.prevDist > 0) {
                 let delta = dist - this.prevDist;
-                let event = newEvent('zoom', {
-                    delta: delta
+                let event = newEvent("zoom", {
+                    delta: delta,
                 });
                 this.dispatchEvent(event);
             }
@@ -2284,7 +2335,9 @@ export class TouchHandler extends EventTarget {
         }
     }
 
-    isPinchZoom() { return this.evCache.length === 2 && this.prevDist > 0; }
+    isPinchZoom() {
+        return this.evCache.length === 2 && this.prevDist > 0;
+    }
 }
 
 export function updateColorIconColor(color) {
@@ -2300,6 +2353,6 @@ export function updateColorIconColor(color) {
     let iconColor = whiteDist >= blackDist ? "white" : "black";
     document.documentElement.style.setProperty(
         "--color-edit-icon-color",
-        iconColor
+        iconColor,
     );
-};
+}
