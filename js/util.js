@@ -481,14 +481,32 @@ function drawLinkTriangle(ctx, pos, angle) {
     drawTriangle(ctx, pos, angle, linkTriangleRadius * window.camera.zoom);
 }
 
-function controlPointsUnidir(angle, startPos, endPos) {
-    let cp = [];
-    const halfWayX = startPos.x / 2 + endPos.x / 2;
-    const halfWayY = startPos.y / 2 + endPos.y / 2;
-    cp[0] = vec2(halfWayX, halfWayY);
-    cp[1] = vec2(halfWayX, halfWayY);
+// Straight line
+// function controlPointsUnidir(angle, startPos, endPos) {
+//     let cp = [];
+//     const halfWayX = startPos.x / 2 + endPos.x / 2;
+//     const halfWayY = startPos.y / 2 + endPos.y / 2;
+//     cp[0] = vec2(halfWayX, halfWayY);
+//     cp[1] = vec2(halfWayX, halfWayY);
 
-    return cp;
+//     return cp;
+// }
+
+// Control points for a unidirectional link (cubic bezier).
+// angle: side of the start card the link leaves from (0 = top, 90 = right,
+//        180 = bottom, 270 = left, clockwise positive)
+// Returns [cp0, cp1]
+function controlPointsUnidir(angle, startPos, endPos) {
+    const rad = degreesToRadians(angle);
+    const dir = vec2(Math.sin(rad), -Math.cos(rad));
+
+    const dist = startPos.dist(endPos.x, endPos.y);
+    const reach = dist * 0.4;
+
+    const cp0 = vec2(startPos.x + dir.x * reach, startPos.y + dir.y * reach);
+    const cp1 = vec2(endPos.x - dir.x * reach, endPos.y - dir.y * reach);
+
+    return [cp0, cp1];
 }
 
 // angle 90:       /-12-\
