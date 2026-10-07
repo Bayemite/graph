@@ -24,11 +24,11 @@ button:hover,
     filter: brightness(0.5);
 }
 
-#undo-redo-buttons>button:not([data-no-action=true]):hover span {
+#undo-redo-buttons > button:not([data-no-action="true"]):hover span {
     color: var(--background-color);
 }
 
-#undo-redo-buttons>button[data-no-action=true]:hover {
+#undo-redo-buttons > button[data-no-action="true"]:hover {
     background: none;
 }
 
@@ -42,7 +42,8 @@ body {
 
 button,
 .label {
-    transition: 0.5s background cubic-bezier(0, 0.96, 0, 0.99),
+    transition:
+        0.5s background cubic-bezier(0, 0.96, 0, 0.99),
         0.5s,
         visibility 0s;
 }
@@ -59,27 +60,37 @@ button,
     transition: 0.6s font-size cubic-bezier(0, 0.5, 0, 0.99);
 }
 
-
 #peer-container {
-    transition: left 0.4s cubic-bezier(0.75, 0, 0.25, 1), transform 0.4s cubic-bezier(0.75, 0, 0.25, 1);
+    transition:
+        left 0.4s cubic-bezier(0.75, 0, 0.25, 1),
+        transform 0.4s cubic-bezier(0.75, 0, 0.25, 1);
 }
 
 .break-link-button {
-    transition: 0.2s opacity, 0.1s transform, 0s left, top;
+    transition:
+        0.2s opacity,
+        0.1s transform,
+        0s left,
+        top;
 }
 
 .dialog-button-container {
-    transition: margin-left 0s, transform 0s, all 0.5s;
+    transition:
+        margin-left 0s,
+        transform 0s,
+        all 0.5s;
 }
 
 #file-sidebar,
 #image-sidebar,
 #peer-sidebar,
 #image-sidebar-content img {
-    transition: 0.3s, visibility 0s;
+    transition:
+        0.3s,
+        visibility 0s;
 }
 
-#undo-redo-buttons>button span {
+#undo-redo-buttons > button span {
     transition: color 0.3s;
 }
 
@@ -119,7 +130,6 @@ button,
 }
 
 @keyframes connection {
-
     /* at 0, opacity 0 */
     0% {
         opacity: 0;
@@ -135,21 +145,25 @@ button,
 
 @keyframes dialog {
     0% {
-        transform: scale(0);
+        transform: scale(0.7);
+        opacity: 0;
     }
 
     100% {
         transform: scale(1);
+        opacity: 1;
     }
 }
 
 @keyframes dialog-remove {
     0% {
         transform: scale(1);
+        opacity: 1;
     }
 
     100% {
-        transform: scale(0);
+        transform: scale(0.7);
+        opacity: 0;
     }
 }
 
@@ -194,7 +208,7 @@ button,
 }
 
 .dialog-remove {
-    animation: 0.2s dialog-remove cubic-bezier(0.075, 0.82, 0.165, 1);
+    animation: 0.5s dialog-remove cubic-bezier(0.075, 0.8, 0.165, 0.9);
     animation-fill-mode: forwards;
 }
 
@@ -202,7 +216,7 @@ button,
     animation: resizeScaleIn 0.2s cubic-bezier(0.075, 0.9, 0.165, 1);
 }
 
-.actions>.clr-field {
+.actions > .clr-field {
     transform: scale(0);
     animation: actionsScaleIn 0.2s forwards;
     animation-delay: 0.15s;
