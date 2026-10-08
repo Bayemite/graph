@@ -239,3 +239,20 @@ button,
 .clr-open {
     animation: open 0.2s ease;
 }
+
+#format-toolbar {
+    transition:
+        opacity 0.2s ease,
+        transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.2),
+        visibility 0s linear 0.25s; /* delay hiding until the fade-out finishes */
+}
+
+#format-toolbar.visible {
+    transition-delay: 0s;
+}
+
+#format-toolbar button {
+    transition:
+        background 0.15s ease,
+        color 0.15s ease;
+}

@@ -1,20 +1,20 @@
-import * as util from './util.js';
-import * as card from './cards.js';
+import * as util from "./util.js";
+import * as card from "./cards.js";
 
-let visited = localStorage.getItem('visited');
+let visited = localStorage.getItem("visited");
 if (visited == null) {
-    localStorage.setItem('visited', 'true');
+    localStorage.setItem("visited", "true");
 
     const initDialog = new util.Dialog(
-        'Under Development',
+        "Under Development",
         util.tag(
-            'p',
+            "p",
             `This mindmapping website is under development!<br>
             Some features may not be available or may not function properly.<br>
             You can follow along at <a style="overflow-wrap: anywhere;"
-            href="https://github.com/bayemite/graph">https://github.com/bayemite/graph</a>.`
+            href="https://github.com/bayemite/graph">https://github.com/bayemite/graph</a>.`,
         ),
-        'OK'
+        "OK",
     );
     initDialog.show();
 }
@@ -23,8 +23,8 @@ window.onload = async () => {
     Coloris({ clearButton: false });
     await util.loadSettings();
 
-    let canvasTag = document.getElementById('canvas');
-    let dashboardTag = document.querySelector('#file-sidebar-content');
+    let canvasTag = document.getElementById("canvas");
+    let dashboardTag = document.querySelector("#file-sidebar-content");
 
     let cardsData = new card.CardsData();
     window.camera = new util.Camera(cardsData);
@@ -46,102 +46,102 @@ window.onload = async () => {
 
 function mobileSidebarListeners() {
     let open = false;
-    document.querySelector('#left-sidebar-mobile-open').onclick = () => {
+    document.querySelector("#left-sidebar-mobile-open").onclick = () => {
         open = !open;
-        let visible = open ? 'visible' : 'hidden';
-        let sidebars = document.getElementsByClassName('sidebar');
+        let visible = open ? "visible" : "hidden";
+        let sidebars = document.getElementsByClassName("sidebar");
 
-        for (let s of sidebars)
-            s.style.visibility = visible;
+        for (let s of sidebars) s.style.visibility = visible;
     };
 }
 
 function initListeners(canvas, cardsData, localSaver) {
     localSaver.addLocalSaveListeners();
     localSaver.loadDashboardListener();
+    util.addFormatListeners();
 
-    document.getElementById('menu').onclick = () => util.sidebar.toggle('file-sidebar');
+    document.getElementById("menu").onclick = () =>
+        util.sidebar.toggle("file-sidebar");
     util.addImageListeners(cardsData);
-    document.getElementById('peer-button').onclick = () => util.sidebar.toggle('peer-sidebar');
+    util.addLinkDisplayListener();
+    document.getElementById("peer-button").onclick = () =>
+        util.sidebar.toggle("peer-sidebar");
 
-    let themeBtn = document.getElementById('theme-button');
+    let themeBtn = document.getElementById("theme-button");
     themeBtn.onclick = () => {
         let theme = util.getTheme();
         themeBtn.querySelector("span").innerHTML = `
             ${theme}_mode
         `;
-        theme = theme == 'dark' ? 'light' : 'dark';
+        theme = theme == "dark" ? "light" : "dark";
         util.setTheme(theme);
         util.updateTheme(cardsData);
     };
 
-    document.getElementById('settings-button').onclick = async () => {
+    document.getElementById("settings-button").onclick = async () => {
         let tag = await util.settingsTag();
 
-        let settingsDialog = new util.Dialog(
-            'Settings',
-            tag,
-            [
-                { label: 'Cancel' },
-                { label: 'Ok', onclick: () => util.loadSettings(tag) }
-            ]
-        );
+        let settingsDialog = new util.Dialog("Settings", tag, [
+            { label: "Cancel" },
+            { label: "Ok", onclick: () => util.loadSettings(tag) },
+        ]);
         settingsDialog.show();
     };
 
     util.addExternSaveFileListeners(cardsData, localSaver);
 
-    document.getElementById('new-button').onclick = async () => {
+    document.getElementById("new-button").onclick = async () => {
         let id = await localSaver.createNewSave();
         window.location.href = `index.html?id=${id}`;
     };
 
-    document.getElementById('undo-button').onclick = () => cardsData.undo();
-    document.getElementById('redo-button').onclick = () => cardsData.redo();
-    document.getElementById('title').onchange = (e) => {
+    document.getElementById("undo-button").onclick = () => cardsData.undo();
+    document.getElementById("redo-button").onclick = () => cardsData.redo();
+    document.getElementById("title").onchange = (e) => {
         cardsData.title = e.target.value;
-        cardsData.undoRedoStack.dispatchChange({ type: 'title-change' });
+        cardsData.undoRedoStack.dispatchChange({ type: "title-change" });
     };
 
     function resize() {
         util.setCanvasSize(canvas);
     }
     resize();
-    window.addEventListener('resize', resize);
+    window.addEventListener("resize", resize);
 
-    document.addEventListener('keydown', (event) => {
+    document.addEventListener("keydown", (event) => {
         switch (event.key) {
-            case 'Escape': {
+            case "Escape": {
                 cardsData.endLink(null, false);
                 break;
             }
-            case 'Delete': {
+            case "Delete": {
                 let id = cardsData.focusCardID;
-                if (id == -1)
-                    break;
+                if (id == -1) break;
                 let cardTag = card.getCardTag(id);
-                if (document.activeElement == cardTag.querySelector('.text'))
+                if (document.activeElement == cardTag.querySelector(".text"))
                     break;
                 cardsData.focusCard(-1);
-                if (id != -1)
-                    cardsData.deleteCard(id);
+                if (id != -1) cardsData.deleteCard(id);
                 break;
             }
-            case 'n': {
+            case "n": {
                 if (event.altKey) {
                     const camera = window.camera;
-                    cardsData.addDefaultCardHtml(camera.globalCoords(camera.mousePos), true);
+                    cardsData.addDefaultCardHtml(
+                        camera.globalCoords(camera.mousePos),
+                        true,
+                    );
                 }
                 break;
             }
-            case 'y': {
+            case "y": {
                 if (event.ctrlKey) {
                     cardsData.redo();
                     event.preventDefault();
                 }
                 break;
             }
-            case 'z': {
+            case "z": {
                 if (event.ctrlKey) {
                     cardsData.undo();
                     event.preventDefault();
@@ -151,22 +151,25 @@ function initListeners(canvas, cardsData, localSaver) {
         }
     });
 
-    const magicClipboardNum = 'card-clipboard-object-magic-num';
-    document.addEventListener('copy', (event) => {
+    const magicClipboardNum = "card-clipboard-object-magic-num";
+    document.addEventListener("copy", (event) => {
         let id = cardsData.focusCardID;
 
         if (id != -1 && document.activeElement === document.body) {
             let obj = cardsData.get(id).serialise();
             obj.magicClipboardNum = magicClipboardNum;
-            event.clipboardData.setData('application/json', JSON.stringify(obj));
+            event.clipboardData.setData(
+                "application/json",
+                JSON.stringify(obj),
+            );
             event.preventDefault();
         }
     });
 
-    document.addEventListener('paste', (event) => {
+    document.addEventListener("paste", (event) => {
         if (document.activeElement !== document.body) return;
 
-        let data = event.clipboardData.getData('application/json');
+        let data = event.clipboardData.getData("application/json");
         let obj = JSON.parse(data);
         if (!obj || obj.magicClipboardNum !== magicClipboardNum) {
             return;
@@ -175,14 +178,20 @@ function initListeners(canvas, cardsData, localSaver) {
 
         let id = cardsData.cardIds.getNextId();
         obj.pos = window.camera.globalCoords(window.camera.mousePos);
-        cardsData.restoreCard(id, card.CardObject.deserialise(obj), [], true, true);
+        cardsData.restoreCard(
+            id,
+            card.CardObject.deserialise(obj),
+            [],
+            true,
+            true,
+        );
     });
 
     let linksSvg = util.getLinksContainer();
     window.touchHandler = new util.TouchHandler();
     let touchHandler = window.touchHandler;
 
-    linksSvg.addEventListener('pointerdown', e => {
+    linksSvg.addEventListener("pointerdown", (e) => {
         touchHandler.onpointerdown(e);
         cardsData.focusCard(-1);
         util.sidebar.closeAll();
@@ -196,57 +205,68 @@ function initListeners(canvas, cardsData, localSaver) {
                 let centerOrigin = true;
                 let id = cardsData.addDefaultCardHtml(pos, centerOrigin);
                 cardsData.endLink(id);
-            }
-            else cardsData.linkInProgress = false;
+            } else cardsData.linkInProgress = false;
         }
     });
 
-    let dblClick = false, dblClickTimer = null;
-    linksSvg.addEventListener('click', (e) => {
+    let dblClick = false,
+        dblClickTimer = null;
+    linksSvg.addEventListener("click", (e) => {
         const dblClickMargin = 100;
         let round = (a) => Math.ceil(a / dblClickMargin) * dblClickMargin;
         let pos = util.vec2(round(e.pageX), round(e.pageY));
 
         clearTimeout(dblClickTimer);
-        dblClickTimer = setTimeout(() => dblClick = false, 500);
+        dblClickTimer = setTimeout(() => (dblClick = false), 500);
         if (dblClick && dblClick.equals(pos)) {
             const camera = window.camera;
-            cardsData.addDefaultCardHtml(camera.globalCoords(camera.mousePos), true);
+            cardsData.addDefaultCardHtml(
+                camera.globalCoords(camera.mousePos),
+                true,
+            );
             dblClick = false;
-        }
-        else
-            dblClick = pos;
+        } else dblClick = pos;
     });
 
-    document.addEventListener('pointerup', e => {
+    document.addEventListener("pointerup", (e) => {
         touchHandler.onpointerup(e);
         window.camera.onPointerUp();
     });
 
-    document.addEventListener('pointercancel', e => touchHandler.onpointerup(e));
-    document.addEventListener('pointerout', e => touchHandler.onpointerup(e));
-    document.addEventListener('pointerleave', e => touchHandler.onpointerup(e));
+    document.addEventListener("pointercancel", (e) =>
+        touchHandler.onpointerup(e),
+    );
+    document.addEventListener("pointerout", (e) => touchHandler.onpointerup(e));
+    document.addEventListener("pointerleave", (e) =>
+        touchHandler.onpointerup(e),
+    );
 
-    document.addEventListener('pointermove', e => {
+    document.addEventListener("pointermove", (e) => {
         touchHandler.onpointermove(e);
         cardsData.moveElem(e);
         if (!touchHandler.isPinchZoom())
             window.camera.onPointerMove(util.vec2(e.pageX, e.pageY));
     });
 
-    document.querySelector('#content').addEventListener('wheel',
+    document.querySelector("#content").addEventListener(
+        "wheel",
         (event) => {
             event.preventDefault();
             window.camera.onWheel(event);
-        }, { passive: false }
+        },
+        { passive: false },
     );
 
-    linksSvg.addEventListener('wheel',
+    linksSvg.addEventListener(
+        "wheel",
         (event) => {
             event.preventDefault();
             window.camera.onWheel(event);
-        }, { passive: false }
+        },
+        { passive: false },
     );
 
-    touchHandler.addEventListener('zoom', e => window.camera.doZoom(e.detail.delta * 4));
-};
+    touchHandler.addEventListener("zoom", (e) =>
+        window.camera.doZoom(e.detail.delta * 4),
+    );
+}

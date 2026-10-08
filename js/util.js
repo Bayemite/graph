@@ -629,6 +629,7 @@ function drawLink(cardsData, rootId, endId) {
     }
 
     let unlinkTagPos, triangleAngle;
+    let tangentAngle = null;
     const bidirectional =
         endId != rootId && cardsData.get(endId).connections.has(rootId);
     const angle = Math.atan2(endPos.y - root.pos.y, endPos.x - root.pos.x);
@@ -664,11 +665,16 @@ function drawLink(cardsData, rootId, endId) {
 
         unlinkTagPos = cp[0].add(cp[1]).div(2);
         triangleAngle = 30;
+
+        // Tangent of the bezier at t = 0.5 is proportional to P3 + P2 - P1 - P0
+        const tx = endPos.x + cp[1].x - cp[0].x - root.pos.x;
+        const ty = endPos.y + cp[1].y - cp[0].y - root.pos.y;
+        tangentAngle = Math.atan2(ty, tx);
     }
 
     let tri = triPoints(
         unlinkTagPos,
-        radiansToDegrees(angle) - triangleAngle,
+        radiansToDegrees(tangentAngle ?? angle) - triangleAngle,
         linkTriangleRadius / window.camera.zoom,
     );
     linkTri.setAttribute(
@@ -1685,6 +1691,73 @@ export function addImageListeners(cardsData) {
 
     let imgBtn = document.getElementById("image-button");
     imgBtn.onclick = () => sidebar.toggle("image-sidebar");
+}
+
+export function addLinkDisplayListener() {
+    const btn = document.getElementById("link-display-button");
+    const span = btn.querySelector("span");
+
+    btn.onclick = () => {
+        const hidden = document.body.classList.toggle("hide-break-links");
+        // Optional: highlight the sidebar button while the break buttons are hidden
+        btn.classList.toggle("visible-button", hidden);
+
+        if (span.innerText == "insert_link") {
+            span.innerText = "link_off";
+        } else {
+            span.innerText = "insert_link";
+        }
+    };
+}
+
+export function addFormatListeners() {
+    const toolbar = document.getElementById("format-toolbar");
+
+    // Keep focus and selection in the card while clicking toolbar buttons
+    toolbar.addEventListener("mousedown", (e) => e.preventDefault());
+
+    toolbar.addEventListener("click", (e) => {
+        const btn = e.target.closest("button[data-cmd]");
+        if (!btn || !document.activeElement?.isContentEditable) return;
+        document.execCommand(btn.dataset.cmd);
+        updateFormatState(toolbar);
+    });
+
+    const refresh = () => {
+        const editing = document.activeElement?.isContentEditable ?? false;
+        toolbar.classList.toggle("visible", editing);
+        if (editing) updateFormatState(toolbar);
+    };
+
+    document.addEventListener("selectionchange", refresh);
+    document.addEventListener("focusin", refresh);
+    // Wait a tick so activeElement has settled on its new target
+    document.addEventListener("focusout", () => setTimeout(refresh, 0));
+
+    // Clicking anywhere outside the editor and toolbar (e.g. the background)
+    // ends editing. Capture phase so other handlers can't swallow the event.
+    document.addEventListener(
+        "pointerdown",
+        (e) => {
+            const active = document.activeElement;
+            if (!active?.isContentEditable) return;
+            if (toolbar.contains(e.target) || active.contains(e.target)) return;
+            active.blur();
+            setTimeout(refresh, 0);
+        },
+        true,
+    );
+}
+
+function updateFormatState(toolbar) {
+    for (const btn of toolbar.querySelectorAll("button[data-cmd]")) {
+        // removeFormat is an action, not a toggle state
+        if (btn.dataset.cmd === "removeFormat") continue;
+        btn.classList.toggle(
+            "active",
+            document.queryCommandState(btn.dataset.cmd),
+        );
+    }
 }
 
 // Add an x remove btn

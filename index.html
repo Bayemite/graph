@@ -55,6 +55,11 @@
                 </span>
             </button>
             <div class="sidebar-bottom">
+                <button class="sidebar-button sb" id="link-display-button">
+                    <span class="material-symbols-outlined">
+                        insert_link
+                    </span>
+                </button>
                 <button class="sidebar-button sb" id="theme-button">
                     <span class="material-symbols-outlined">
                         light_mode
@@ -119,6 +124,28 @@
         </div>
         <canvas id="snapshot-canvas"></canvas>
         <img id="snapshot-img">
+
+        <div id="format-toolbar">
+            <div class="fmt-group">
+                <button data-cmd="bold" title="Bold (Ctrl+B)"><span class="material-symbols-outlined">format_bold</span></button>
+                <button data-cmd="italic" title="Italic (Ctrl+I)"><span class="material-symbols-outlined">format_italic</span></button>
+                <button data-cmd="underline" title="Underline (Ctrl+U)"><span class="material-symbols-outlined">format_underlined</span></button>
+                <button data-cmd="strikeThrough" title="Strikethrough"><span class="material-symbols-outlined">format_strikethrough</span></button>
+            </div>
+            <div class="fmt-group">
+                <button data-cmd="justifyLeft" title="Align left"><span class="material-symbols-outlined">format_align_left</span></button>
+                <button data-cmd="justifyCenter" title="Align center"><span class="material-symbols-outlined">format_align_center</span></button>
+                <button data-cmd="justifyRight" title="Align right"><span class="material-symbols-outlined">format_align_right</span></button>
+                <button data-cmd="justifyFull" title="Justify"><span class="material-symbols-outlined">format_align_justify</span></button>
+            </div>
+            <div class="fmt-group">
+                <button data-cmd="insertUnorderedList" title="Bulleted list"><span class="material-symbols-outlined">format_list_bulleted</span></button>
+                <button data-cmd="insertOrderedList" title="Numbered list"><span class="material-symbols-outlined">format_list_numbered</span></button>
+            </div>
+            <div class="fmt-group">
+                <button data-cmd="removeFormat" title="Clear formatting"><span class="material-symbols-outlined">format_clear</span></button>
+            </div>
+        </div>
     </div>
 
     <div id="content">
