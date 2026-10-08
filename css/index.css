@@ -509,9 +509,9 @@ body.hide-break-links .break-link-button {
     flex-direction: column;
     gap: 6px;
     padding: 6px;
-    border-radius: 14px;
+    border-radius: 99px;
     background: var(--sidebar-color);
-    border: 1px solid var(--border-color);
+    border: 1px solid alpha(from var(--border-color) / 0.8);
     box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
     color: var(--text-color);
 
@@ -537,7 +537,7 @@ body.hide-break-links .break-link-button {
 
 /* divider between groups */
 .fmt-group + .fmt-group {
-    border-top: 1px solid var(--border-color);
+    border-top: 1px solid alpha(from var(--border-color) / 0.8);
     padding-top: 6px;
 }
 
@@ -548,19 +548,20 @@ body.hide-break-links .break-link-button {
     height: 36px;
     padding: 0;
     border: none;
-    border-radius: 8px;
-    background: transparent;
-    color: inherit;
+    border-radius: 100%;
+    /*background: transparent;*/
+    /*color: inherit;*/
     cursor: pointer;
 }
 
-#format-toolbar button:hover {
+/*#format-toolbar button:hover {
     background: var(--transparent-color);
-}
+}*/
 
 #format-toolbar button.active {
     background: var(--text-color);
     color: var(--background-color);
+    background-position: 100%;
 }
 
 /* lists inside cards */
@@ -570,11 +571,36 @@ body.hide-break-links .break-link-button {
     padding-left: 1.5em;
 }
 
-/* lists inside cards */
-.text ul,
-.text ol {
-    margin: 0;
-    padding-left: 1.5em;
+/* Floating variant: horizontal, anchored to the card being edited */
+#format-toolbar.floating {
+    right: auto;
+    flex-direction: row;
+    gap: 4px;
+    padding: 5px;
+    border-radius: 999px;
+    transform: translateY(8px) scale(0.96); /* hidden: slightly low and small */
+    transform-origin: bottom center;
+}
+
+#format-toolbar.floating.visible {
+    transform: translateY(0) scale(1);
+}
+
+#format-toolbar.floating .fmt-group {
+    flex-direction: row;
+}
+
+/* divider is now vertical */
+#format-toolbar.floating .fmt-group + .fmt-group {
+    border-top: none;
+    padding-top: 0;
+    border-left: 1px solid alpha(from var(--border-color) / 0.5);
+    padding-left: 4px;
+}
+
+#format-toolbar.floating button {
+    width: 32px;
+    height: 32px;
 }
 
 @media print {
@@ -867,12 +893,18 @@ input[type="file"] {
     align-items: center;
     justify-content: center;
     gap: 4px;
-    padding: 8px;
+    padding: 8px 18px;
     padding-bottom: 16px;
+    margin-bottom: 12px;
+}
+
+#settings fieldset legend {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
 }
 
 #settings input[type="radio"] {
-    margin-left: 1em;
+    margin-left: 0.7em;
 }
 
 #settings #snap-margin {

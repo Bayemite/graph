@@ -250,9 +250,3 @@ button,
 #format-toolbar.visible {
     transition-delay: 0s;
 }
-
-#format-toolbar button {
-    transition:
-        background 0.15s ease,
-        color 0.15s ease;
-}

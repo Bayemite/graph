@@ -1712,6 +1712,7 @@ export function addLinkDisplayListener() {
 
 export function addFormatListeners() {
     const toolbar = document.getElementById("format-toolbar");
+    applyFormatToolbarMode();
 
     // Keep focus and selection in the card while clicking toolbar buttons
     toolbar.addEventListener("mousedown", (e) => e.preventDefault());
@@ -1723,19 +1724,42 @@ export function addFormatListeners() {
         updateFormatState(toolbar);
     });
 
+    // Anchor the toolbar above the card being edited (below if no room)
+    const place = () => {
+        const active = document.activeElement;
+        if (!isFloatingToolbar() || !active?.isContentEditable) return;
+
+        const r = active.getBoundingClientRect();
+        const w = toolbar.offsetWidth;
+        const h = toolbar.offsetHeight;
+        const gap = 20;
+        const margin = 8;
+
+        let top = r.top - h - gap;
+        if (top < margin) top = r.bottom + gap;
+        top = clamp(top, margin, window.innerHeight - h - margin);
+
+        const left = clamp(
+            r.left + r.width / 2 - w / 2,
+            margin,
+            window.innerWidth - w - margin,
+        );
+
+        toolbar.style.left = left + "px";
+        toolbar.style.top = top + "px";
+    };
+
     const refresh = () => {
         const editing = document.activeElement?.isContentEditable ?? false;
+        if (editing) place(); // position before it fades in
         toolbar.classList.toggle("visible", editing);
         if (editing) updateFormatState(toolbar);
     };
 
     document.addEventListener("selectionchange", refresh);
     document.addEventListener("focusin", refresh);
-    // Wait a tick so activeElement has settled on its new target
     document.addEventListener("focusout", () => setTimeout(refresh, 0));
 
-    // Clicking anywhere outside the editor and toolbar (e.g. the background)
-    // ends editing. Capture phase so other handlers can't swallow the event.
     document.addEventListener(
         "pointerdown",
         (e) => {
@@ -1747,6 +1771,14 @@ export function addFormatListeners() {
         },
         true,
     );
+
+    // Follow the card while panning, zooming, resizing or typing
+    // (cheap: does nothing unless the toolbar is visible)
+    const follow = () => {
+        if (toolbar.classList.contains("visible")) place();
+        requestAnimationFrame(follow);
+    };
+    follow();
 }
 
 function updateFormatState(toolbar) {
@@ -1797,6 +1829,8 @@ async function getSettings() {
     if (settings.defaultShape === undefined)
         settings.defaultShape = "rectangle";
     if (settings.snapMargin === undefined) settings.snapMargin = 3;
+    if (settings.formatToolbar === undefined)
+        settings.formatToolbar = "floating";
 
     return settings;
 }
@@ -1813,6 +1847,9 @@ function extractSettings(tag) {
         "input[name='default-shape']:checked",
     ).value;
     settings.snapMargin = tag.querySelector("#snap-margin").value;
+    settings.formatToolbar = tag.querySelector(
+        "input[name='format-toolbar']:checked",
+    ).value;
     return settings;
 }
 
@@ -1827,6 +1864,24 @@ export async function loadSettings(tag = null) {
     document.getElementById("animations-stylesheet").disabled =
         !settings.animations;
     window.settings = settings;
+    applyFormatToolbarMode();
+}
+
+export function isFloatingToolbar() {
+    return window.settings?.formatToolbar !== "docked";
+}
+
+function applyFormatToolbarMode() {
+    const toolbar = document.getElementById("format-toolbar");
+    if (!toolbar) return;
+
+    toolbar.classList.toggle("floating", isFloatingToolbar());
+
+    // Inline left/top from the floating mode would override the docked CSS
+    if (!isFloatingToolbar()) {
+        toolbar.style.left = "";
+        toolbar.style.top = "";
+    }
 }
 
 export async function settingsTag() {
@@ -1861,6 +1916,16 @@ export async function settingsTag() {
                 <span>pixels</span>
                 </div>
             </fieldset>
+
+            <fieldset id="format-toolbar-setting">
+                <legend>Formatting Toolbar</legend>
+                <div>
+                <input type="radio" name="format-toolbar" id="toolbar-floating" value="floating">
+                <label for="toolbar-floating">Above card</label>
+                <input type="radio" name="format-toolbar" id="toolbar-docked" value="docked">
+                <label for="toolbar-docked">Right side</label>
+                </div>
+            </fieldset>
         `,
     );
     t.id = "settings";
@@ -1872,6 +1937,10 @@ export async function settingsTag() {
         .querySelector("#default-shape")
         .querySelector(`#${settings.defaultShape}`);
     defaultShapeRadio.setAttribute("checked", true);
+
+    t.querySelector(
+        `input[name='format-toolbar'][value='${settings.formatToolbar}']`,
+    ).setAttribute("checked", true);
 
     let anims = t.querySelector("#enable-anims");
     anims.checked = settings.animations;
